@@ -6,6 +6,8 @@ Created on Thu Oct 22 17:43:12 2020
 
 Screwing around with API to retrieve overpass times. There are limits to the
 size of the URL request.
+
+This script is unfinished but not sure if we need it at this point.
 """
 
 import geopandas as gpd
