@@ -13,7 +13,9 @@ from scipy.spatial import cKDTree
 
 path_alldata = r"C:\Users\Jon\Desktop\Research\ICoM\Data\VECOS Dataflow\VECOS_Dataflow.csv" # path to full observation dataset
 path_bounding_poly = r"C:\Users\Jon\Desktop\Research\ICoM\satval\Data\Boundaries\delaware_chesapeake.shp"
+path_modis_pixel_centers = r'C:\Users\Jon\Desktop\Research\ICoM\satval\Data\MYDOCGA\pixel_centers.shp'
 path_out = r'C:\Users\Jon\Desktop\Research\ICoM\Data\test_out.csv' # path to save dataset with location and pixel ids appended
+
 ds = pd.read_csv(path_alldata)
 
 # Give each location a unique lat/lon
@@ -41,7 +43,7 @@ modis_shape = (43200,21600) # ncols, nrows
 # We need to reproject the lat/lon coordinates to match the projection of the MODIS grid
 unique_df = unique_df.to_crs(CRS.from_proj4(modis_proj4))
 
-# Get pixel centers and ids
+# Get pixel centers and ids (can just load in the shapefile if already created)
 p_idx = np.arange(0, np.product(modis_shape))
 r, c = np.unravel_index(p_idx, modis_shape[::-1])
 lons = modis_gt[2] + modis_gt[0] * c + modis_gt[0]/2
@@ -55,6 +57,15 @@ out = np.logical_or(lons < extents[0], np.logical_or(lons > extents[2], np.logic
 p_idx = p_idx[~out]
 lons = lons[~out]
 lats = lats[~out]
+
+# Export the modis pixel centers
+pix_centers = gpd.GeoDataFrame(geometry=[Point(lon, lat) for lon, lat in zip(lons, lats)], crs=CRS.from_proj4(modis_proj4))
+pix_centers['p_idx'] = p_idx
+pix_centers.to_file(path_modis_pixel_centers)
+pc = gpd.read_file(path_modis_pixel_centers)
+lats = [g.coords.xy[1][0] for g in pc.geometry.values]
+lons = [g.coords.xy[0][0] for g in pc.geometry.values]
+p_idx = pc.p_idx.values
 
 # Build a kd-tree of the points (this can take awhile)
 ckd_tree = cKDTree(list(zip(lons, lats)))
