@@ -19,8 +19,8 @@ Note that exported times are in UTC (equivalent to GMT).
 import pandas as pd
 from datetime import datetime, timedelta
 
-path_names = r"C:\Users\Jon\Desktop\Research\ICoM\Data\MODIS-Aqua\all_chesapeake_swaths_oceancolor.xlsx"
-path_out = r"C:\Users\Jon\Desktop\Research\ICoM\Data\MODIS-Aqua\aqua_chesapeake_overpass_times.csv"
+path_names = r"C:\Users\Jon\Desktop\Research\ICoM\satval\Data\MODIS-Aqua\all_chesapeake_swaths_oceancolor.xlsx"
+path_out = r"C:\Users\Jon\Desktop\Research\ICoM\satval\Data\MODIS-Aqua\aqua_chesapeake_overpass_times.csv"
 
 name_df = pd.read_excel(path_names)
 names = name_df.Name.values
@@ -61,3 +61,12 @@ for u in uniques:
 
 out = pd.DataFrame(data={'date': uniques, 'start': starts, 'end': ends, 'n':n, 'filenames':fnames})
 out.to_csv(path_out, index=False)
+
+# Make a histogram of first and last overpass times per day
+from matplotlib import pyplot as plt
+plt.close('all')
+plt.hist(starts)
+plt.hist(ends)
+plt.legend(['First overpass', 'Last overpass'])
+plt.xlabel('Hour of day (UTC)')
+plt.ylabel('N overpasses')
