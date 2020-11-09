@@ -3,6 +3,14 @@
 Created on Thu Oct 22 19:08:47 2020
 
 @author: Jon
+
+This script maps each point in an observation database to its nearest pixel
+of a global dataset. Designed for MODIS-Aqua, but if the geotransform is known
+for any dataset, those parameters can be plugged in. The result is a datset
+of the same size, but with new columns:
+    'loc_id' : a unique integer ID for each unique location in the dataset
+    'pix_id' : the pixel index within the global image which the observation
+               maps to.
 """
 import numpy as np
 import geopandas as gpd
@@ -11,7 +19,7 @@ import pandas as pd
 from pyproj import CRS
 from scipy.spatial import cKDTree
 
-path_alldata = r"C:\Users\Jon\Desktop\Research\ICoM\Data\all_data.csv" # path to full observation dataset
+path_alldata = r"C:\Users\Jon\Desktop\Research\ICoM\Data\all_data.csv" # path to full, raw observation dataset
 path_bounding_poly = r"C:\Users\Jon\Desktop\Research\ICoM\satval\Data\Boundaries\delaware_chesapeake.shp"
 path_modis_pixel_centers = r'C:\Users\Jon\Desktop\Research\ICoM\satval\Data\MYDOCGA\pixel_centers.shp'
 path_out = r'C:\Users\Jon\Desktop\Research\ICoM\Data\all_data_w_pixel_ids.csv' # path to save dataset with location and pixel ids appended
@@ -97,6 +105,7 @@ ds.to_csv(path_out, index=False)
 # pix_centers = pix_centers.to_crs(CRS.from_epsg(4326))
 # pix_centers.to_file(r'C:\Users\Jon\Desktop\Research\ICoM\Data\modis_pixel_centers.shp')
 
+
 # Debugging
 unique_df.iloc[np.where(idx==182299)]
 u_keys[u_vals.index(7004257)]
@@ -110,3 +119,8 @@ n = 100000
 randoms = list(set([random.randrange(0, len(ds)) for i in range(n)]))
 ds_reduced = ds.iloc[randoms]
 ds_reduced.to_csv(r"C:\Users\Jon\Desktop\Research\ICoM\Data\all_data_w_pixel_ids_sampled.csv", index=False)
+
+# GEE requires a non NaN-type for nodata. Set them all to -9999.
+df = pd.read_csv(path_out)
+df = df.replace(np.nan, -9999)
+df.to_csv(path_out, index=False)
