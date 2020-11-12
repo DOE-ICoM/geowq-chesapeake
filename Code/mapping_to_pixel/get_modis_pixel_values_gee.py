@@ -126,3 +126,12 @@ task = ee.batch.Export.table.toDrive(
 task.start()
 
 
+# Formatting dates for GEE ingestion
+import pandas as pd
+
+df = pd.read_csv(r"C:\Users\Jon\Desktop\Research\ICoM\Data\unique_pixeldays_test.csv")
+dts = [pd.to_datetime(dt) for dt in df.datetime.values]
+ymd = [str(d.year)+'-'+str(d.month)+'-'+str(d.day) for d in dts]
+df['datetime'] = ymd
+df = df.iloc[:100]
+df.to_csv(r"C:\Users\Jon\Desktop\Research\ICoM\Data\unique_pixeldays_ymd.csv", index=False)

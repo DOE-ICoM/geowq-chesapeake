@@ -46,7 +46,7 @@ unique_df['loc_id'] = u_vals
 # Map the locations to their proper pixels
 # We only need to map the unique locations
 
-# Some MODIS grid info for MYDOCGA
+# Some MODIS grid info for MYDOCGAv006
 modis_proj4 = '+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs' # pulled from GEE
 modis_gt = (926.625433056, 0, -20015109.354, 0, -926.625433055, 10007554.677) # geotransform pulled from GEE: (xScale, xShearing, xTranslation, yShearing, yScale, yTranslation)
 modis_shape = (43200,21600) # ncols, nrows
