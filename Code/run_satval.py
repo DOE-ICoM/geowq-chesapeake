@@ -4,9 +4,7 @@ Created on Tue Nov 10 13:53:35 2020
 
 @author: Jon
 
-TODO: 
-    3. implement aggregations to pixeldays
-
+env: icomdata
 """
 import sys
 sys.path.append(r'C:\Users\Jon\Desktop\Research\ICoM\satval\Code')
@@ -17,7 +15,7 @@ paths = {}
 paths['data'] = r"C:\Users\Jon\Desktop\Research\ICoM\Data\all_data.csv"
 paths['bounding_pgon'] = r"C:\Users\Jon\Desktop\Research\ICoM\satval\Data\Boundaries\chk_water_only.geojson"
 paths['pixel_centers'] = r"C:\Users\Jon\Desktop\Research\ICoM\satval\Data\MYDOCGA\pixel_centers.shp"
-paths['aggregated'] = r"C:\Users\Jon\Desktop\Research\ICoM\Data\all_data_subset_aggregated.csv"
+paths['aggregated'] = r"C:\Users\Jon\Desktop\Research\ICoM\Data\all_data_aggregated.csv"
 gee_filename = 'chk_del_full_bandvals'
 gdrive_folder = 'ICOM exports'
 
