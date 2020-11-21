@@ -74,10 +74,10 @@ modis_assets = {'daily_500m' : "MODIS/006/MYD09GA",
                 'daily_1000m' : 'MODIS/006/MYDOCGA'}
 
 # Set parameters of analysis
-params = params = {
+params = {
         'asset' : 'daily_1000m',
         'window': [17.1,19.3],  # valid day times in decimal hours between 0 and 24
-        'max_depth': 1,  # Maximum depth of in-situ observation s
+        'max_depth': 1.01,  # Maximum depth of in-situ observation s
         'scale_meters': 1000,  # Modis scale
         'output_dir': 'ICOM',
         'name_field': 'del_chk_obs_w_modis_bands',
@@ -135,3 +135,4 @@ ymd = [str(d.year)+'-'+str(d.month)+'-'+str(d.day) for d in dts]
 df['datetime'] = ymd
 df = df.iloc[:100]
 df.to_csv(r"C:\Users\Jon\Desktop\Research\ICoM\Data\unique_pixeldays_ymd.csv", index=False)
+

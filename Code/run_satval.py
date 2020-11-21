@@ -3,41 +3,39 @@
 Created on Tue Nov 10 13:53:35 2020
 
 @author: Jon
+
+TODO: 
+    3. implement aggregations to pixeldays
+
 """
 import sys
 sys.path.append(r'C:\Users\Jon\Desktop\Research\ICoM\satval\Code')
 from satval_class import satval
 
+""" The following block represents inputs that MUST be defined before running. """
 paths = {}
-paths['data'] = r"C:\Users\Jon\Desktop\Research\ICoM\Data\all_data_subset.csv"
-paths['bounding_pgon'] = r"C:\Users\Jon\Desktop\Research\ICoM\satval\Data\Boundaries\delaware_chesapeake.shp"
+paths['data'] = r"C:\Users\Jon\Desktop\Research\ICoM\Data\all_data.csv"
+paths['bounding_pgon'] = r"C:\Users\Jon\Desktop\Research\ICoM\satval\Data\Boundaries\chk_water_only.geojson"
 paths['pixel_centers'] = r"C:\Users\Jon\Desktop\Research\ICoM\satval\Data\MYDOCGA\pixel_centers.shp"
 paths['aggregated'] = r"C:\Users\Jon\Desktop\Research\ICoM\Data\all_data_subset_aggregated.csv"
+gee_filename = 'chk_del_full_bandvals'
+gdrive_folder = 'ICOM exports'
 
-use_hours = [17.1, 19.3] # which hours of the day to filter the observations to
-max_depth = 1. # what is the deepest measurement to keep
-data_columns = ['SST (C)', 'tubidity (NTU)', 'SSS (psu)']
-satellite_data = 'MYDOCGA.006'
+hours_filt = [17.1, 19.3] # which hours of the day to filter the observations to
+depth_filt = [0, 1] # what is the deepest measurement to keep
+data_columns = ['SST (C)', 'turbidity (NTU)', 'SSS (psu)', 'depth (m)'] # which data should be kept and aggregated
+satellite_data = 'MYDOCGA.006' # GEE ID of dataset we want pixel values from
+frac_pixel_thresh = .9 # what fraction of each pixel must be inside the AOI polygon to include it
 
-cd = satval(paths, filters={'max_depth': 1, 'hours': use_hours})
+filters = {'depth (m)': depth_filt, 'time_of_day' : hours_filt}
 
-cd.filter_by(hours=use_hours, depth=max_depth) 
 
+""" Processing begins here. """
+cd = satval(paths, filters=filters)
 cd.assign_unique_location_ids()
-cd.map_locations_to_pixels(dataset = satellite_data)
+cd.map_coordinates_to_pixels(dataset=satellite_data, frac_pixel_thresh=frac_pixel_thresh)
+cd.aggregate_data_to_unique_pixeldays(datacols=data_columns)
+# Export the aggregated dataframe
+cd.aggregated.to_csv(paths['aggregated'], index=False)
+cd.start_gee_bandval_retrieval(satellite_data, gee_filename, gdrive_folder=gdrive_folder)
 
-
-import modin.pandas as pd
-import time
-t = time.time()
-path_df = r"C:\Users\Jon\Desktop\Research\ICoM\Data\all_data.csv"
-pd.read_csv(path_df, sep=',', usecols=['datetime', 'longitude', 'latitude'], 
-                            parse_dates = ['datetime'], squeeze=True)
-print(time.time()-t)
-
-import pandas as pd
-import time
-t = time.time()
-pd.read_csv(path_df, sep=',', usecols=['datetime', 'longitude', 'latitude'], 
-                            parse_dates = ['datetime'], squeeze=True)
-print(time.time()-t)
