@@ -28,7 +28,8 @@ def satellite_params(dataset):
 
     Returns
     -------
-    None.
+    ds_params : dict
+        Contains the projection, geotransform, and shape of the dataset.
 
     """
     ds_params = {}
@@ -154,10 +155,29 @@ def pixel_centers_gdf(crs_params, path_bounding_pgon=None, frac_pixel_thresh=Non
 
 
 def katana(geometry, threshold, count=0):
-    """Split a Polygon into two parts across it's shortest dimension.
-        This function was pasted from 
-        https://snorfalorpagus.net/blog/2016/03/13/splitting-large-polygons-for-faster-intersections/
     """
+    Recursively splits a Polygon into parts across its shortest dimension. 
+    The goal here is to break a large and/or complex polygon into a set of 
+    smaller ones for faster overlay/intersection operations.
+    
+    This function was pasted from 
+    https://snorfalorpagus.net/blog/2016/03/13/splitting-large-polygons-for-faster-intersections/
+    
+    Parameters
+    ----------
+    geometry : shapely.Polygon
+        The geometry of the polygon to split.
+    threshold : float
+        The minimum size of the split polygons.
+    count : int
+        Maximum number of "iterations" (really it's recursions)
+    
+    Returns
+    -------
+    out : list of shapely.Polygon objects
+        The split polygons that together comprise the original.
+    """
+
     bounds = geometry.bounds
     width = bounds[2] - bounds[0]
     height = bounds[3] - bounds[1]
@@ -184,13 +204,14 @@ def katana(geometry, threshold, count=0):
     if count > 0:
         return result
     # convert multipart into singlepart
-    final_result = []
+    out = []
     for g in result:
         if isinstance(g, MultiPolygon):
-            final_result.extend(g)
+            out.extend(g)
         else:
-            final_result.append(g)
-    return final_result
+            out.append(g)
+
+    return out
 
 
 def map_pts_to_pixels(pix_centers, coords_df, crs_params):
@@ -238,18 +259,24 @@ def map_pts_to_pixels(pix_centers, coords_df, crs_params):
     return nearest_pix_ids, dists
     
 
-def aggregate_to_pixeldays(df, datacols):
+def aggregate_to_pixeldays(df, datacols, by='pixelday'):
     """
-    Averages all the observations for each unique date/location.
+    Averages all the observations for each unique date/location. Note that
+    currently 
 
     Parameters
     ----------
     df : pandas DataFrame
         Contains the observations and a field over which to aggregate.
+    datacols : list
+        Column names of the data to aggregate.
+    by : str
+        The column name over which to group.
 
     Returns
     -------
-    None.
+    grouped : pandas DataFrame
+        The aggregated dataframe.
 
     """
     
@@ -283,7 +310,7 @@ def aggregate_to_pixeldays(df, datacols):
     
         return pd.Series(do_agg, index=list(aggs.keys())) # This is only guaranteed in Python 3.6+ because dictionaries are ordered therein
     
-    grouped = df.groupby(by='pixelday').apply(res_agg, args=datacols) 
+    grouped = df.groupby(by=by).apply(res_agg, args=datacols) 
     # grouped = grouped.reset_index()
 
     return grouped

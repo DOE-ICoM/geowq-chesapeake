@@ -9,7 +9,9 @@ a csv of observations that include latitude, longitude.
 
 Note that modin is used for parallelization of pandas tasks. Testing shows that
 this greatly reduces read times. If modin doesn't have a pandas functionality 
-implemented yet, it falls back to pandas.
+implemented yet, it falls back to pandas. Update: modin parallelizes groupby.apply()
+functions by column (rather than by group), so it cannot be used for this as
+we apply different aggregations to different columns.
 """
 import numpy as np
 import satval_utils as svu
@@ -27,7 +29,8 @@ import pandas as pd
 class satval():
     
     def __init__(self, paths, filters=None, 
-                 column_map={'datetime':'datetime', 'longitude':'longitude', 'latitude':'latitude'}):    
+                 column_map={'datetime':'datetime', 'longitude':'longitude', 'latitude':'latitude'},
+                 verbose=True):    
         
         # Ensure the required paths are set
         err = False
@@ -39,6 +42,7 @@ class satval():
             raise KeyError()
         
         self.paths = paths
+        self.verbose = verbose
         
         # Ensure the columns are parseable
         self.column_names = pd.read_csv(self.paths['data'], nrows=1).columns.tolist()
@@ -50,6 +54,8 @@ class satval():
             print('Specify the correct "latitude" column.')
                         
         # Get a vector of dates and locations
+        if self.verbose is True:
+            print('Loading in dates and locations from observations file...')
         self.dateloc = pd.read_csv(self.paths['data'], sep=',', usecols=[column_map['datetime'],column_map['longitude'], column_map['latitude']], 
                             parse_dates = [column_map['datetime']], squeeze=True)
 
@@ -63,6 +69,8 @@ class satval():
         if n_pre - n_post > 0:
             print('{} entries were removed due to nan values.'.format(n_pre-n_post))
  
+        if self.verbose is True:
+            print('Finding observations within the supplied polygon...')
         # Determine which points are outside the bounds of the provided bounding polygon
         gdf_pgon = gpd.read_file(self.paths['bounding_pgon'])
         if gdf_pgon.crs.to_epsg() != 4326:
@@ -74,7 +82,7 @@ class satval():
         outside_points_idx = np.array(list(set(points.index.values.flatten()) - set(inside_points.index.values.flatten())))
         self.skiprows[outside_points_idx] = True
     
-        # Determine valid rows using filters
+        # Determine valid rows using supplied filters
         if filters is not None:
             for f in filters.keys():
                 if f == 'time_of_day':
@@ -86,6 +94,9 @@ class satval():
                            
                     
         # Check for duplicate entries here
+        if self.verbose is True:
+            print('Removing duplicate entries and rows with nodata in time/location...')
+
         duplicates = self.dateloc.duplicated()
         self.skiprows[duplicates.values] = True
                     
@@ -101,7 +112,9 @@ class satval():
         Computes a unique location id for each entry in the dataset and appends
         this to the dateloc dataframe.
         """
-        
+        if self.verbose is True:
+            print('Generating unique location ids...')
+
         lonlats = list(zip(self.dateloc.longitude.values, self.dateloc.latitude.values))
         uniques = set(lonlats)
         unique_ids = np.arange(0, len(uniques))
@@ -110,18 +123,24 @@ class satval():
         self.dateloc['loc_id'] = lonlat_ids
         
 
-    def map_coordinates_to_pixels(self, dataset='MYDOCGA.006', frac_pixel_thresh=None):
+    def map_coordinates_to_pixels(self, dataset, frac_pixel_thresh=None):
         if 'loc_id' not in self.dateloc.keys():
             raise('Must assign unique location ids before mapping.')
 
         self.crs_params = svu.satellite_params(dataset)
         
+        if self.verbose is True:
+            print('Creating or reading shapefile of pixel centers...')
+            
         # Create GeoDataFrame with pixel centers
         if os.path.isfile(self.paths['pixel_centers']) is True:
             self.gdf_pix_centers = gpd.read_file(self.paths['pixel_centers'])
         else:
             self.gdf_pix_centers = svu.pixel_centers_gdf(self.crs_params, path_bounding_pgon=self.paths['bounding_pgon'], frac_pixel_thresh=frac_pixel_thresh)
             self.gdf_pix_centers.to_file(self.paths['pixel_centers'])
+
+        if self.verbose is True:
+            print('Mapping observations to their nearest pixel centers...')
 
         # Map observation locations to pixel centers
         self.dateloc['pix_id'], self.dateloc['nearest_pix_dist'] = svu.map_pts_to_pixels(self.gdf_pix_centers, self.dateloc, self.crs_params)
@@ -133,6 +152,9 @@ class satval():
         for dc in datacols:
             if dc not in self.column_names:
                 raise KeyError('{} is not found in the .csv'.format(dc))
+
+        if self.verbose is True:
+            print('Loading requested observations from data file...')
 
         # Add a 'pixelday' field to aggregate over unique pixel/day combos
         self.dateloc['pixelday'] = [str(pid) + '_' + str(dt.year) + '{:02d}'.format(dt.month) + '{:02d}'.format(dt.day) for pid, dt in zip(self.dateloc.pix_id.values, self.dateloc.datetime)]
@@ -146,12 +168,19 @@ class satval():
             self.dateloc[dc] = data_df[dc]
         del data_df
         
+        if self.verbose is True:
+            print('Filtering rows whose observations are all NaN...')
+
         # Filter out observations that are too far away from a pixel
         thresh_dist = np.sqrt(self.crs_params['gt'][0]**2 + self.crs_params['gt'][4]**2)*1.01
         self.dateloc = self.dateloc[self.dateloc.nearest_pix_dist<=thresh_dist]
         
         # Remove rows whose data columns are all nans
         self.dateloc = self.dateloc.dropna(subset = datacols, how='all')
+        
+        if self.verbose is True:
+            print('Aggregating observations to unique pixel/days...')
+
         self.aggregated = svu.aggregate_to_pixeldays(self.dateloc, datacols)
 
 
@@ -165,7 +194,9 @@ class satval():
         self.task is added as an attribute; this may be queried to check the
         status of the task with 'self.task.state'.
         """
-        
+        if self.verbose is True:
+            print('Making GeoDataFrame for upload to GEE...')
+
         # Create a geodataframe for conversion to EE FeatureCollection
         # Only need the geometry, system:time_start, and pixelday
         gee_gdf = gpd.GeoDataFrame(geometry=[Point(lo, la) for lo, la in zip(self.aggregated.longitude.values, self.aggregated.latitude.values)], 
@@ -174,6 +205,9 @@ class satval():
         for prop in copy_props:
             gee_gdf[prop] = self.aggregated[prop].values
         
+        if self.verbose is True:
+            print('Uploading table and submitting task to GEE...')
+
         # Begins a GEE task to export a .csv with band values from dataset
         self.task = svu.gee_fetch_bandvals(gee_gdf, dataset, filename, gdrive_folder)
         
