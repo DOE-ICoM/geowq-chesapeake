@@ -16,9 +16,11 @@ we apply different aggregations to different columns.
 import numpy as np
 import satval_utils as svu
 import os
+import ee
 import geopandas as gpd
 from shapely.geometry import Point
 from pyproj.crs import CRS
+from pyproj import Transformer
 # try:
 #     import modin.pandas as pd
 # except:
@@ -26,23 +28,23 @@ from pyproj.crs import CRS
 import pandas as pd
 
 
+
 class satval():
     
-    def __init__(self, paths, filters=None, 
+    def __init__(self,
+                 path_data, 
+                 path_base,
+                 path_bounding_pgon,
+                 satellite,
+                 filters=None, 
                  column_map={'datetime':'datetime', 'longitude':'longitude', 'latitude':'latitude'},
                  verbose=True):    
         
-        # Ensure the required paths are set
-        err = False
-        for k in ['data', 'bounding_pgon', 'pixel_centers', 'aggregated']:
-            if k not in paths.keys():
-                print('{} path must be specified in supplied paths.'.format(k))
-                err = True
-        if err is True:
-            raise KeyError()
-        
-        self.paths = paths
+        self.paths = svu.prepare_paths(path_base, path_data, path_bounding_pgon)
+        self.satellite = satellite
+        self.crs_params = svu.satellite_params(satellite)
         self.verbose = verbose
+        self.ndata = {} # Dictionary to store how much data remain after various filtering, aggregating, etc.
         
         # Ensure the columns are parseable
         self.column_names = pd.read_csv(self.paths['data'], nrows=1).columns.tolist()
@@ -58,20 +60,23 @@ class satval():
             print('Loading in dates and locations from observations file...')
         self.dateloc = pd.read_csv(self.paths['data'], sep=',', usecols=[column_map['datetime'],column_map['longitude'], column_map['latitude']], 
                             parse_dates = [column_map['datetime']], squeeze=True)
+        self.ndata['raw'] = self.dateloc.shape[0]
 
         # Create an array to store the locations of rows to skip
         self.skiprows = np.zeros(len(self.dateloc), dtype=np.bool)
+        self.skiprows_id = np.zeros(len(self.dateloc), dtype=np.int)
         
         # Determine any dates and/or locations with NaNs
-        n_pre = self.dateloc.shape[0]
-        self.skiprows[pd.isna(self.dateloc).sum(axis=1)] = True
-        n_post = self.dateloc.shape[0]
-        if n_pre - n_post > 0:
-            print('{} entries were removed due to nan values.'.format(n_pre-n_post))
+        r_na, _ = np.where(self.dateloc.isna())
+        self.skiprows[r_na] = True
+        self.skiprows_id[r_na] = 1
+        self.ndata['dateloc_nan_post'] = len(self.skiprows) - np.sum(self.skiprows)
+        if len(r_na) > 0:
+            print('{} entries were removed due to nan values in datetime or lat/lon columns.'.format(len(r_na)))
  
+        # Determine which points are outside the bounds of the provided bounding polygon
         if self.verbose is True:
             print('Finding observations within the supplied polygon...')
-        # Determine which points are outside the bounds of the provided bounding polygon
         gdf_pgon = gpd.read_file(self.paths['bounding_pgon'])
         if gdf_pgon.crs.to_epsg() != 4326:
             gdf_pgon = gdf_pgon.to_crs(CRS.from_epsg(4326))
@@ -81,17 +86,25 @@ class satval():
         inside_points = gpd.sjoin(points, gdf_pgon, op='within')
         outside_points_idx = np.array(list(set(points.index.values.flatten()) - set(inside_points.index.values.flatten())))
         self.skiprows[outside_points_idx] = True
+        self.skiprows_id[outside_points_idx] = 2
+        self.ndata['bounding_box_post'] = len(self.skiprows) - np.sum(self.skiprows) 
     
+        if self.verbose is True:
+            print('Applying user-supplied filters...')
         # Determine valid rows using supplied filters
         if filters is not None:
             for f in filters.keys():
                 if f == 'time_of_day':
                     decimal_hours = np.array([t.hour + t.minute/60 + t.second/3600 for t in self.dateloc.datetime])
-                    self.skiprows[np.logical_and(decimal_hours>filters[f][0], decimal_hours<=filters[f][1])] = True
+                    self.skiprows[np.logical_and(decimal_hours<filters[f][0], decimal_hours>filters[f][1])] = True
+                    self.skiprows_id[np.logical_and(decimal_hours<filters[f][0], decimal_hours>filters[f][1])] = 3
+
                 else:
                     data_to_filter = pd.read_csv(self.paths['data'], usecols = [f])
-                    self.skiprows[np.logical_and(data_to_filter.values>filters[f][0], data_to_filter.values<=filters[f][1]).flatten()] = True
-                           
+                    self.skiprows[np.logical_and(data_to_filter.values<filters[f][0], data_to_filter.values>filters[f][1]).flatten()] = True
+                    self.skiprows_id[np.logical_and(data_to_filter.values<filters[f][0], data_to_filter.values>filters[f][1]).flatten()] = 4
+
+        self.ndata['filter_post'] = len(self.skiprows) - np.sum(self.skiprows)
                     
         # Check for duplicate entries here
         if self.verbose is True:
@@ -99,13 +112,12 @@ class satval():
 
         duplicates = self.dateloc.duplicated()
         self.skiprows[duplicates.values] = True
-                    
-        # Apply filters
+        self.skiprows_id[duplicates.values] = 5
+        self.ndata['duplicates'] = len(self.skiprows) - np.sum(self.skiprows)
+        
+        # Apply all filters to include only valid data
         self.dateloc = self.dateloc[~self.skiprows]
-        
-        # Compute GEE times
-        self.dateloc['system:time_start'] = (pd.to_datetime(self.dateloc['datetime'].values).astype(np.int64) / int(1e6)).astype(np.int64)
-        
+               
                                   
     def assign_unique_location_ids(self):
         """
@@ -121,13 +133,12 @@ class satval():
         unique_map = {k:v for k, v in zip(uniques, unique_ids)}
         lonlat_ids = [unique_map[ll] for ll in lonlats]
         self.dateloc['loc_id'] = lonlat_ids
+        self.dateloc.to_csv(self.paths['filtered'], index=False)
         
 
-    def map_coordinates_to_pixels(self, dataset, frac_pixel_thresh=None):
+    def map_coordinates_to_pixels(self, frac_pixel_thresh=None):
         if 'loc_id' not in self.dateloc.keys():
             raise('Must assign unique location ids before mapping.')
-
-        self.crs_params = svu.satellite_params(dataset)
         
         if self.verbose is True:
             print('Creating or reading shapefile of pixel centers...')
@@ -143,8 +154,13 @@ class satval():
             print('Mapping observations to their nearest pixel centers...')
 
         # Map observation locations to pixel centers
-        self.dateloc['pix_id'], self.dateloc['nearest_pix_dist'] = svu.map_pts_to_pixels(self.gdf_pix_centers, self.dateloc, self.crs_params)
+        self.dateloc['pix_id'], self.dateloc['nearest_pix_dist'], pix_ys, pix_xs = svu.map_pts_to_pixels(self.gdf_pix_centers, self.dateloc, self.crs_params)
         
+        # Replace latitude and longitude of each point with its nearest pixel lat/lon
+        # Must convert pixel center coordinates to 4326
+        transformer = Transformer.from_crs(self.crs_params['proj4'], "EPSG:4326", always_xy=True)
+        self.dateloc.longitude, self.dateloc.latitude = transformer.transform(pix_xs, pix_ys)
+   
     
     def aggregate_data_to_unique_pixeldays(self, datacols):
         
@@ -158,7 +174,7 @@ class satval():
 
         # Add a 'pixelday' field to aggregate over unique pixel/day combos
         self.dateloc['pixelday'] = [str(pid) + '_' + str(dt.year) + '{:02d}'.format(dt.month) + '{:02d}'.format(dt.day) for pid, dt in zip(self.dateloc.pix_id.values, self.dateloc.datetime)]
-        
+                
         # Load the desired variables and add to dateloc dataframe       
         skiprowlocs = np.where(self.skiprows==True)[0] + 1 # Have to add one to account for header
         data_df = pd.read_csv(self.paths['data'], sep=',', usecols=datacols,
@@ -172,8 +188,9 @@ class satval():
             print('Filtering rows whose observations are all NaN...')
 
         # Filter out observations that are too far away from a pixel
-        thresh_dist = np.sqrt(self.crs_params['gt'][0]**2 + self.crs_params['gt'][4]**2)*1.01
+        thresh_dist = np.sqrt(self.crs_params['gt'][0]**2 + self.crs_params['gt'][4]**2)*1.01 / 2
         self.dateloc = self.dateloc[self.dateloc.nearest_pix_dist<=thresh_dist]
+        self.ndata['mapped_to_pixel_centers'] = self.dateloc.shape[0]
         
         # Remove rows whose data columns are all nans
         self.dateloc = self.dateloc.dropna(subset = datacols, how='all')
@@ -182,9 +199,11 @@ class satval():
             print('Aggregating observations to unique pixel/days...')
 
         self.aggregated = svu.aggregate_to_pixeldays(self.dateloc, datacols)
+        self.ndata['aggregated'] = self.aggregated.shape[0]
+        self.aggregated.to_csv(self.paths['aggregated'], index=False)
 
 
-    def start_gee_bandval_retrieval(self, dataset, filename, gdrive_folder=None):
+    def start_gee_bandval_retrieval(self, asset=None, gdrive_folder=None):
         """
         Starts a task on Earth Engine to grab all the pixel values from the
         imageCollection defined by dataset and specified by the locations and
@@ -192,22 +211,45 @@ class satval():
         created for upload to GEE. 
         
         self.task is added as an attribute; this may be queried to check the
-        status of the task with 'self.task.state'.
+        status of the task with 'self.task.state()'.
         """
-        if self.verbose is True:
-            print('Making GeoDataFrame for upload to GEE...')
-
-        # Create a geodataframe for conversion to EE FeatureCollection
-        # Only need the geometry, system:time_start, and pixelday
-        gee_gdf = gpd.GeoDataFrame(geometry=[Point(lo, la) for lo, la in zip(self.aggregated.longitude.values, self.aggregated.latitude.values)], 
-                                   crs=CRS.from_proj4(self.crs_params['proj4']))
-        copy_props = ['system:time_start', 'pixelday']
-        for prop in copy_props:
-            gee_gdf[prop] = self.aggregated[prop].values
-        
-        if self.verbose is True:
-            print('Uploading table and submitting task to GEE...')
-
         # Begins a GEE task to export a .csv with band values from dataset
-        self.task = svu.gee_fetch_bandvals(gee_gdf, dataset, filename, gdrive_folder)
+        too_big = False
+        if len(self.aggregated) < 20000 or asset is not None: # This will certainly surpass the upload filesize allowed by the API
+            try:
+                if asset is None:
+                    if self.verbose is True:
+                        print('Making GeoDataFrame for upload to GEE...')
+                    gee_gdf = svu.make_gdf_for_GEE(self.aggregated)
+                else:
+                    gee_gdf = None
+                if self.verbose is True:
+                    print('Submitting task to GEE...')
+                self.task = svu.gee_fetch_bandvals(gee_gdf, self.satellite, self.paths['gee_export_name'], asset, gdrive_folder)
+                print('Task successfully started. If it completes, a file named {} will be created in your GDrive folder.'.format(self.paths['gee_export_name']))
+                print('You can check the status of your task with satval_obj.task.status().')
+            except ee.ee_exception.EEException:
+                too_big = True   
+        else:
+            gee_df = gee_gdf = svu.make_gdf_for_GEE(self.aggregated, df=True)
+            too_big = True
+                
+        if too_big is True:
+            gee_df.to_csv(self.paths['gee_asset_upload'], index=False)
+            print("The table is too large to upload via the API. You must upload the shapfile found at {} as a GEE asset, then re-run this and supply the asset path.".format(self.paths['gee_asset_upload']))
+
+            
+        
+        
+        
+        
+        
+        
+    # def merge_bandvals_and_data(path_bandvals, path_data):
+        
+    #     path_bandvals = paths['gee_bandvals']
+    #     path_data = paths['data']
+        
+    #     bv = pd.read_csv(path_bandvals)
+    #     df = pd.read_csv(path_data)
         

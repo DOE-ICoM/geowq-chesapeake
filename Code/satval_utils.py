@@ -4,6 +4,7 @@ Created on Tue Nov 10 14:36:19 2020
 
 @author: Jon
 """
+import os
 import numpy as np
 from shapely.geometry import  box, Point, Polygon, MultiPolygon, GeometryCollection
 from pyproj import CRS
@@ -13,6 +14,22 @@ from scipy.spatial import cKDTree
 import pandas as pd
 import geojson
 import ee
+
+def prepare_paths(path_base, path_data, path_bounding_pgon):
+    
+    if os.path.isdir(path_base) is False:
+        os.path.mkdir(path_base)
+    
+    paths = {}
+    paths['data'] = path_data
+    paths['bounding_pgon'] = path_bounding_pgon
+    paths['pixel_centers'] = os.path.join(path_base, 'pixel_centers.shp')
+    paths['filtered'] = os.path.join(path_base, 'filtered.csv')
+    paths['aggregated'] = os.path.join(path_base, 'aggregated.csv')
+    paths['gee_asset_upload'] = os.path.join(path_base, 'aggregated_gee.csv')
+    paths['gee_export_name'] = 'fetching_bandvals'
+    
+    return paths
 
 
 def satellite_params(dataset):
@@ -247,16 +264,18 @@ def map_pts_to_pixels(pix_centers, coords_df, crs_params):
     coords_proj = [(lon, lat) for lon, lat in zip(c_lons, c_lats)]
 
     # Build a kd-tree of the pixel centers
-    pc_lat = [g.coords.xy[1][0] for g in pix_centers.geometry.values]
-    pc_lon =  [g.coords.xy[0][0] for g in pix_centers.geometry.values]
+    pc_y = [g.coords.xy[1][0] for g in pix_centers.geometry.values]
+    pc_x =  [g.coords.xy[0][0] for g in pix_centers.geometry.values]
     pix_idx = pix_centers.pix_idx.values
-    ckd_tree = cKDTree(list(zip(pc_lon, pc_lat)))
+    ckd_tree = cKDTree(list(zip(pc_x, pc_y)))
     
     # Find the index of the nearest pixel center to each coordinate
     dists, nearest_idx = ckd_tree.query(coords_proj, k=1)
     nearest_pix_ids = pix_idx[nearest_idx]
+    pc_ys = np.array(pc_y)[nearest_idx]
+    pc_xs = np.array(pc_x)[nearest_idx]
         
-    return nearest_pix_ids, dists
+    return nearest_pix_ids, dists, pc_ys, pc_xs
     
 
 def aggregate_to_pixeldays(df, datacols, by='pixelday'):
@@ -316,6 +335,42 @@ def aggregate_to_pixeldays(df, datacols, by='pixelday'):
     return grouped
 
 
+def make_gdf_for_GEE(aggregated, df=False):
+    """
+    Creates a GeoDataFrame with the minimal required properties to fetch
+    satellite band values for each observation. Adds a GEE-recognizable 
+    timestamp to the GeoDataFrame for quick indexing on GEE server-side.
+    
+    Assumes the latitude/longitude values in aggregated are in EPSG:4326.
+
+    Parameters
+    ----------
+    aggregated : pandas DataFrame
+        Contains the uniquified observations for which band values should
+        be fetched. Must contain the columns: 'datetime', 'latitude', 
+        'longitude', and 'pixelday'. 'pixelday' is a unique ID for each
+        observation.
+    df : bool
+        If True, returns a pandas DataFrame rather than a GeoDataFrame. Latitude
+        and longitude columns will be present.
+
+    Returns
+    -------
+    gee_gdf : GeoPandas GeoDataFrame
+        DESCRIPTION.
+
+    """
+    if df is False:
+        out = gpd.GeoDataFrame(geometry=[Point(lo, la) for lo, la in zip(aggregated.longitude.values, aggregated.latitude.values)], 
+                                   crs=CRS.from_epsg(4326))
+    else:
+        out = pd.DataFrame(data={'latitude':aggregated.latitude.values, 'longitude':aggregated.longitude.values})
+    out['system:time_start'] = (pd.to_datetime(aggregated['datetime'].values).astype(np.int64) / int(1e6)).astype(np.int64)
+    out['pixelday'] = aggregated.pixelday.values
+
+    return out
+
+
 def gdf_to_FC(gdf):
     """
     Converts a geopandas GeoDataFrame to an Earth Engine FeatureCollection.
@@ -347,11 +402,16 @@ def gdf_to_FC(gdf):
     return fc
 
 
-def gee_fetch_bandvals(gdf, dataset, filename, gdrive_folder=None):
+def gee_fetch_bandvals(gdf, dataset, filename, asset=None, gdrive_folder=None):
     """
     Starts a task on Google Earth Engine to fetch all the band values corresponding
     to the locations and times provided in gdf. If the task is successful,
     exports a .csv with band values from dataset to your GDrive.
+    
+    This function will attempt to upload the provided gdf as a FeatureCollection;
+    however, there is a size limit on uploading via the API this way. If the
+    asset keyword is provided, the function will use that asset instead of 
+    uploading the gdf.
 
     Parameters
     ----------
@@ -364,6 +424,9 @@ def gee_fetch_bandvals(gdf, dataset, filename, gdrive_folder=None):
     dataset : str
         The ID of the imageCollection on GEE to pull. Currently supports
         'MYD09GA', 'MYD09GQ', and 'MYDOCGA'.
+    asset : str
+        The path to the asset hosted on GEE containing the FeatureCollection
+        to fetch band values from. 
     filename : str
         The name of the exported .csv without extension.
     gdrive_folder : str, optional
@@ -373,8 +436,9 @@ def gee_fetch_bandvals(gdf, dataset, filename, gdrive_folder=None):
 
     Returns
     -------
-    bandValFC : TYPE
-        DESCRIPTION.
+    task : earthengine task object 
+        Contains information about the submitted task. Can query the task
+        status with task.status().
 
     """
     
@@ -394,12 +458,15 @@ def gee_fetch_bandvals(gdf, dataset, filename, gdrive_folder=None):
     
     # We need to convert the GeoDataFrame to a server-side FeatureCollection
     # This will be uploaded when the task is started.
-    obs = gdf_to_FC(gdf)
+    if asset is not None:
+        obs = ee.FeatureCollection(asset)
+    else:
+        obs = gdf_to_FC(gdf)
 
     # Define some modis asset locations on GEE
-    icAssets = {'MYD09GA' : "MODIS/006/MYD09GA",
-              'MYD09GQ' : 'MODIS/006/MYD09GQ',
-              'MYDOCGA' : 'MODIS/006/MYDOCGA'}
+    icAssets = {'MYD09GA.006' : "MODIS/006/MYD09GA",
+              'MYD09GQ.006' : 'MODIS/006/MYD09GQ',
+              'MYDOCGA.006' : 'MODIS/006/MYDOCGA'}
             
     # Load the imageCollection, get date range
     ic = ee.ImageCollection(icAssets[dataset])
