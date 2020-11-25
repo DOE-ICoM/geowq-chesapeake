@@ -74,7 +74,7 @@ class satval():
         if len(r_na) > 0:
             print('{} entries were removed due to nan values in datetime or lat/lon columns.'.format(len(r_na)))
  
-        # Determine which points are outside the bounds of the provided bounding polygon
+        # Determine which points are outside the provided bounding polygon
         if self.verbose is True:
             print('Finding observations within the supplied polygon...')
         gdf_pgon = gpd.read_file(self.paths['bounding_pgon'])
@@ -85,6 +85,7 @@ class satval():
                                   crs=CRS.from_epsg(4326))
         inside_points = gpd.sjoin(points, gdf_pgon, op='within')
         outside_points_idx = np.array(list(set(points.index.values.flatten()) - set(inside_points.index.values.flatten())))
+        
         self.skiprows[outside_points_idx] = True
         self.skiprows_id[outside_points_idx] = 2
         self.ndata['bounding_box_post'] = len(self.skiprows) - np.sum(self.skiprows) 
@@ -96,13 +97,13 @@ class satval():
             for f in filters.keys():
                 if f == 'time_of_day':
                     decimal_hours = np.array([t.hour + t.minute/60 + t.second/3600 for t in self.dateloc.datetime])
-                    self.skiprows[np.logical_and(decimal_hours<filters[f][0], decimal_hours>filters[f][1])] = True
-                    self.skiprows_id[np.logical_and(decimal_hours<filters[f][0], decimal_hours>filters[f][1])] = 3
+                    self.skiprows[np.logical_or(decimal_hours<filters[f][0], decimal_hours>filters[f][1])] = True
+                    self.skiprows_id[np.logical_or(decimal_hours<filters[f][0], decimal_hours>filters[f][1])] = 3
 
                 else:
                     data_to_filter = pd.read_csv(self.paths['data'], usecols = [f])
-                    self.skiprows[np.logical_and(data_to_filter.values<filters[f][0], data_to_filter.values>filters[f][1]).flatten()] = True
-                    self.skiprows_id[np.logical_and(data_to_filter.values<filters[f][0], data_to_filter.values>filters[f][1]).flatten()] = 4
+                    self.skiprows[np.logical_or(data_to_filter.values<filters[f][0], data_to_filter.values>filters[f][1]).flatten()] = True
+                    self.skiprows_id[np.logical_or(data_to_filter.values<filters[f][0], data_to_filter.values>filters[f][1]).flatten()] = 4
 
         self.ndata['filter_post'] = len(self.skiprows) - np.sum(self.skiprows)
                     
@@ -236,20 +237,23 @@ class satval():
                 
         if too_big is True:
             gee_df.to_csv(self.paths['gee_asset_upload'], index=False)
-            print("The table is too large to upload via the API. You must upload the shapfile found at {} as a GEE asset, then re-run this and supply the asset path.".format(self.paths['gee_asset_upload']))
+            print("The table is too large to upload via the GEE API. You must upload the csv found at {} as a GEE asset, then re-run this and supply the asset path.".format(self.paths['gee_asset_upload']))
 
-            
+        
+    def merge_bandvals_and_data(self, path_bandvals):
+                
+        bandvals = pd.read_csv(path_bandvals)
+        bandvals = bandvals.drop(columns=['.geo', 'system:time_start', 'granule_pnt', 'system:index', 'orbit_pnt'])
+        # bandvals = bandvals.replace(to_replace=bandval_nodata, value=np.nan)
+        
+        # Convert quality bands to interpretable values
+        qbands = svu.mydocga_convert_quality_bands(bandvals)
+        
+        # Append these values to the bandvals df
+        bandvals = bandvals.drop(columns=[k for k in bandvals.keys() if 'QC' in k])
+        bandvals = pd.concat([bandvals, qbands], axis=1)
+        
+        self.aggregated = self.aggregated.merge(bandvals, on='pixelday')
         
         
-        
-        
-        
-        
-    # def merge_bandvals_and_data(path_bandvals, path_data):
-        
-    #     path_bandvals = paths['gee_bandvals']
-    #     path_data = paths['data']
-        
-    #     bv = pd.read_csv(path_bandvals)
-    #     df = pd.read_csv(path_data)
         

@@ -34,26 +34,22 @@ cd.map_coordinates_to_pixels(frac_pixel_thresh=frac_pixel_thresh)
 cd.aggregate_data_to_unique_pixeldays(datacols=data_columns)
 
 # Try to start a GEE task by directly uploading the geodataframe - this 
-# will fail for 
+# will fail for large datasets (i.e. > 20,000 rows)
 cd.start_gee_bandval_retrieval(gdrive_folder=gdrive_folder)
 # Failed, so we upload the shapefile manually and pass in the asset location
-gee_asset = 'users/jonschwenk/chk_uniques'
+gee_asset = 'users/jonschwenk/chk_unique_pixeldays'
 cd.start_gee_bandval_retrieval(asset=gee_asset, gdrive_folder=gdrive_folder)
 
-
 """Need to wait for GEE task to finish and download the .csv"""
-paths['gee_bandvals'] = r"C:\Users\Jon\Desktop\Research\ICoM\Data\chk_del_full_bandvals.csv"
-cd.merge_bandvals_and_data(path_bandvals=paths['gee_bandvals'], path_data=paths['aggregated'], data_columns)
+path_bandvals = r"C:\Users\Jon\Desktop\Research\ICoM\Data\Processed Data\fetching_bandvals.csv"
+cd.merge_bandvals_and_data(path_bandvals)
+
+# Compute data availability for specific variables
+QCcols = [k for k in cd.aggregated.keys() if 'QC' in k]
+var = 'turbidity (NTU)'
+dftemp = cd.aggregated[~pd.isna(cd.aggregated[var])]
+dftemp = dftemp[QCcols]
+all_valid = np.sum(dftemp.eq(0).all(axis=1))
 
 
 
-""" Debugging """
-import numpy as np
-import pandas as pd
-df = pd.read_csv(paths['data'], parse_dates = ['datetime'])
-dt = pd.to_datetime('2010-11-16 18:25')
-sst = 12.87
-np.where(df.datetime==dt)[0]
-
-
-blah = (pd.to_datetime(cd.dateloc['datetime'].values).astype(np.int64) / int(1e6)).astype(np.int64)

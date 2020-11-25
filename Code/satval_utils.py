@@ -27,7 +27,7 @@ def prepare_paths(path_base, path_data, path_bounding_pgon):
     paths['filtered'] = os.path.join(path_base, 'filtered.csv')
     paths['aggregated'] = os.path.join(path_base, 'aggregated.csv')
     paths['gee_asset_upload'] = os.path.join(path_base, 'aggregated_gee.csv')
-    paths['gee_export_name'] = 'fetching_bandvals'
+    paths['gee_export_name'] = 'unique_pixeldays_w_bandvals'
     
     return paths
 
@@ -330,7 +330,7 @@ def aggregate_to_pixeldays(df, datacols, by='pixelday'):
         return pd.Series(do_agg, index=list(aggs.keys())) # This is only guaranteed in Python 3.6+ because dictionaries are ordered therein
     
     grouped = df.groupby(by=by).apply(res_agg, args=datacols) 
-    # grouped = grouped.reset_index()
+    grouped = grouped.reset_index(drop=True)
 
     return grouped
 
@@ -497,3 +497,73 @@ def gee_fetch_bandvals(gdf, dataset, filename, asset=None, gdrive_folder=None):
     task.start()
     
     return task
+
+
+def mydocga_convert_quality_bands(qa_bands_raw, n_bytes=4):
+    """
+    Converts the bit-type band quality values to interpretable integer values.
+    See the dictionary below for the meaning of various values. Only 
+    guaranteed to work for MYDOCGA.v006 product.
+    
+    Converts a dataframe containing two columns: QC_b8_15_1km and QC_b16_1km
+
+    Parameters
+    ----------
+    qa_bands_raw : pandas DataFrame
+        Contains two columns of bit-encoded quality information: QC_b8_15_1km 
+        and QC_b_16_1km.
+
+    Returns
+    -------
+    converted : pandas DataFrame
+        Interpretable quality integer values for each band. 9 columns, one
+        for each band.
+
+    """
+    
+    # Dictionary of band informaiton For band 16 drop the first value as bits 0-3 are unused
+    #{ 0 : 'Highest quality',
+    #  7 : 'Noisy detector',
+    #  8 : 'Dead detector, data interpolated in L1B',
+    #  9 : 'Solar zenith >= 86 degrees',
+    #  10 : 'Solar zenith >= 85 < 86 degrees',
+    #  11 : ' Missing input',
+    #  12 : 'Internal constant used in place of climatological data for at least one atmospheric constant',
+    #  13 : 'Correction out of bounds pixel constratined to allowable value',
+    #  14 : 'L1B data faulty',
+    #  15 : 'Not processed due to dep ocean or clouds'}
+    
+    def bits_to_qc(bits, n=4):
+        qc_values = [int(bits[i:i+n],2) for i in range(0, len(bits), n)]
+        return qc_values   
+        
+    band_order = ['sur_refl_b08', 'sur_refl_b09', 'sur_refl_b10', 'sur_refl_b11',
+                  'sur_refl_b12', 'sur_refl_b13', 'sur_refl_b14', 'sur_refl_b15',
+                  'sur_refl_b16']
+    
+    # Ensure integer types, set nodata to -1
+    qa_bands_raw['QC_b8_15_1km'][pd.isna(qa_bands_raw['QC_b8_15_1km'])] = -1 
+    qa_bands_raw['QC_b16_1km'][pd.isna(qa_bands_raw['QC_b16_1km'])] = -1 
+    qa_bands_raw['QC_b8_15_1km'] = qa_bands_raw['QC_b8_15_1km'].values.astype('int64') 
+    qa_bands_raw['QC_b16_1km'] = qa_bands_raw['QC_b16_1km'].values.astype('int64') 
+    
+    # Convert to bit representation. Note that when padding the binary output numpy reverses the order. 
+    bits_8_15 = [np.binary_repr(integer,8*n_bytes ) for integer in qa_bands_raw['QC_b8_15_1km']]
+    converted_8_15 = np.array([bits_to_qc(bit) for bit in bits_8_15])
+    converted_8_15[qa_bands_raw['QC_b8_15_1km']==-1,:] = -1
+    
+    bits_16 = [np.binary_repr(integer,8*n_bytes ) for integer in qa_bands_raw['QC_b16_1km']]
+    converted_16 = np.array([bits_to_qc(bit) for bit in bits_16])
+    converted_16[qa_bands_raw['QC_b16_1km']==-1,:] = -1
+    converted_16 = converted_16[:,6]
+    
+    # Combine into dataframe
+    converted = pd.DataFrame(data=converted_8_15, columns=band_order[:-1])
+    converted[band_order[-1]] = converted_16
+    
+    # Rename
+    converted = converted.rename(mapper={b: 'QC_' + b.split('_')[-1] for b in band_order}, axis=1)
+    
+    return converted
+    
+
