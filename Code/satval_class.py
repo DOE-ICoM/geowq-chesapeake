@@ -58,7 +58,7 @@ class satval():
         # Get a vector of dates and locations
         if self.verbose is True:
             print('Loading in dates and locations from observations file...')
-        self.dateloc = pd.read_csv(self.paths['data'], sep=',', usecols=[column_map['datetime'],column_map['longitude'], column_map['latitude']], 
+        self.dateloc = pd.read_csv(self.paths['data'], sep=',', usecols=[column_map['datetime'], column_map['longitude'], column_map['latitude']], 
                             parse_dates = [column_map['datetime']], squeeze=True)
         self.ndata['raw'] = self.dateloc.shape[0]
 
@@ -157,6 +157,14 @@ class satval():
         # Map observation locations to pixel centers
         self.dateloc['pix_id'], self.dateloc['nearest_pix_dist'], pix_ys, pix_xs = svu.map_pts_to_pixels(self.gdf_pix_centers, self.dateloc, self.crs_params)
         
+        # Threshold the mapped observations by their distance to the nearest 
+        # pixel. We originally mapped all the observations, regardless of their
+        # distance. Here we ensure that the observation is actually within
+        # the pixel's footprint.
+        thresh_dist = np.sqrt(self.crs_params['gt'][0]**2 + self.crs_params['gt'][4]**2)*1.05 / 2
+        self.dateloc = self.dateloc[self.dateloc.nearest_pix_dist<=thresh_dist]
+        self.ndata['mapped_to_pixel_centers'] = self.dateloc.shape[0]
+
         # Replace latitude and longitude of each point with its nearest pixel lat/lon
         # Must convert pixel center coordinates to 4326
         transformer = Transformer.from_crs(self.crs_params['proj4'], "EPSG:4326", always_xy=True)
@@ -187,18 +195,12 @@ class satval():
         
         if self.verbose is True:
             print('Filtering rows whose observations are all NaN...')
-
-        # Filter out observations that are too far away from a pixel
-        thresh_dist = np.sqrt(self.crs_params['gt'][0]**2 + self.crs_params['gt'][4]**2)*1.01 / 2
-        self.dateloc = self.dateloc[self.dateloc.nearest_pix_dist<=thresh_dist]
-        self.ndata['mapped_to_pixel_centers'] = self.dateloc.shape[0]
-        
         # Remove rows whose data columns are all nans
         self.dateloc = self.dateloc.dropna(subset = datacols, how='all')
+        self.ndata['drop_na_observation_rows'] = self.dateloc.shape[0]
         
         if self.verbose is True:
             print('Aggregating observations to unique pixel/days...')
-
         self.aggregated = svu.aggregate_to_pixeldays(self.dateloc, datacols)
         self.ndata['aggregated'] = self.aggregated.shape[0]
         self.aggregated.to_csv(self.paths['aggregated'], index=False)
@@ -255,5 +257,7 @@ class satval():
         
         self.aggregated = self.aggregated.merge(bandvals, on='pixelday')
         
+        self.aggregated.to_csv(self.paths['aggregated_w_bandvals'], index=False)
+
         
         

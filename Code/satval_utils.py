@@ -28,6 +28,7 @@ def prepare_paths(path_base, path_data, path_bounding_pgon):
     paths['aggregated'] = os.path.join(path_base, 'aggregated.csv')
     paths['gee_asset_upload'] = os.path.join(path_base, 'aggregated_gee.csv')
     paths['gee_export_name'] = 'unique_pixeldays_w_bandvals'
+    paths['aggregated_w_bandvals'] = os.path.join(path_base, 'aggregated_w_bandvals.csv')
     
     return paths
 
