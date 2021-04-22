@@ -1,0 +1,106 @@
+import pandas as pd
+import numpy as np
+import sklearn
+from sklearn.datasets import make_classification
+from numpy import mean
+from numpy import std
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import RepeatedStratifiedKFold
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.datasets import make_regression
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import RepeatedKFold
+from sklearn.ensemble import RandomForestRegressor
+import csv
+import itertools
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from fit_sine import fit_sine
+##Grab data
+
+def clean_data(variable, var_col,predictors, test_size=0.5): 
+    
+    
+    ##Read in Data
+    data=pd.read_csv(variable+'.csv')    
+    data.replace([np.inf, -np.inf], np.nan, inplace=True)
+
+
+
+    ##For turbidity get rid of negative numbers
+    print(len(data))
+    if var_col == 'turbidity (NTU)':
+        data=data[data['turbidity (NTU)']>0]
+    
+    print(len(data))
+    
+    
+    
+    ##Find Predictors and Variable Column
+    notsur=[]
+    for s in data.keys():
+        for predictor in predictors:        
+            if predictor in s:
+                break 
+    
+            elif s in notsur:
+                break
+            elif s in predictors:
+                break
+            elif s==var_col:
+                break
+            
+            else:
+                notsur.append(s)
+    
+    ##Get rid of unnecessary data
+    data=data.drop(notsur, axis=1)
+    data=data.dropna()
+
+    data['datetime']=pd.to_datetime(data['datetime'])
+#    data['datetime'] = data['datetime'].astype('datetime64')
+#    data['datetime']=data['datetime'].dt.strftime('%j')
+    data['datetime']=pd.to_numeric(data["datetime"], downcast="float")
+    print(data['SST (C)'])
+    fitted_sine=fit_sine(data)
+    print('fitted_sine')
+    print(fitted_sine)
+    data['SST (C)']=data['SST (C)']-fitted_sine
+
+    plt.scatter(data['datetime'],data['SST (C)'])
+    plt.show()
+    
+
+    ##Convert to Day of Year
+    data['datetime']=pd.to_datetime(data['datetime'])
+    ##Subtract from fitted sine wave/ Calculate day of Year instead
+#    data['datetime']=pd.to_datetime(data['datetime'], infer_datetime_format=True)
+    data['datetime'] = data['datetime'].astype('datetime64')
+    #.astype(int).astype(float)
+    data['datetime']=data['datetime'].dt.strftime('%j')
+    data['datetime']=pd.to_numeric(data["datetime"], downcast="float") 
+
+    
+
+#    print(len(data))
+#    data=data.drop(data['turbidity (NTU)']<0)
+#    print(len(data))
+    
+    ##Get features
+    y = data[var_col].values
+    X = data.drop(var_col, axis=1).values
+    feature_names =[k for k in data.keys() if k in predictors]    
+    
+    
+
+#    data.hist()
+#    plt.tight_layout()
+#    plt.show()
+
+    ##split everything
+    
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size)
+    
+    
+    return X_train, y_train, X_test, y_test, feature_names
+
