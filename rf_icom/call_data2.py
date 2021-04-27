@@ -19,7 +19,25 @@ from fit_sine import fit_sine
 ##Grab data
 
 def clean_data(variable, var_col,predictors, test_size=0.5): 
+
+    """
+    Get the data from the split .csv files based on the label, remove
+    unwanted columns; remove NaNs; split temperature into fitted sine and
+    variablity of temperature from the fitted sine if the label is 
+    temperature
+
+    Inputs:
+    variable => string, name of .csv file and label
+    var_col => string, name of label column
+    test_size => optional, default splits 50% training, 50% testing
+    predictors => list of strings with all the wanted feature names
+
+    Output:
+    feature_names => list, names of feature columns
+    X_train, X_test => array, features for train and test sets
+    y_train, y_test => array, label for train and test sets
     
+    """
     
     ##Read in Data
     data=pd.read_csv(variable+'.csv')    
@@ -61,14 +79,18 @@ def clean_data(variable, var_col,predictors, test_size=0.5):
 #    data['datetime'] = data['datetime'].astype('datetime64')
 #    data['datetime']=data['datetime'].dt.strftime('%j')
     data['datetime']=pd.to_numeric(data["datetime"], downcast="float")
-    print(data['SST (C)'])
-    fitted_sine=fit_sine(data)
-    print('fitted_sine')
-    print(fitted_sine)
-    data['SST (C)']=data['SST (C)']-fitted_sine
 
-    plt.scatter(data['datetime'],data['SST (C)'])
-    plt.show()
+    if variable=='temperature':
+        print(data['SST (C)'])
+        fitted_sine=fit_sine(data)
+        print('fitted_sine')
+        print(fitted_sine)
+        data['SST (C)']=data['SST (C)']-fitted_sine
+        data.insert(3,"fitted_sine",fitted_sine)
+        predictors.append('fitted_sine')
+
+    #    plt.scatter(data['datetime'],data['SST (C)'])
+    #    plt.show()
     
 
     ##Convert to Day of Year
@@ -79,7 +101,6 @@ def clean_data(variable, var_col,predictors, test_size=0.5):
     #.astype(int).astype(float)
     data['datetime']=data['datetime'].dt.strftime('%j')
     data['datetime']=pd.to_numeric(data["datetime"], downcast="float") 
-
     
 
 #    print(len(data))

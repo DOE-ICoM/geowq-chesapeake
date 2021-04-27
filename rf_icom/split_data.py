@@ -15,6 +15,13 @@ import csv
 import itertools
 from sklearn import preprocessing 
 
+"""
+Take all the data from the MODIS bands and filter for QC's all equal to 0
+Then split the data into 3 .csv files for temperature, salinity and turbidity
+Add in Ratios of spectral bands as in Geiger, 2013
+
+"""
+
 ##Data
 path = '/lclscratch/savendano/ICOM/'
 data=pd.read_csv(path+'aggregated_w_bandvals.csv')
@@ -23,8 +30,12 @@ data=pd.read_csv(path+'aggregated_w_bandvals.csv')
 ##adapted from run_satval.py
 
 QCcols = [k for k in data.keys() if 'QC' in k] ##pick out QC keys
+
+##Which variables are the labels?
 variable = ['SSS (psu)','SST (C)','turbidity (NTU)']
 filename=['salinity','temperature','turbidity']
+
+##Look for spectral band data
 sur =[k for k in data.keys() if 'sur_refl' in k]
 
 

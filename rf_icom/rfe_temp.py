@@ -59,6 +59,11 @@ plt.scatter(range(min_features_to_select,
          rfecv.grid_scores_)
 plt.show()
 
+fig=plt.figure
+plt.bar(important_params, rfecv.estimator_.feature_importances_)
+plt.show()
+
+
 #important_params=['datetime','Ratio 1','Ratio 2', 'Ratio 3','SST (C)','sur_refl_b09','sur_refl_b14','sur_refl_b15','longitude']
 
 #X, y, X_test, y_test, feature_names = call_data.clean_data('temperature', 'SST (C)',important_params)

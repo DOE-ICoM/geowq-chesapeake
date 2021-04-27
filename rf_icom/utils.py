@@ -22,13 +22,22 @@ from sklearn.model_selection import RepeatedKFold
 from sklearn.model_selection import cross_val_score
 
 
-def run_rfe(X_train, y_train, X_test, y_test):
+def run_rfe(X_train, y_train, X_test, y_test, feature_names):
     """
     Run recursive feature extraction using RFECV
-    Inputs: X_train, y_train, X_test, y_test
-    Outputs: X_train and X_test with non important features culled
+    Inputs: 
+    X_train => array of feature values (training set)
+    y_train => array of label values (training set)
+    X_test => array of feature values (test set)
+    y_test => array of label values (test set)
+    feature_names => list of feature column names
+    Outputs: 
+    X_train and X_test with non important features culled
 
     """
+    print(type(X_train))
+    print(type(y_train))
+    print(type(feature_names))
 
     X=X_train
     y=y_train
@@ -68,23 +77,26 @@ def run_rfe(X_train, y_train, X_test, y_test):
                len(rfecv.grid_scores_) + min_features_to_select),
          rfecv.grid_scores_)
     plt.show()
+    
 
+    fig=plt.figure
+    plt.bar(important_params, rfecv.estimator_.feature_importances_)
+    plt.show()
+    
     ols.fit(X, y)
     predictions=ols.predict(X_test)
     errors = abs(predictions - y_test)
-    print(metrics.mean_squared_error(y_test, predictions, squared=False))
-    
-    return X_test, X
+    print(metrics.mean_squared_error(y_test, predictions))
+    return X, X_test
 
 
 
 
-def build_grid(X_train, X_test):
+def build_grid():
     """
     Builds hyperparameter grid. 
     Probably not the best way to do this, but can edit function to change grid
 
-    Inputs: X_train and X_test transformed from RFECV
     Outputs: hyperparameter dictionary
 
     """
@@ -139,11 +151,16 @@ def build_grid(X_train, X_test):
 
 def tune_hyper_params(grid, params, X_train, y_train, X_test, y_test):
     """
-    Runs Halving Random Search or Halving Grid Search to compare different hyperparamter combinations
-    Inputs: parameter grid; parameters (found by feature selection)
-    X_train and X_test from run_rfe
+    Runs Halving Random Search to compare different hyperparamter combinations
+    Inputs: 
+    parameter grid (can use build_grid())
+    parameters (found by feature selection)
+    X_train and X_test (can use X arrays from run_rfe)
     y_train and y_test
-    Outputs: RMSE of best run; best run parameters
+    
+    Outputs: 
+    MSE of best run
+    best run parameters
 
     """
     #leave regressor as simple as possible so just testing against defaults
@@ -152,7 +169,9 @@ def tune_hyper_params(grid, params, X_train, y_train, X_test, y_test):
     # Random search of parameters, using kfold cross validation
     cv = RepeatedKFold(n_splits=5, n_repeats=10, random_state=1)
     
-    rf_random = HalvingGridSearchCV(estimator = rf, param_grid = random_grid, cv = cv, verbose=2, random_state=1, n_jobs = -1, scoring='neg_mean_squared_error')# Fit the random search model
+
+
+    rf_random = HalvingRandomSearchCV(estimator = rf, param_distributions = grid, cv = cv, verbose=2, random_state=1, n_jobs = -1, scoring='neg_root_mean_squared_error')# Fit the random search model
 
     rf_random.fit(X_train, y_train)
     print(rf_random.best_params_)
@@ -162,5 +181,6 @@ def tune_hyper_params(grid, params, X_train, y_train, X_test, y_test):
     predictions=rf_random.predict(X_test)
     errors = abs(predictions - y_test)
     print(metrics.mean_squared_error(y_test, predictions))
-    rmse = metrics.mean_squared_error(y_test, predictions
+    mse = metrics.mean_squared_error(y_test, predictions)
+    rmse=np.sqrt(mse)
     return rmse, rf_random.best_params_
