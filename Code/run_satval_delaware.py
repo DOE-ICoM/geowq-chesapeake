@@ -28,7 +28,7 @@ cd.start_gee_bandval_retrieval()
 # cd.start_gee_bandval_retrieval(asset=gee_asset)
 
 """Need to wait for GEE task to finish and download the .csv"""
-path_bandvals = r"C:\Users\Jon\Desktop\Research\ICoM\Data\Processed Data p1\unique_pixeldays_w_bandvals.csv"
+path_bandvals = r"C:\Users\Jon\Desktop\Research\ICoM\Data\Delaware P1\unique_pixeldays_w_bandvals.csv"
 cd.merge_bandvals_and_data(path_bandvals)
 
 # Compute data availability for specific variables and considering QC bands

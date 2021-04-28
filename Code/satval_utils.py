@@ -15,6 +15,43 @@ import pandas as pd
 import geojson
 import ee
 
+def parse_params(path_params):
+    """
+    Reads a parameter csv and returns a dictionary of parameters required
+    to run satval.
+
+    Parameters
+    ----------
+    path_params : str
+        Path to parameters file (csv).
+
+    Returns
+    -------
+    params : dict
+        Contains the parsed parameters.
+    """
+    
+    df = pd.read_csv(path_params, header=None)
+    params = {}
+    params['path_base'] = os.path.abspath(df[df[0]=='path_storage'][1].values[0])
+    params['path_data'] = os.path.abspath(df[df[0]=='path_data'][1].values[0])
+    params['path_bounding_pgon'] = os.path.abspath(df[df[0]=='path_bounding_pgon'][1].values[0])
+    params['data_cols'] = df[df[0]=='data_cols'][1].values[0].split(',')
+    params['data_cols'] = [dc.strip() for dc in params['data_cols']]
+    params['satellite'] = df[df[0]=='satellite'][1].values[0]
+    params['frac_pixel_thresh'] = float(df[df[0]=='frac_pixel_thresh'][1].values[0])
+    params['gdrive_folder'] = df[df[0]=='gdrive_folder'][1].values[0]
+    if 'Filters' in df[0].values:
+        filters = {}
+        if 'time_of_day_min' in df[0].values:
+            filters['time_of_day'] = [float(df[df[0]=='time_of_day_min'][1].values[0]), float(df[df[0]=='time_of_day_max'][1].values[0])]
+        if 'depth_min' in df[0].values:
+            filters['depth (m)'] = [float(df[df[0]=='depth_min'][1].values[0]), float(df[df[0]=='depth_max'][1].values[0])]
+        params['filters'] = filters
+        
+    return params
+    
+
 def prepare_paths(path_base, path_data, path_bounding_pgon):
     
     if os.path.isdir(path_base) is False:
@@ -29,6 +66,7 @@ def prepare_paths(path_base, path_data, path_bounding_pgon):
     paths['gee_asset_upload'] = os.path.join(path_base, 'aggregated_gee.csv')
     paths['gee_export_name'] = 'unique_pixeldays_w_bandvals'
     paths['aggregated_w_bandvals'] = os.path.join(path_base, 'aggregated_w_bandvals.csv')
+    paths['parameters'] = os.path.join(path_base, 'parameters.csv')
     
     return paths
 
@@ -320,11 +358,18 @@ def aggregate_to_pixeldays(df, datacols, by='pixelday'):
         # for the lambda construction (i.e. restatement of inputs).        
         aggs = {}
         for k in x.keys():
+            if k == 'orig_row_idx':
+                continue
             # if k not in datacols:
             aggs[k] = lambda x=x, k=k: x[k].values[0]
         for k in datacols:
             aggs[k] = lambda x=x, k=k: nanmean_wrapper(x[k])
             aggs[k + ' count'] =  lambda x=x, k=k: np.sum(np.isnan(x[k])==0)
+            # Agg strategy to keep track of which rows of the original dataframe
+            # are being aggregated (for provenance/debugging)
+
+        aggs['orig_row_idx'] = lambda x=x: list(x['orig_row_idx'].values)
+        
                             
         do_agg = {k : aggs[k](x) for k in aggs.keys()}
     
