@@ -1,5 +1,8 @@
 ##Sofia Avendano
 
+gradient boosting for turbidity? Works better for more complicated problems. 
+Turbdity did much better with log-transform.
+
 What files are in the rf_icom directory:
 
 
@@ -23,5 +26,6 @@ call_script.py: calls utils.py and call_data2.py to tune and run the full random
 Other Scripts:
 
 pipeline.py: creates a pipeline with rfecv and hyperparameter tuning; was not able to get good results using this method  but  probably ultimately want to end up using a pipeline instead
+A pipeline makes sure that you don't overfit--that the same training data are used throughout.
 
 fit_sine.py: fits the temperature data to a sine curve
