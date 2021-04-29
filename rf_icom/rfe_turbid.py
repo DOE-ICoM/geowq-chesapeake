@@ -19,7 +19,6 @@ all_params=['datetime','Ratio 1','Ratio 2', 'Ratio 3','SSS (psu)','SST (C)','sur
 
 
 X, y, X_test, y_test, feature_names = call_data2.clean_data('turbidity', 'turbidity (NTU)',all_params)
-y=np.log(y)
 
 #nrmlzd = preprocessing.StandardScaler()
 #X = nrmlzd.fit_transform(X)
@@ -58,7 +57,7 @@ n_scores_mean=[]
 n_scores_std=[]
 ols = RandomForestRegressor(n_estimators=250,max_depth=20,random_state=1)
 min_features_to_select=5
-rfecv = RFECV(estimator=ols, step=1, scoring="neg_mean_squared_error", cv=5, verbose=2,min_features_to_select=min_features_to_select)
+rfecv = RFECV(estimator=ols, step=1, scoring="neg_root_mean_squared_error", cv=5, verbose=2,min_features_to_select=min_features_to_select)
 
 rfecv.fit(X, y)
 
@@ -83,16 +82,16 @@ print(important_params)
 #rfecv_df = pd.DataFrame(rfecv.ranking_,index=list(X).columns,columns=['Rank']).sort_values(by='Rank',ascending=True)
 
 #rfecv_df.head()
-#plt.figure
-#plt.xlabel("Number of features selected")
-#plt.ylabel("Mean Squared error")
-#plt.scatter(range(min_features_to_select,
-#               len(rfecv.grid_scores_) + min_features_to_select),
-#         rfecv.grid_scores_)
-#plt.show()
+plt.figure
+plt.xlabel("Number of features selected")
+plt.ylabel("Mean Squared error")
+plt.scatter(range(min_features_to_select,
+               len(rfecv.grid_scores_) + min_features_to_select),
+         rfecv.grid_scores_)
+plt.show()
 print(rfecv.grid_scores_)
 print(min_features_to_select)
-
+plt.savefig('rfecv_turbidity')
 
 ols.fit(X, y)
 predictions=ols.predict(X_test)
