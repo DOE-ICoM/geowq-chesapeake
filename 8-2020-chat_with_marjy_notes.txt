@@ -1,0 +1,90 @@
+need to integrate bettter into ICoM
+link into hypoxia group is the most straightforward
+we're creating like a nowcast
+another direction we might think about going: marshes and wetlands (Yu)
+can we figure out inundation or sediment transport to/from marshy areas--possibly used
+to validate models; marsh erosion/geomorphology (longer trends), hypoxia
+the way we can use ICoM right now--streamflow results
+analyzing satellite data in coastal regions - could sell the product we have as
+its own independent thing
+ming jie - working on coastal vegetation model for ELM mingjie.shi@pnnl.gov
+zeli tan - zeli.tan@pnnl.gov - marsh processes and erosion - 1D transect model to look at waves/erosion - but
+needed along-shore currents (not cross-shore) 
+need to explore results a little bit - 
+next year we re-scope
+where do things fit into circulation/stratification/residence times
+shoreline erosion, where is sediment coming from? (winds, tides, etc. correlated to shoreline erosion)
+using satellite observtions to better-predict biases in process model - rob likes the idea - different than
+data assimilation by short-circuiting. 
+one warning: marjy's model might not have shoreline erosion or a very poor version of it
+riverine vs local (coastal) erosion - Marjy had a student looking at this
+plan: 1) talk to 3 people above
+2) take a look at our data - what are the most robust signals we could give to somebody?
+3) choose which way to go
+*Keep in mind: they might talk confidently, but they don't know what they're talking about yet. They
+have a very different perspective. We will be challenging their models in a good way. In every single case
+(Marjy plus others) - demonstrating model is crap is good. When/why doesn't the model work? That's the hard
+part. Leads to future model development.
+Be exploratory - outline the possible directions, put resoucers toward the things that is most lucrative.
+Want to make sure we have deliverables - *papers/presentations at the end of the year* (one on satellite data,
+one on models)
+touch base again with Rob (~3 months?) when workplan for second half of year put together
+might make sense to have a "group meeting" together depending on how thigns work out--invite Rob to those
+
+how much deth extrapolation can be done? depth stratification
+
+edges of the bay are turbid -- need separate satellite model there?
+Funding comes from hypoxia and acidification.
+
+
+meet with Marjy:
+
+use her model as "data" - are they accurate as measurements?
+Marjy - had student looking at MODIS data -- long-term change (since 2000)
+group at NASA Goddard that has been using Marjy's model output
+They started by looking at satellite-derived chlorophyll (Jeremy Woodall?) - ultimate
+comments were that the oceanic algorithms work for central bay (don't need special
+Chesapeake Bay algorithm). Edges of bay are turbid and need a separate model trained
+there.
+
+600 m spatial resolution model (nested grids within) for the entire Bay. 20 vertical
+depths (even in shallow waters). Looking at coupled physical-biological model: tides,
+carbon and nitrogen cycle, working on sediment transport model. Organic suspended sediments.
+1985-present at daily scale. Use Chesapeake Bay data program to validate. Funding
+comes from hypoxia and acidification. Production/respiration are included in model.
+Not much production data. Do have oxygen data. 17 cruises a year to collect data.
+Have some continuous monitoring datapoints as well, but standard comes from the 
+cruises. 
+
+Have used various methods for calibration
+Bias in measurements: don't go out in storms, e.g. (might go out immediately afterward)
+time of day could also be important. 
+
+Nitrogen really hard to tell what variability is. Oxygen can vary tremendously during a day.
+Temperature can change 10-20 degrees F during a single day. 
+Chlorophyll is really difficult because at less light, the same phytoplankton generate more chlorophyll.
+Turbidty has some chlorophyll in it (inorganic + organics).
+As temperatuer goes up, plants grow more -> more chlorophyll. Photosynthesis is carbon, not chlorophyll.
+Salinity is a proxy for terrestrial inputs. Low salinity -> high terrestrial inputs. Lots of nutrients,
+lots of inorganic sediments, which can block the light, which leads to less organics. Low salinity->
+more inorganic turbidity. Temperature relationship less prominent near shorelines.
+CDOM plays big role in ocean color--big component of total suspended matter. Very closely proportional
+to salinity. 
+
+Really interested in validating/comparing models. One possibility would be to look at surface property
+extrapolations.
+Rob: very hard to do. Salinity "drives the train". Would need to bring in other variables as well.
+Think of the model of a "pretty accurate" representation of the ocean state - mixing etc. 
+Bay is very responsive--even at a daily scale. 
+Way to use the model: test some of the assumptions we're using about the data (e.g. the window).
+Could correlate salinity and nutrients in the model. Use the model as a "bridge".
+Marjy says they do better with the variability than with the mean. Can use to help understand uncertainties.
+
+Next step: how is model served?
+Marjy has a person that handles this (Pierre). GlobX? A year's worth of surface data would be a good place
+to start. They have daily averages. Have 100 or so stations where they have hourly (point locations).
+August 31. XROMS - Regional Ocean Modeling System - WARF for the ocean. 
+
+
+
+
