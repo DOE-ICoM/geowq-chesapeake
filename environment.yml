@@ -1,0 +1,10 @@
+name: satval
+channels:
+- conda-forge
+dependencies:
+        - python>3
+        - pandas        
+        - pytest
+        - yapf
+        - matplotlib
+        - scikit-learn
