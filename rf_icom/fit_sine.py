@@ -1,18 +1,16 @@
 ##Sofia Avendano
 
 import numpy as np
+import pandas as pd
 from scipy import optimize
 import matplotlib.pyplot as plt
-import pandas as pd
-
-##Grab data
-
 
 def fit_sine(data):
 
     ##Read in Data
     #    data=pd.read_csv('temperature.csv')
     #    data.replace([np.inf, -np.inf], np.nan, inplace=True)
+    # data = pd.read_csv("aggregated_w_bandvals.csv")
     data['datetime'] = pd.to_datetime(data['datetime'])
     data['datetime'] = data['datetime'].astype('datetime64')
     data['datetime'] = data['datetime'].dt.strftime('%j')

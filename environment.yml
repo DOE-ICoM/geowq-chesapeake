@@ -8,3 +8,5 @@ dependencies:
         - yapf
         - matplotlib
         - scikit-learn
+        - seaborn
+        - geopandas

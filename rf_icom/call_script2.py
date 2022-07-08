@@ -31,7 +31,7 @@ print('run feature selection')
 X_train, X_test = utils.run_rfe(X_train, y_train, X_test, y_test,
                                 feature_names)
 
-#Get randomm grid
+#Get random grid
 print('random grid')
 random_grid = utils.build_grid()
 
