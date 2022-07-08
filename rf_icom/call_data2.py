@@ -113,10 +113,11 @@ def clean_data(variable, var_col,predictors, test_size=0.5):
     feature_names =[k for k in data.keys() if k in predictors]    
     
     
-
-#    data.hist()
-#    plt.tight_layout()
-#    plt.show()
+    plt.figure(figsize=(20,10))
+    data.hist()
+    plt.tight_layout()
+    plt.show()
+    plt.savefig(variable+'_data_hist.png')
 
     ##split everything
     

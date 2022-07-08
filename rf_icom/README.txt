@@ -20,7 +20,7 @@ utils.py: has feature selection, grid construction and hyperparameter tuning fun
 
 call_data2.py: cleans up the data in the selected .csv file; for temperature calls fit_sine.py to  fit a sine curve to the data
 
-call_script.py: calls utils.py and call_data2.py to tune and run the full random forest model
+call_script2.py: calls utils.py and call_data2.py to tune and run the full random forest model
 
 ---------
 Other Scripts:

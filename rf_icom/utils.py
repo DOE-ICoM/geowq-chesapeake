@@ -77,11 +77,13 @@ def run_rfe(X_train, y_train, X_test, y_test, feature_names):
                len(rfecv.grid_scores_) + min_features_to_select),
          rfecv.grid_scores_)
     plt.show()
-    
+    plt.savefig('rfecv.png')    
 
-    fig=plt.figure
+    plt.figure(figsize=(15,10))
     plt.bar(important_params, rfecv.estimator_.feature_importances_)
+  #  plt.xticks(important_params, rfecv.estimator_.feature_importances_, rotation=90)
     plt.show()
+    plt.savefig('important_features.png')
     
     ols.fit(X, y)
     predictions=ols.predict(X_test)

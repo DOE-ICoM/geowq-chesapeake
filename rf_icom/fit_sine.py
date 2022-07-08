@@ -55,6 +55,7 @@ def fit_sine(data):
     plt.plot(date_doy, temp_doy, "ro")
     plt.plot(date_doy,  fitfunc(p1, date_doy), "bo")
     plt.show()
+    plt.savefig('fitted_sine.png')
 
     return fitted_sine
 
