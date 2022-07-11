@@ -12,9 +12,7 @@ from sklearn.model_selection import RepeatedKFold
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 
-from rf_icom.fit_sine import fit_sine
-
-##Grab data
+from src import fit_sine
 
 
 def clean_data(variable, var_col, predictors, test_size=0.5):
@@ -80,9 +78,9 @@ def clean_data(variable, var_col, predictors, test_size=0.5):
 
     if variable == 'temperature':
         print(data['SST (C)'])
-        fitted_sine = fit_sine(data)
-        print('fitted_sine')
-        print(fitted_sine)
+        fitted_sine = fit_sine.fit_sine(data)
+        # print('fitted_sine')
+        # print(fitted_sine)
         data['SST (C)'] = data['SST (C)'] - fitted_sine
         data.insert(3, "fitted_sine", fitted_sine)
         predictors.append('fitted_sine')
