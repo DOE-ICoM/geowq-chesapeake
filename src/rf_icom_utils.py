@@ -24,6 +24,7 @@ from sklearn.model_selection import cross_val_score
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
+
 def run_rfe(X_train, y_train, X_test, y_test, feature_names, overwrite=False):
     """
     Run recursive feature extraction using RFECV
@@ -159,7 +160,13 @@ def build_grid():
     return random_grid
 
 
-def tune_hyper_params(grid, params, X_train, y_train, X_test, y_test, overwrite=False):
+def tune_hyper_params(grid,
+                      params,
+                      X_train,
+                      y_train,
+                      X_test,
+                      y_test,
+                      overwrite=False):
     """
     Runs Halving Random Search to compare different hyperparamter combinations
     Inputs: 
@@ -174,6 +181,7 @@ def tune_hyper_params(grid, params, X_train, y_train, X_test, y_test, overwrite=
 
     """
 
+    breakpoint()
     rf_random_path = "data/rf_random.pkl"
 
     if not os.path.exists(rf_random_path) or overwrite:
@@ -192,12 +200,11 @@ def tune_hyper_params(grid, params, X_train, y_train, X_test, y_test, overwrite=
             n_jobs=-1,
             scoring='neg_root_mean_squared_error')
 
+        rf_random.fit(X_train, y_train)
         pickle.dump(rf_random, open(rf_random_path, "wb"))
-        
 
     rf_random = pickle.load(open(rf_random_path, "rb"))
-
-    rf_random.fit(X_train, y_train)
+        
     print(rf_random.best_params_)
     print(rf_random.best_score_)
     print(rf_random.best_estimator_)
