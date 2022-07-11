@@ -12,6 +12,15 @@ conda env create -f environment.yml
 
 ## Usage
 
-The prior RF model can be run using:
+### Generate data
 
-`rf_icom/call_script2.py`
+```shell
+python scripts/00_get_data.py
+```
+
+### RF model
+
+```shell
+python scripts/01_rf_fit.py
+python scripts/02_rf_tune.py
+```

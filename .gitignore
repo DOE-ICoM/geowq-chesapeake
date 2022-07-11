@@ -1,5 +1,14 @@
 */__pycache__
 */*/__pycache__
 .vscode
-rf_icom/*.png
+*.png
+
 data/*.csv
+data/*.pkl
+
+figures/*.png
+
+rf_icom/*.png
+
+src/*.png
+src/*.pptx

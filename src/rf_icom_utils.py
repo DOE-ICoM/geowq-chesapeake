@@ -1,5 +1,6 @@
-##Sofia Avendano
+import os
 import pickle
+import warnings
 import numpy as np
 from pprint import pprint
 import matplotlib.pyplot as plt
@@ -21,8 +22,9 @@ from sklearn import linear_model
 from sklearn.model_selection import RepeatedKFold
 from sklearn.model_selection import cross_val_score
 
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
-def run_rfe(X_train, y_train, X_test, y_test, feature_names):
+def run_rfe(X_train, y_train, X_test, y_test, feature_names, overwrite=False):
     """
     Run recursive feature extraction using RFECV
     Inputs: 
@@ -35,24 +37,35 @@ def run_rfe(X_train, y_train, X_test, y_test, feature_names):
     X_train and X_test with non important features culled
 
     """
-    print(type(X_train))
-    print(type(y_train))
-    print(type(feature_names))
+    # print(type(X_train))
+    # print(type(y_train))
+    # print(type(feature_names))
+
+    rfecv_path = "data/rfecv.pkl"
+    ols_path = "data/ols.pkl"
 
     X = X_train
     y = y_train
-    n_scores_mean = []
-    n_scores_std = []
-    ols = RandomForestRegressor(n_estimators=250, max_depth=20, random_state=1)
     min_features_to_select = 5
-    rfecv = RFECV(estimator=ols,
-                  step=1,
-                  scoring="neg_root_mean_squared_error",
-                  cv=5,
-                  verbose=2,
-                  min_features_to_select=min_features_to_select)
 
-    rfecv.fit(X, y)
+    if not os.path.exists(rfecv_path) or overwrite:
+        ols = RandomForestRegressor(n_estimators=250,
+                                    max_depth=20,
+                                    random_state=1)
+        rfecv = RFECV(estimator=ols,
+                      step=1,
+                      scoring="neg_root_mean_squared_error",
+                      cv=5,
+                      verbose=2,
+                      min_features_to_select=min_features_to_select,
+                      n_jobs=3)
+
+        rfecv.fit(X, y)
+        pickle.dump(rfecv, open(rfecv_path, "wb"))
+        pickle.dump(ols, open(ols_path, "wb"))
+
+    rfecv = pickle.load(open(rfecv_path, "rb"))
+    ols = pickle.load(open(ols_path, "rb"))
 
     X = rfecv.transform(X)
     X_test = rfecv.transform(X_test)
@@ -72,21 +85,23 @@ def run_rfe(X_train, y_train, X_test, y_test, feature_names):
         idx = idx + 1
     print(important_params)
 
-    plt.figure
+    plt.figure()
     plt.xlabel("Number of features selected")
     plt.ylabel("Mean Squared error")
-    plt.scatter(
-        range(min_features_to_select,
-              len(rfecv.grid_scores_) + min_features_to_select),
-        rfecv.grid_scores_)
-    plt.show()
-    plt.savefig('rfecv.png')
+    f_numbers = [
+        x for x in range(min_features_to_select,
+                         len(rfecv.grid_scores_) + min_features_to_select)
+    ]
+    for i in range(0, len(rfecv.grid_scores_)):
+        plt.scatter([f_numbers[i]] * len(rfecv.grid_scores_[0]),
+                    rfecv.grid_scores_[i])
+    plt.savefig('figures/rfecv.png')
+    # plt.show()
 
     plt.figure(figsize=(15, 10))
     plt.bar(important_params, rfecv.estimator_.feature_importances_)
     #  plt.xticks(important_params, rfecv.estimator_.feature_importances_, rotation=90)
-    plt.show()
-    plt.savefig('important_features.png')
+    plt.savefig('data/important_features.png')
 
     ols.fit(X, y)
     predictions = ols.predict(X_test)
@@ -144,7 +159,7 @@ def build_grid():
     return random_grid
 
 
-def tune_hyper_params(grid, params, X_train, y_train, X_test, y_test):
+def tune_hyper_params(grid, params, X_train, y_train, X_test, y_test, overwrite=False):
     """
     Runs Halving Random Search to compare different hyperparamter combinations
     Inputs: 
@@ -158,20 +173,29 @@ def tune_hyper_params(grid, params, X_train, y_train, X_test, y_test):
     best run parameters
 
     """
-    #leave regressor as simple as possible so just testing against defaults
-    rf = RandomForestRegressor(random_state=1)
 
-    # Random search of parameters, using kfold cross validation
-    cv = RepeatedKFold(n_splits=5, n_repeats=10, random_state=1)
+    rf_random_path = "data/rf_random.pkl"
 
-    rf_random = HalvingRandomSearchCV(
-        estimator=rf,
-        param_distributions=grid,
-        cv=cv,
-        verbose=2,
-        random_state=1,
-        n_jobs=-1,
-        scoring='neg_root_mean_squared_error')  # Fit the random search model
+    if not os.path.exists(rf_random_path) or overwrite:
+        #leave regressor as simple as possible so just testing against defaults
+        rf = RandomForestRegressor(random_state=1)
+
+        # Random search of parameters, using kfold cross validation
+        cv = RepeatedKFold(n_splits=5, n_repeats=10, random_state=1)
+
+        rf_random = HalvingRandomSearchCV(
+            estimator=rf,
+            param_distributions=grid,
+            cv=cv,
+            verbose=2,
+            random_state=1,
+            n_jobs=-1,
+            scoring='neg_root_mean_squared_error')
+
+        pickle.dump(rf_random, open(rf_random_path, "wb"))
+        
+
+    rf_random = pickle.load(open(rf_random_path, "rb"))
 
     rf_random.fit(X_train, y_train)
     print(rf_random.best_params_)

@@ -1,5 +1,3 @@
-##Sofia Avendano
-
 import numpy as np
 import pandas as pd
 from scipy import optimize
@@ -41,8 +39,8 @@ def fit_sine(data):
     p0 = [12.23414294, 368.06372131, 29.41529669, 16.38386361]
     #p1, success = optimize.leastsq(errfunc, p0[:], args=(date, temp))
     p1, success = optimize.leastsq(errfunc, p0[:], args=(date_doy, temp_doy))
-    print(p1)
-    print(success)
+    # print(p1)
+    # print(success)
     #time = np.linspace(date.min(), date.max(), 1000)
     fitted_sine = fitfunc(p1, date)
     plt.figure(figsize=(20, 10))
