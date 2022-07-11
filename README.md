@@ -1,8 +1,8 @@
-# satval
+# geowq
 
 [![Paper DOI](https://img.shields.io/badge/Paper-XXXX/XXXX-blue.svg)](https://doi.org) [![Code DOI](https://img.shields.io/badge/Code-XXXX/XXXX-blue.svg)](https://doi.org) [![Data DOI](https://img.shields.io/badge/Data-XXXX/XXXX-blue.svg)](https://doi.org)
 
-Generating satellite-derived datasets for model validation
+Geographically aware approaches for remotely sensed estimates of estuarine water properties
 
 ## Setup
 
