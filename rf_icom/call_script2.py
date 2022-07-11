@@ -1,4 +1,3 @@
-##Sofia Avendano
 from rf_icom import utils
 from rf_icom import call_data2
 

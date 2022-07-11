@@ -111,8 +111,7 @@ def clean_data(variable, var_col, predictors, test_size=0.5):
     plt.figure(figsize=(20, 10))
     data.hist()
     plt.tight_layout()
-    plt.show()
-    plt.savefig(variable + '_data_hist.png')
+    plt.savefig("figures/" + variable + '_data_hist.png')
 
     ##split everything
 

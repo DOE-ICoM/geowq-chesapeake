@@ -5,6 +5,7 @@ import pandas as pd
 from scipy import optimize
 import matplotlib.pyplot as plt
 
+
 def fit_sine(data):
 
     ##Read in Data
@@ -25,7 +26,6 @@ def fit_sine(data):
         temp_mean = np.mean(data['SST (C)'][data['datetime'] == i])
         temp_doy.append(temp_mean)
     plt.scatter(np.arange(1, 367), temp_doy)
-    plt.show()
     #    temp_doy=np.vstack((temp_doy, temp_doy))
     date_doy = np.arange(1, 367)
     #    date_doy=np.arange(0,366*2)
@@ -51,7 +51,6 @@ def fit_sine(data):
 
     plt.plot(date_doy, temp_doy, "ro")
     plt.plot(date_doy, fitfunc(p1, date_doy), "bo")
-    plt.show()
-    plt.savefig('fitted_sine.png')
+    plt.savefig('figures/fitted_sine.png')
 
     return fitted_sine
