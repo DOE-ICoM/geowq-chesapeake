@@ -1,8 +1,11 @@
 import sys
 import pickle
+import warnings
 
 sys.path.append(".")
 from src import rf_icom_utils as utils
+
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 predictors = [
     'datetime', 'Ratio 1', 'Ratio 2', 'Ratio 3', 'sur_refl_b08',
