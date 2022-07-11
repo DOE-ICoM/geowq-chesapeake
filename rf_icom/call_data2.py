@@ -1,9 +1,8 @@
-import pandas as pd
 import numpy as np
-import sklearn
+import pandas as pd
+import matplotlib.pyplot as plt
+
 from sklearn.datasets import make_classification
-from numpy import mean
-from numpy import std
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import RepeatedStratifiedKFold
 from sklearn.ensemble import RandomForestClassifier
@@ -11,11 +10,10 @@ from sklearn.datasets import make_regression
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import RepeatedKFold
 from sklearn.ensemble import RandomForestRegressor
-import csv
-import itertools
-import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-from fit_sine import fit_sine
+
+from rf_icom.fit_sine import fit_sine
+
 ##Grab data
 
 

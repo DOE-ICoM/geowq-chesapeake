@@ -1,23 +1,23 @@
 ##Sofia Avendano
+import pickle
 import numpy as np
+from pprint import pprint
+import matplotlib.pyplot as plt
+
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.experimental import enable_halving_search_cv  # noqa
 from sklearn.model_selection import HalvingRandomSearchCV
 from sklearn.model_selection import HalvingGridSearchCV
-from pprint import pprint
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import RepeatedKFold
 from sklearn import metrics
-import matplotlib.pyplot as plt
 from sklearn.svm import SVC
 from sklearn.model_selection import StratifiedKFold
 from sklearn.feature_selection import RFECV
 from sklearn.feature_selection import RFE
 from sklearn.datasets import make_classification
-import call_data2
 from sklearn.tree import DecisionTreeRegressor
 from sklearn import linear_model
-import pandas as pd
 from sklearn.model_selection import RepeatedKFold
 from sklearn.model_selection import cross_val_score
 

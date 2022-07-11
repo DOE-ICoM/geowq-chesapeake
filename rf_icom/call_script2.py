@@ -1,6 +1,6 @@
 ##Sofia Avendano
-import utils
-import call_data2
+from rf_icom import utils
+from rf_icom import call_data2
 
 ##Suggested Parameters for Salinity and Temperature
 ##note that temperature will include a fitted sine curve as a feature as well
