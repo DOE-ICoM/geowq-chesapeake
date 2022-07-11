@@ -39,7 +39,7 @@ def clean_data(variable, var_col, predictors, test_size=0.5):
 
     ##Read in Data
     # data = pd.read_csv(variable + '.csv')
-    data = pd.read_csv("aggregated_w_bandvals.csv")
+    data = pd.read_csv("data/aggregated_w_bandvals.csv")
     var_key = ["SST (C)", "depth (m)", "SSS (psu)", "turbidity (NTU)"]
     var_key.remove(var_col)
     data = data.loc[:, ~data.columns.str.startswith(tuple(var_key))]

@@ -2,3 +2,4 @@
 */*/__pycache__
 .vscode
 rf_icom/*.png
+data/*.csv
