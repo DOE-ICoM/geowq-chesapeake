@@ -1,6 +1,7 @@
 import sys
 import pickle
 import warnings
+from tabulate import tabulate
 
 sys.path.append(".")
 from src import rf_icom_utils as utils
@@ -25,12 +26,17 @@ random_grid = utils.build_grid()
 
 ##Tune hyperparameters
 print('tune hyperparameters')
-
 rmse, best_params = utils.tune_hyper_params(random_grid, predictors, X_train,
                                             y_train, X_test, y_test)
+
 print('Final RMSE:')
 print(rmse)
+with open('data/rmse.md', 'w') as f:
+    f.write(tabulate([[rmse]], headers=["rmse"]))
+
 print('Best-fit Parameters')
 print(best_params)
-
-# TODO: save rmse and best_params
+with open('data/best_params.md', 'w') as f:
+    f.write(
+        tabulate([[i for i in best_params.values()]],
+                 headers=[k for k in best_params.keys()]))
