@@ -172,6 +172,7 @@ def tune_hyper_params(grid,
                       y_train,
                       X_test,
                       y_test,
+                      variable,
                       overwrite=False):
     """
     Runs Halving Random Search to compare different hyperparamter combinations
@@ -187,7 +188,7 @@ def tune_hyper_params(grid,
 
     """
 
-    rf_random_path = "data/rf_random.pkl"
+    rf_random_path = "data/rf_random_" + variable + ".pkl"
 
     if not os.path.exists(rf_random_path) or overwrite:
         #leave regressor as simple as possible so just testing against defaults
