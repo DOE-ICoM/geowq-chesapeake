@@ -40,12 +40,12 @@ def main():
 
     print('Final RMSE:')
     print(rmse)
-    with open("data/rmse_ " + variable + ".md", 'w') as f:
+    with open("data/rmse_" + variable + ".md", 'w') as f:
         f.write(tabulate([[rmse]], headers=["rmse"]))
 
     print('Best-fit Parameters')
     print(best_params)
-    with open("data/best_params" + variable + ".md", 'w') as f:
+    with open("data/best_params_" + variable + ".md", 'w') as f:
         f.write(
             tabulate([[i for i in best_params.values()]],
                      headers=[k for k in best_params.keys()]))
