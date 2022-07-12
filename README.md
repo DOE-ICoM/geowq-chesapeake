@@ -2,7 +2,7 @@
 
 [![Paper DOI](https://img.shields.io/badge/Paper-XXXX/XXXX-blue.svg)](https://doi.org) [![Code DOI](https://img.shields.io/badge/Code-XXXX/XXXX-blue.svg)](https://doi.org) [![Data DOI](https://img.shields.io/badge/Data-XXXX/XXXX-blue.svg)](https://doi.org)
 
-Geographically aware estimates of remotely sensed water properties for estuaries
+Geographically aware estimates of remotely sensed water properties for Chesapeake Bay
 
 ## Setup
 
