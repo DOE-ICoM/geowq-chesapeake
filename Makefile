@@ -19,13 +19,13 @@ data/X_train_turbidity.pkl: scripts/01_rf_fit.py
 
 data_rf_random: data/rf_random_temperature.pkl data/rf_random_salinity.pkl data/rf_random_turbidity.pkl
 
-data/rf_random_temperature.pkl: scripts/02_rf_tune.py
+data/rf_random_temperature.pkl: scripts/02_rf_tune.py data/X_train_temperature.pkl
 	python $< --variable temperature
 
-data/rf_random_salinity.pkl: scripts/02_rf_tune.py
+data/rf_random_salinity.pkl: scripts/02_rf_tune.py data/X_train_salinity.pkl
 	python $< --variable salinity
 
-data/rf_random_turbidity.pkl: scripts/02_rf_tune.py
+data/rf_random_turbidity.pkl: scripts/02_rf_tune.py data/X_train_turbidity.pkl
 	python $< --variable turbidity
 
 # ----
