@@ -12,9 +12,9 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--variable", default="temperature", type=str)    
+    parser.add_argument("--variable", default="temperature", type=str)
     args = vars(parser.parse_args())
-    variable = args["variable"]    
+    variable = args["variable"]
 
     predictors = [
         'datetime', 'Ratio 1', 'Ratio 2', 'Ratio 3', 'sur_refl_b08',
@@ -36,7 +36,7 @@ def main():
     print('tune hyperparameters')
     rmse, best_params = utils.tune_hyper_params(random_grid, predictors,
                                                 X_train, y_train, X_test,
-                                                y_test)
+                                                y_test, variable)
 
     print('Final RMSE:')
     print(rmse)
