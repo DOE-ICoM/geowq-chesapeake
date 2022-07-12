@@ -8,7 +8,7 @@ data/X_train_temperature.pkl: scripts/01_rf_fit.py
 	python $< --variable temperature --var_col "SST (C)"
 
 data/X_train_salinity.pkl: scripts/01_rf_fit.py
-	python $< --variable temperature --var_col "SSS (psu)"
+	python $< --variable salinity --var_col "SSS (psu)"
 
 data/X_train_turbidity.pkl: scripts/01_rf_fit.py
 	python $< --variable turbidity --var_col "turbidity (NTU)"
