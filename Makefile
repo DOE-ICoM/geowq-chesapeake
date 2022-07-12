@@ -30,6 +30,9 @@ data/rf_random_turbidity.pkl: scripts/02_rf_tune.py data/X_train_turbidity.pkl
 
 # ----
 
+data/aggregated.csv: scripts/00_get_data.py
+	python $<
+
 data/aggregated_w_bandvals.csv: src/run_satval.py
 	python $<
 

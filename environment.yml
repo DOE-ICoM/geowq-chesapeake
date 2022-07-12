@@ -11,3 +11,5 @@ dependencies:
         - seaborn
         - geopandas
         - tabulate
+        - geojson
+        - earthengine-api

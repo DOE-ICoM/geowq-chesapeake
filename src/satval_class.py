@@ -13,19 +13,22 @@ implemented yet, it falls back to pandas. Update: modin parallelizes groupby.app
 functions by column (rather than by group), so it cannot be used for this as
 we apply different aggregations to different columns.
 """
-import numpy as np
-import satval_utils as svu
-import os
 import ee
+import os
+import sys
+import numpy as np
+import pandas as pd
 import geopandas as gpd
-from shapely.geometry import Point
 from pyproj.crs import CRS
 from pyproj import Transformer
+from shapely.geometry import Point
 # try:
 #     import modin.pandas as pd
 # except:
 #     import pandas as pd
-import pandas as pd
+
+sys.path.append(".")
+from src import satval_utils as svu
 
 
 class satval():

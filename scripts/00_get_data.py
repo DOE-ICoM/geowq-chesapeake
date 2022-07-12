@@ -1,20 +1,12 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Nov 10 13:53:35 2020
-
-@author: Jon
-
-env: icomdata
-"""
 import sys
-
-sys.path.append(r'C:\Users\Jon\Desktop\Research\ICoM\satval\Code')
-from satval_class import satval
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-path_params = r"C:\Users\Jon\Desktop\Research\ICoM\Data\Delaware P1\params.csv"
-cd = satval(path_params)
+sys.path.append(".")
+from src import satval_class as sc
+
+path_params = r"D:\\ICOM\\Modeling Data\\Processed Data p1\\params.csv"
+cd = sc.satval(path_params)
 """ Processing begins here. """
 cd.assign_unique_location_ids()
 cd.map_coordinates_to_pixels()
