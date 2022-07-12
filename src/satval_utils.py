@@ -6,7 +6,7 @@ Created on Tue Nov 10 14:36:19 2020
 """
 import os
 import numpy as np
-from shapely.geometry import  box, Point, Polygon, MultiPolygon, GeometryCollection
+from shapely.geometry import box, Point, Polygon, MultiPolygon, GeometryCollection
 from pyproj import CRS
 import geopandas as gpd
 import pyproj
@@ -14,6 +14,7 @@ from scipy.spatial import cKDTree
 import pandas as pd
 import geojson
 import ee
+
 
 def parse_params(path_params):
     """
@@ -30,33 +31,43 @@ def parse_params(path_params):
     params : dict
         Contains the parsed parameters.
     """
-    
+
     df = pd.read_csv(path_params, header=None)
     params = {}
-    params['path_base'] = os.path.abspath(df[df[0]=='path_storage'][1].values[0])
-    params['path_data'] = os.path.abspath(df[df[0]=='path_data'][1].values[0])
-    params['path_bounding_pgon'] = os.path.abspath(df[df[0]=='path_bounding_pgon'][1].values[0])
-    params['data_cols'] = df[df[0]=='data_cols'][1].values[0].split(',')
+    params['path_base'] = os.path.abspath(
+        df[df[0] == 'path_storage'][1].values[0])
+    params['path_data'] = os.path.abspath(
+        df[df[0] == 'path_data'][1].values[0])
+    params['path_bounding_pgon'] = os.path.abspath(
+        df[df[0] == 'path_bounding_pgon'][1].values[0])
+    params['data_cols'] = df[df[0] == 'data_cols'][1].values[0].split(',')
     params['data_cols'] = [dc.strip() for dc in params['data_cols']]
-    params['satellite'] = df[df[0]=='satellite'][1].values[0]
-    params['frac_pixel_thresh'] = float(df[df[0]=='frac_pixel_thresh'][1].values[0])
-    params['gdrive_folder'] = df[df[0]=='gdrive_folder'][1].values[0]
+    params['satellite'] = df[df[0] == 'satellite'][1].values[0]
+    params['frac_pixel_thresh'] = float(
+        df[df[0] == 'frac_pixel_thresh'][1].values[0])
+    params['gdrive_folder'] = df[df[0] == 'gdrive_folder'][1].values[0]
     if 'Filters' in df[0].values:
         filters = {}
         if 'time_of_day_min' in df[0].values:
-            filters['time_of_day'] = [float(df[df[0]=='time_of_day_min'][1].values[0]), float(df[df[0]=='time_of_day_max'][1].values[0])]
+            filters['time_of_day'] = [
+                float(df[df[0] == 'time_of_day_min'][1].values[0]),
+                float(df[df[0] == 'time_of_day_max'][1].values[0])
+            ]
         if 'depth_min' in df[0].values:
-            filters['depth (m)'] = [float(df[df[0]=='depth_min'][1].values[0]), float(df[df[0]=='depth_max'][1].values[0])]
+            filters['depth (m)'] = [
+                float(df[df[0] == 'depth_min'][1].values[0]),
+                float(df[df[0] == 'depth_max'][1].values[0])
+            ]
         params['filters'] = filters
-        
+
     return params
-    
+
 
 def prepare_paths(path_base, path_data, path_bounding_pgon):
-    
+
     if os.path.isdir(path_base) is False:
         os.path.mkdir(path_base)
-    
+
     paths = {}
     paths['data'] = path_data
     paths['bounding_pgon'] = path_bounding_pgon
@@ -65,9 +76,10 @@ def prepare_paths(path_base, path_data, path_bounding_pgon):
     paths['aggregated'] = os.path.join(path_base, 'aggregated.csv')
     paths['gee_asset_upload'] = os.path.join(path_base, 'aggregated_gee.csv')
     paths['gee_export_name'] = 'unique_pixeldays_w_bandvals'
-    paths['aggregated_w_bandvals'] = os.path.join(path_base, 'aggregated_w_bandvals.csv')
+    paths['aggregated_w_bandvals'] = os.path.join(path_base,
+                                                  'aggregated_w_bandvals.csv')
     paths['parameters'] = os.path.join(path_base, 'parameters.csv')
-    
+
     return paths
 
 
@@ -90,14 +102,19 @@ def satellite_params(dataset):
     """
     ds_params = {}
     if dataset == 'MYDOCGA.006':
-        ds_params['proj4'] = '+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs' 
-        ds_params['gt'] = (926.625433056, 0, -20015109.354, 0, -926.625433055, 10007554.677) # geotransform pulled from GEE: (xScale, xShearing, xTranslation, yShearing, yScale, yTranslation)
-        ds_params['shape'] = (43200,21600) # ncols, nrows
+        ds_params[
+            'proj4'] = '+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs'
+        ds_params['gt'] = (
+            926.625433056, 0, -20015109.354, 0, -926.625433055, 10007554.677
+        )  # geotransform pulled from GEE: (xScale, xShearing, xTranslation, yShearing, yScale, yTranslation)
+        ds_params['shape'] = (43200, 21600)  # ncols, nrows
 
     return ds_params
 
 
-def pixel_centers_gdf(crs_params, path_bounding_pgon=None, frac_pixel_thresh=None):
+def pixel_centers_gdf(crs_params,
+                      path_bounding_pgon=None,
+                      frac_pixel_thresh=None):
     """
     Makes a GeoDataFrame containing the centers of each pixel in the image
     defined by crs_params. A bounding polygon can be supplied to greatly 
@@ -128,9 +145,9 @@ def pixel_centers_gdf(crs_params, path_bounding_pgon=None, frac_pixel_thresh=Non
     """
     # Check inputs
     if frac_pixel_thresh is not None and path_bounding_pgon is None:
-        raise ValueError('Must specify path_bounding_pgon if specifying frac_pixel_thresh.')
-        
-    
+        raise ValueError(
+            'Must specify path_bounding_pgon if specifying frac_pixel_thresh.')
+
     if path_bounding_pgon is not None:
         bb_gdf = gpd.read_file(path_bounding_pgon)
         bb_gdf = bb_gdf.to_crs(CRS.from_proj4(crs_params['proj4']))
@@ -143,19 +160,24 @@ def pixel_centers_gdf(crs_params, path_bounding_pgon=None, frac_pixel_thresh=Non
         cols = np.arange(col_min, col_max + 1, 1, dtype=np.int)
         r, c = np.meshgrid(rows, cols)
         r, c = r.flatten(), c.flatten()
-        pix_idx = np.ravel_multi_index((r,c), crs_params['shape'][::-1])
-        
-    else: # You're gonna have a bad time
+        pix_idx = np.ravel_multi_index((r, c), crs_params['shape'][::-1])
+
+    else:  # You're gonna have a bad time
         # Get pixel centers and ids
         pix_idx = np.arange(0, np.product(crs_params['shape']))
         r, c = np.unravel_index(pix_idx, crs_params['shape'][::-1])
-    
-    lons = crs_params['gt'][2] + crs_params['gt'][0] * c + crs_params['gt'][0]/2
-    lats = crs_params['gt'][5] + crs_params['gt'][4] * r + crs_params['gt'][4]/2
-    
+
+    lons = crs_params['gt'][
+        2] + crs_params['gt'][0] * c + crs_params['gt'][0] / 2
+    lats = crs_params['gt'][
+        5] + crs_params['gt'][4] * r + crs_params['gt'][4] / 2
+
     # Filter pixel centers to those within the supplied polygon
     if path_bounding_pgon is not None:
-        gdf_coords = gpd.GeoDataFrame(geometry=[Point(lo, la) for lo, la in zip(lons, lats)], crs=bb_gdf.crs, data={'pix_idx':pix_idx})
+        gdf_coords = gpd.GeoDataFrame(
+            geometry=[Point(lo, la) for lo, la in zip(lons, lats)],
+            crs=bb_gdf.crs,
+            data={'pix_idx': pix_idx})
         intersected = gpd.sjoin(gdf_coords, bb_gdf, how='inner', op='within')
         pix_idx = intersected.pix_idx.values
         lats = []
@@ -171,42 +193,55 @@ def pixel_centers_gdf(crs_params, path_bounding_pgon=None, frac_pixel_thresh=Non
         # First, find all the pixagons that are completely in the polygon
         pgons = []
         for lo, la in zip(lons, lats):
-            tl = (lo - crs_params['gt'][0]/2, la - crs_params['gt'][4]/2)
-            tr = (lo + crs_params['gt'][0]/2, la - crs_params['gt'][4]/2)
-            bl = (lo - crs_params['gt'][0]/2, la + crs_params['gt'][4]/2)
-            br = (lo + crs_params['gt'][0]/2, la + crs_params['gt'][4]/2)
+            tl = (lo - crs_params['gt'][0] / 2, la - crs_params['gt'][4] / 2)
+            tr = (lo + crs_params['gt'][0] / 2, la - crs_params['gt'][4] / 2)
+            bl = (lo - crs_params['gt'][0] / 2, la + crs_params['gt'][4] / 2)
+            br = (lo + crs_params['gt'][0] / 2, la + crs_params['gt'][4] / 2)
             pgons.append(Polygon((tl, tr, br, bl, tl)))
-        gdf_pgons = gpd.GeoDataFrame(geometry=pgons, crs=bb_gdf.crs, data={'pix_idx':pix_idx})
+        gdf_pgons = gpd.GeoDataFrame(geometry=pgons,
+                                     crs=bb_gdf.crs,
+                                     data={'pix_idx': pix_idx})
         intersected = gpd.sjoin(gdf_pgons, bb_gdf, how='inner', op='within')
-        
+
         # Then check the area overlap for the pixagons that aren't completely
         # contained
-        some_overlap_pids = set(gdf_pgons.pix_idx.values) - set(intersected.pix_idx.values)
-        gdf_overlap = gdf_pgons.loc[gdf_pgons['pix_idx'].isin(some_overlap_pids)]
+        some_overlap_pids = set(gdf_pgons.pix_idx.values) - set(
+            intersected.pix_idx.values)
+        gdf_overlap = gdf_pgons.loc[gdf_pgons['pix_idx'].isin(
+            some_overlap_pids)]
         # This is a trick to divide a large, complex bounding polygon into
         # a bunch of smaller ones for more efficient intersection
-        geom_parts = katana(bb_gdf.geometry.values[0], crs_params['gt'][0]*5)
+        geom_parts = katana(bb_gdf.geometry.values[0], crs_params['gt'][0] * 5)
         geom_parts_gdf = gpd.GeoDataFrame(geometry=geom_parts, crs=bb_gdf.crs)
         ints = gpd.overlay(geom_parts_gdf, gdf_overlap, how="intersection")
         ints['areas'] = ints.area
         overlap_areas = ints.groupby(by='pix_idx').sum().reset_index()
-        overlap_areas['overlap_frac'] = [oa/gdf_overlap.geometry.values[gdf_overlap.pix_idx.values==pi].area[0] for oa, pi in zip(overlap_areas.areas.values, overlap_areas.pix_idx.values)]
-        overlap_areas = overlap_areas[overlap_areas.overlap_frac.values>=frac_pixel_thresh]
-        
+        overlap_areas['overlap_frac'] = [
+            oa / gdf_overlap.geometry.values[
+                gdf_overlap.pix_idx.values == pi].area[0] for oa, pi in zip(
+                    overlap_areas.areas.values, overlap_areas.pix_idx.values)
+        ]
+        overlap_areas = overlap_areas[
+            overlap_areas.overlap_frac.values >= frac_pixel_thresh]
+
         # Combine the fully-in pixagons with those that have a high-enough
         # fraction of area in
-        pix_ids_keep = np.append(overlap_areas.pix_idx.values, intersected.pix_idx.values)
-        idcs_keep = np.array([np.where(pid==pix_idx)[0][0] for pid in pix_ids_keep])
-        
+        pix_ids_keep = np.append(overlap_areas.pix_idx.values,
+                                 intersected.pix_idx.values)
+        idcs_keep = np.array(
+            [np.where(pid == pix_idx)[0][0] for pid in pix_ids_keep])
+
         # Remove all the pixels that don't meet the threshold
         pix_idx = pix_idx[idcs_keep]
         lons = lons[idcs_keep]
         lats = lats[idcs_keep]
-        
+
     # Export the modis pixel centers
-    pix_centers = gpd.GeoDataFrame(geometry=[Point(lon, lat) for lon, lat in zip(lons, lats)], crs=CRS.from_proj4(crs_params['proj4']))
+    pix_centers = gpd.GeoDataFrame(
+        geometry=[Point(lon, lat) for lon, lat in zip(lons, lats)],
+        crs=CRS.from_proj4(crs_params['proj4']))
     pix_centers['pix_idx'] = pix_idx
-    
+
     return pix_centers
 
 
@@ -243,20 +278,23 @@ def katana(geometry, threshold, count=0):
         return [geometry]
     if height >= width:
         # split left to right
-        a = box(bounds[0], bounds[1], bounds[2], bounds[1]+height/2)
-        b = box(bounds[0], bounds[1]+height/2, bounds[2], bounds[3])
+        a = box(bounds[0], bounds[1], bounds[2], bounds[1] + height / 2)
+        b = box(bounds[0], bounds[1] + height / 2, bounds[2], bounds[3])
     else:
         # split top to bottom
-        a = box(bounds[0], bounds[1], bounds[0]+width/2, bounds[3])
-        b = box(bounds[0]+width/2, bounds[1], bounds[2], bounds[3])
+        a = box(bounds[0], bounds[1], bounds[0] + width / 2, bounds[3])
+        b = box(bounds[0] + width / 2, bounds[1], bounds[2], bounds[3])
     result = []
-    for d in (a, b,):
+    for d in (
+            a,
+            b,
+    ):
         c = geometry.intersection(d)
         if not isinstance(c, GeometryCollection):
             c = [c]
         for e in c:
             if isinstance(e, (Polygon, MultiPolygon)):
-                result.extend(katana(e, threshold, count+1))
+                result.extend(katana(e, threshold, count + 1))
     if count > 0:
         return result
     # convert multipart into singlepart
@@ -293,29 +331,29 @@ def map_pts_to_pixels(pix_centers, coords_df, crs_params):
         A vector the same length as coords that contains each point's nearest
         pixel ID. 
     """
-    
+
     # pix_centers = cd.gdf_pix_centers
     # coords = cd.dateloc
-    
+
     # Reproject the coordinates to match the pixel centers
     p = pyproj.Proj(crs_params['proj4'])
-    c_lons, c_lats = p(coords_df.longitude.values, coords_df.latitude.values)  
+    c_lons, c_lats = p(coords_df.longitude.values, coords_df.latitude.values)
     coords_proj = [(lon, lat) for lon, lat in zip(c_lons, c_lats)]
 
     # Build a kd-tree of the pixel centers
     pc_y = [g.coords.xy[1][0] for g in pix_centers.geometry.values]
-    pc_x =  [g.coords.xy[0][0] for g in pix_centers.geometry.values]
+    pc_x = [g.coords.xy[0][0] for g in pix_centers.geometry.values]
     pix_idx = pix_centers.pix_idx.values
     ckd_tree = cKDTree(list(zip(pc_x, pc_y)))
-    
+
     # Find the index of the nearest pixel center to each coordinate
     dists, nearest_idx = ckd_tree.query(coords_proj, k=1)
     nearest_pix_ids = pix_idx[nearest_idx]
     pc_ys = np.array(pc_y)[nearest_idx]
     pc_xs = np.array(pc_x)[nearest_idx]
-        
+
     return nearest_pix_ids, dists, pc_ys, pc_xs
-    
+
 
 def aggregate_to_pixeldays(df, datacols, by='pixelday'):
     """
@@ -337,11 +375,11 @@ def aggregate_to_pixeldays(df, datacols, by='pixelday'):
         The aggregated dataframe.
 
     """
-    
+
     def res_agg(x, args):
-        
+
         datacols = args
-            
+
         def nanmean_wrapper(a):
             """
             Returns np.nan if all the values are nan, else returns the mean.
@@ -350,12 +388,12 @@ def aggregate_to_pixeldays(df, datacols, by='pixelday'):
                 return np.nan
             else:
                 return np.nanmean(a)
-    
+
         # Define aggregation functions: for columns NOT in datacols, we just
-        # take the first value of the group. For those in datacols, we 
-        # compute a mean and a count. 
+        # take the first value of the group. For those in datacols, we
+        # compute a mean and a count.
         # See https://stackoverflow.com/questions/20659523/issue-calling-lambda-stored-in-dictionary
-        # for the lambda construction (i.e. restatement of inputs).        
+        # for the lambda construction (i.e. restatement of inputs).
         aggs = {}
         for k in x.keys():
             if k == 'orig_row_idx':
@@ -364,18 +402,19 @@ def aggregate_to_pixeldays(df, datacols, by='pixelday'):
             aggs[k] = lambda x=x, k=k: x[k].values[0]
         for k in datacols:
             aggs[k] = lambda x=x, k=k: nanmean_wrapper(x[k])
-            aggs[k + ' count'] =  lambda x=x, k=k: np.sum(np.isnan(x[k])==0)
+            aggs[k + ' count'] = lambda x=x, k=k: np.sum(np.isnan(x[k]) == 0)
             # Agg strategy to keep track of which rows of the original dataframe
             # are being aggregated (for provenance/debugging)
 
         aggs['orig_row_idx'] = lambda x=x: list(x['orig_row_idx'].values)
-        
-                            
-        do_agg = {k : aggs[k](x) for k in aggs.keys()}
-    
-        return pd.Series(do_agg, index=list(aggs.keys())) # This is only guaranteed in Python 3.6+ because dictionaries are ordered therein
-    
-    grouped = df.groupby(by=by).apply(res_agg, args=datacols) 
+
+        do_agg = {k: aggs[k](x) for k in aggs.keys()}
+
+        return pd.Series(
+            do_agg, index=list(aggs.keys())
+        )  # This is only guaranteed in Python 3.6+ because dictionaries are ordered therein
+
+    grouped = df.groupby(by=by).apply(res_agg, args=datacols)
     grouped = grouped.reset_index(drop=True)
 
     return grouped
@@ -407,11 +446,20 @@ def make_gdf_for_GEE(aggregated, df=False):
 
     """
     if df is False:
-        out = gpd.GeoDataFrame(geometry=[Point(lo, la) for lo, la in zip(aggregated.longitude.values, aggregated.latitude.values)], 
-                                   crs=CRS.from_epsg(4326))
+        out = gpd.GeoDataFrame(geometry=[
+            Point(lo, la) for lo, la in zip(aggregated.longitude.values,
+                                            aggregated.latitude.values)
+        ],
+                               crs=CRS.from_epsg(4326))
     else:
-        out = pd.DataFrame(data={'latitude':aggregated.latitude.values, 'longitude':aggregated.longitude.values})
-    out['system:time_start'] = (pd.to_datetime(aggregated['datetime'].values).astype(np.int64) / int(1e6)).astype(np.int64)
+        out = pd.DataFrame(
+            data={
+                'latitude': aggregated.latitude.values,
+                'longitude': aggregated.longitude.values
+            })
+    out['system:time_start'] = (
+        pd.to_datetime(aggregated['datetime'].values).astype(np.int64) /
+        int(1e6)).astype(np.int64)
     out['pixelday'] = aggregated.pixelday.values
 
     return out
@@ -437,14 +485,15 @@ def gdf_to_FC(gdf):
 
     def shapelyToEEFeature(row):
         properties = row.drop(["geometry"]).to_dict()
-        geoJSONfeature = geojson.Feature(geometry=row["geometry"], properties=properties)
+        geoJSONfeature = geojson.Feature(geometry=row["geometry"],
+                                         properties=properties)
         return ee.Feature(geoJSONfeature)
 
     gdfCopy = gdf.copy()
-    gdfCopy["eeFeature"] = gdfCopy.apply(shapelyToEEFeature,1)
+    gdfCopy["eeFeature"] = gdfCopy.apply(shapelyToEEFeature, 1)
     featureList = gdfCopy["eeFeature"].tolist()
-    fc =  ee.FeatureCollection(featureList)
-    
+    fc = ee.FeatureCollection(featureList)
+
     return fc
 
 
@@ -487,21 +536,24 @@ def gee_fetch_bandvals(gdf, dataset, filename, asset=None, gdrive_folder=None):
         status with task.status().
 
     """
-    
+
     ee.Initialize()
-    
+
     def getBandValues(im):
         # Filter the observations to the date range of the image
-        obsSameDate = obs.filterDate(ee.Date(im.get('system:time_start')), ee.Date(im.get('system:time_end')))
-    
+        obsSameDate = obs.filterDate(ee.Date(im.get('system:time_start')),
+                                     ee.Date(im.get('system:time_end')))
+
         bandValFC = ee.Algorithms.If(
-            obsSameDate.size(), # If this is 0, we have no images in the collection and it evaluates to "False", else "True"
-            im.reduceRegions(obsSameDate, ee.Reducer.first(), scale=500), #  True: grab its band values
-            None # False: only geometry and 'pixelday' properties will be set
+            obsSameDate.size(
+            ),  # If this is 0, we have no images in the collection and it evaluates to "False", else "True"
+            im.reduceRegions(obsSameDate, ee.Reducer.first(),
+                             scale=500),  #  True: grab its band values
+            None  # False: only geometry and 'pixelday' properties will be set
         )
-    
+
         return bandValFC
-    
+
     # We need to convert the GeoDataFrame to a server-side FeatureCollection
     # This will be uploaded when the task is started.
     if asset is not None:
@@ -510,38 +562,38 @@ def gee_fetch_bandvals(gdf, dataset, filename, asset=None, gdrive_folder=None):
         obs = gdf_to_FC(gdf)
 
     # Define some modis asset locations on GEE
-    icAssets = {'MYD09GA.006' : "MODIS/006/MYD09GA",
-              'MYD09GQ.006' : 'MODIS/006/MYD09GQ',
-              'MYDOCGA.006' : 'MODIS/006/MYDOCGA'}
-            
+    icAssets = {
+        'MYD09GA.006': "MODIS/006/MYD09GA",
+        'MYD09GQ.006': 'MODIS/006/MYD09GQ',
+        'MYDOCGA.006': 'MODIS/006/MYDOCGA'
+    }
+
     # Load the imageCollection, get date range
     ic = ee.ImageCollection(icAssets[dataset])
     icDateRange = ic.reduceColumns(ee.Reducer.minMax(), ["system:time_start"])
-    
+
     # Filter the observations to the imageCollection dateRange
-    obs = obs.filterDate(ee.Date(icDateRange.get('min')), ee.Date(icDateRange.get('max')))
-    
+    obs = obs.filterDate(ee.Date(icDateRange.get('min')),
+                         ee.Date(icDateRange.get('max')))
+
     # ic = ee.ImageCollection(ic.toList(10, 1000))
     bandVals = ic.map(getBandValues, opt_dropNulls=True).flatten()
-          
+
     # Export the dataframe
     if gdrive_folder is None:
         task = ee.batch.Export.table.toDrive(
-          collection = bandVals,
-          description = filename,
-          fileFormat = 'CSV',
+            collection=bandVals,
+            description=filename,
+            fileFormat='CSV',
         )
     else:
-        task = ee.batch.Export.table.toDrive(
-          collection = bandVals,
-          description = filename,
-          fileFormat = 'CSV',
-          folder = gdrive_folder
-        )
+        task = ee.batch.Export.table.toDrive(collection=bandVals,
+                                             description=filename,
+                                             fileFormat='CSV',
+                                             folder=gdrive_folder)
 
-    
     task.start()
-    
+
     return task
 
 
@@ -566,7 +618,7 @@ def mydocga_convert_quality_bands(qa_bands_raw, n_bytes=4):
         for each band.
 
     """
-    
+
     # Dictionary of band informaiton For band 16 drop the first value as bits 0-3 are unused
     #{ 0 : 'Highest quality',
     #  7 : 'Noisy detector',
@@ -578,38 +630,48 @@ def mydocga_convert_quality_bands(qa_bands_raw, n_bytes=4):
     #  13 : 'Correction out of bounds pixel constratined to allowable value',
     #  14 : 'L1B data faulty',
     #  15 : 'Not processed due to dep ocean or clouds'}
-    
+
     def bits_to_qc(bits, n=4):
-        qc_values = [int(bits[i:i+n],2) for i in range(0, len(bits), n)]
-        return qc_values   
-        
-    band_order = ['sur_refl_b08', 'sur_refl_b09', 'sur_refl_b10', 'sur_refl_b11',
-                  'sur_refl_b12', 'sur_refl_b13', 'sur_refl_b14', 'sur_refl_b15',
-                  'sur_refl_b16']
-    
+        qc_values = [int(bits[i:i + n], 2) for i in range(0, len(bits), n)]
+        return qc_values
+
+    band_order = [
+        'sur_refl_b08', 'sur_refl_b09', 'sur_refl_b10', 'sur_refl_b11',
+        'sur_refl_b12', 'sur_refl_b13', 'sur_refl_b14', 'sur_refl_b15',
+        'sur_refl_b16'
+    ]
+
     # Ensure integer types, set nodata to -1
-    qa_bands_raw['QC_b8_15_1km'][pd.isna(qa_bands_raw['QC_b8_15_1km'])] = -1 
-    qa_bands_raw['QC_b16_1km'][pd.isna(qa_bands_raw['QC_b16_1km'])] = -1 
-    qa_bands_raw['QC_b8_15_1km'] = qa_bands_raw['QC_b8_15_1km'].values.astype('int64') 
-    qa_bands_raw['QC_b16_1km'] = qa_bands_raw['QC_b16_1km'].values.astype('int64') 
-    
-    # Convert to bit representation. Note that when padding the binary output numpy reverses the order. 
-    bits_8_15 = [np.binary_repr(integer,8*n_bytes ) for integer in qa_bands_raw['QC_b8_15_1km']]
+    qa_bands_raw['QC_b8_15_1km'][pd.isna(qa_bands_raw['QC_b8_15_1km'])] = -1
+    qa_bands_raw['QC_b16_1km'][pd.isna(qa_bands_raw['QC_b16_1km'])] = -1
+    qa_bands_raw['QC_b8_15_1km'] = qa_bands_raw['QC_b8_15_1km'].values.astype(
+        'int64')
+    qa_bands_raw['QC_b16_1km'] = qa_bands_raw['QC_b16_1km'].values.astype(
+        'int64')
+
+    # Convert to bit representation. Note that when padding the binary output numpy reverses the order.
+    bits_8_15 = [
+        np.binary_repr(integer, 8 * n_bytes)
+        for integer in qa_bands_raw['QC_b8_15_1km']
+    ]
     converted_8_15 = np.array([bits_to_qc(bit) for bit in bits_8_15])
-    converted_8_15[qa_bands_raw['QC_b8_15_1km']==-1,:] = -1
-    
-    bits_16 = [np.binary_repr(integer,8*n_bytes ) for integer in qa_bands_raw['QC_b16_1km']]
+    converted_8_15[qa_bands_raw['QC_b8_15_1km'] == -1, :] = -1
+
+    bits_16 = [
+        np.binary_repr(integer, 8 * n_bytes)
+        for integer in qa_bands_raw['QC_b16_1km']
+    ]
     converted_16 = np.array([bits_to_qc(bit) for bit in bits_16])
-    converted_16[qa_bands_raw['QC_b16_1km']==-1,:] = -1
-    converted_16 = converted_16[:,6]
-    
+    converted_16[qa_bands_raw['QC_b16_1km'] == -1, :] = -1
+    converted_16 = converted_16[:, 6]
+
     # Combine into dataframe
     converted = pd.DataFrame(data=converted_8_15, columns=band_order[:-1])
     converted[band_order[-1]] = converted_16
-    
-    # Rename
-    converted = converted.rename(mapper={b: 'QC_' + b.split('_')[-1] for b in band_order}, axis=1)
-    
-    return converted
-    
 
+    # Rename
+    converted = converted.rename(
+        mapper={b: 'QC_' + b.split('_')[-1]
+                for b in band_order}, axis=1)
+
+    return converted
