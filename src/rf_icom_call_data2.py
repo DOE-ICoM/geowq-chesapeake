@@ -2,14 +2,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from sklearn.datasets import make_classification
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import RepeatedStratifiedKFold
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.datasets import make_regression
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import RepeatedKFold
-from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 
 from src import fit_sine
@@ -112,7 +104,6 @@ def clean_data(variable, var_col, predictors, test_size=0.5):
     plt.savefig("figures/" + variable + '_data_hist.png')
 
     ##split everything
-
     X_train, X_test, y_train, y_test = train_test_split(X,
                                                         y,
                                                         test_size=test_size)
