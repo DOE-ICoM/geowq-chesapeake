@@ -25,7 +25,13 @@ from sklearn.model_selection import cross_val_score
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
-def run_rfe(X_train, y_train, X_test, y_test, feature_names, overwrite=False):
+def run_rfe(X_train,
+            y_train,
+            X_test,
+            y_test,
+            feature_names,
+            variable,
+            overwrite=False):
     """
     Run recursive feature extraction using RFECV
     Inputs: 
@@ -42,8 +48,8 @@ def run_rfe(X_train, y_train, X_test, y_test, feature_names, overwrite=False):
     # print(type(y_train))
     # print(type(feature_names))
 
-    rfecv_path = "data/rfecv.pkl"
-    ols_path = "data/ols.pkl"
+    rfecv_path = "data/rfecv_" + variable + ".pkl"
+    ols_path = "data/ols_" + variable + ".pkl"
 
     X = X_train
     y = y_train
