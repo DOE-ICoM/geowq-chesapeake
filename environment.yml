@@ -1,4 +1,4 @@
-name: satval
+name: geowq
 channels:
 - conda-forge
 dependencies:
