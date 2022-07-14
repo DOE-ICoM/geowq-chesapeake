@@ -1,5 +1,11 @@
 .PHONY: data
 
+ICOM_DATA = D:/ICOM
+export ICOM_DATA:=$(ICOM_DATA)
+
+test:
+	python -c "import os; print(os.environ['ICOM_DATA'])"
+
 # ----
 
 data: data_X_train
@@ -30,8 +36,27 @@ data/rf_random_turbidity.pkl: scripts/02_rf_tune.py data/X_train_turbidity.pkl
 
 # ----
 
+# all_data.csv is not created with this code base...
+
+# python $< --target filtered.csv
+# assign_unique_location_ids
+
+# data_bbox: $(ICOM_DATA)/Modeling Data/Processed Data p1/bbox.csv
+
+# $(ICOM_DATA)/Modeling Data/Processed Data p1/bbox.csv:
+# 	python $< --target bbox.csv
+
+data_filtered: $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/filtered.csv
+
+$(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/filtered.csv: scripts/00_get_data.py
+	python $< --target filtered.csv	
+
+pixel_centers.shp: scripts/00_get_data.py data/filtered.csv
+	python $< --target pixel_centers.shp
+	# map_coordinates_to_pixels
+
 data/aggregated.csv: scripts/00_get_data.py
-	python $<
+	# aggregate_data_to_unique_pixeldays
 
 data/aggregated_w_bandvals.csv: src/run_satval.py
 	python $<

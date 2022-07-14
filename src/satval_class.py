@@ -19,6 +19,7 @@ import sys
 import numpy as np
 import pandas as pd
 import geopandas as gpd
+from pathlib import Path
 from pyproj.crs import CRS
 from pyproj import Transformer
 from shapely.geometry import Point
@@ -29,6 +30,33 @@ from shapely.geometry import Point
 
 sys.path.append(".")
 from src import satval_utils as svu
+
+
+def _unique_within(all_data, gdf_pgon):
+    all_data_unique = all_data.groupby(
+        ['longitude', 'latitude']).size().reset_index().rename(columns={
+            0: 'count'
+        }).sort_values("count", ascending=False).reset_index(drop=True)
+
+    points_unique = gpd.GeoDataFrame(geometry=[
+        Point(lon, lat) for lon, lat in zip(all_data_unique.longitude.values,
+                                            all_data_unique.latitude.values)
+    ],
+                                     index=np.arange(0, len(all_data_unique)),
+                                     crs=CRS.from_epsg(4326))
+    points_unique["longitude"] = all_data_unique["longitude"]
+    points_unique["latitude"] = all_data_unique["latitude"]
+
+    inside_points = gpd.sjoin(points_unique, gdf_pgon,
+                              op='within').drop(columns=["geometry"])
+    outside_points = all_data.merge(inside_points,
+                                    on=["latitude", "longitude"],
+                                    how="left")
+    outside_points = outside_points[pd.isna(outside_points["AREA"])]
+    outside_points_idx = np.array(
+        list(set(outside_points.index.values.flatten())))
+
+    return outside_points_idx
 
 
 class satval():
@@ -62,6 +90,14 @@ class satval():
         if column_map['latitude'] not in self.column_names:
             print('Specify the correct "latitude" column.')
 
+    def get_points(
+        self,
+        column_map={
+            'datetime': 'datetime',
+            'longitude': 'longitude',
+            'latitude': 'latitude'
+        },
+    ):
         # Get a vector of dates and locations
         if self.verbose is True:
             print('Loading in dates and locations from observations file...')
@@ -91,23 +127,16 @@ class satval():
                 '{} entries were removed due to nan values in datetime or lat/lon columns.'
                 .format(len(r_na)))
 
+        self.data_path = str(Path(self.paths["bounding_pgon"]).parent.parent)
+
         # Determine which points are outside the provided bounding polygon
         if self.verbose is True:
             print('Finding observations within the supplied polygon...')
         gdf_pgon = gpd.read_file(self.paths['bounding_pgon'])
         if gdf_pgon.crs.to_epsg() != 4326:
             gdf_pgon = gdf_pgon.to_crs(CRS.from_epsg(4326))
-        points = gpd.GeoDataFrame(geometry=[
-            Point(lon, lat) for lon, lat in zip(self.dateloc.longitude.values,
-                                                self.dateloc.latitude.values)
-        ],
-                                  index=np.arange(0, len(self.dateloc)),
-                                  crs=CRS.from_epsg(4326))
-        inside_points = gpd.sjoin(points, gdf_pgon, op='within')
-        outside_points_idx = np.array(
-            list(
-                set(points.index.values.flatten()) -
-                set(inside_points.index.values.flatten())))
+
+        outside_points_idx = _unique_within(self.dateloc, gdf_pgon)        
 
         self.skiprows[outside_points_idx] = True
         self.skiprows_id[outside_points_idx] = 2
