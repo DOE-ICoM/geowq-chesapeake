@@ -37,4 +37,7 @@ python scripts/01_rf_fit.py
 
 # hyperparameter tuning
 python scripts/02_rf_tune.py
+
+# generate prediction surfaces
+python scripts/03_rf_predict.py
 ```
