@@ -5,16 +5,16 @@ Created on Tue Nov 10 14:36:19 2020
 @author: Jon
 """
 import os
+import ee
+import pyproj
+import geojson
 import httplib2
 import numpy as np
-from shapely.geometry import box, Point, Polygon, MultiPolygon, GeometryCollection
+import pandas as pd
 from pyproj import CRS
 import geopandas as gpd
-import pyproj
 from scipy.spatial import cKDTree
-import pandas as pd
-import geojson
-import ee
+from shapely.geometry import box, Point, Polygon, MultiPolygon, GeometryCollection
 
 
 def parse_params(path_params):
