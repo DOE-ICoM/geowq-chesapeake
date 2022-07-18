@@ -23,7 +23,10 @@ python scripts/00_load_all_data.py
 ### Generate data
 
 ```shell
-python scripts/00_get_data.py
+make data_aggregated_gee_csv
+# manually upload aggregated_gee.csv to GEE
+# manually download results
+make data_aggregated_w_bandvals_csv
 ```
 
 ### RF model

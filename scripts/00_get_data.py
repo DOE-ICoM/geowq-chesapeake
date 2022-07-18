@@ -50,7 +50,7 @@ def main():
         "pixel_centers.shp": pixel_centers,
         "aggregated.csv": aggregated,
         "aggregated_gee.csv": aggregated_gee,
-        "test2": test2,
+        "unique_pixeldays_w_bandvals": unique_pixeldays_w_bandvals,
         "aggregated_w_bandvals.csv": aggregated_w_bandvals
     }
     methods[target]()
