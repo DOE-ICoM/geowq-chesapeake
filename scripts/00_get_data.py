@@ -14,13 +14,45 @@ def filtered():
     cd.assign_unique_location_ids()
 
 
+def pixel_centers():
+    cd = sc.satval(r"data\\params.csv")
+    cd.map_coordinates_to_pixels()
+
+
+def aggregated():
+    cd = sc.satval(r"data\\params.csv")
+    cd.aggregate_data_to_unique_pixeldays()
+
+
+def aggregated_gee():
+    cd = sc.satval(r"data\\params.csv")
+    cd.start_gee_bandval_retrieval()
+
+
+def unique_pixeldays_w_bandvals():
+    cd = sc.satval(r"data\\params.csv")
+    cd.start_gee_bandval_retrieval("users/jstacompute/icom_gee")
+
+
+def aggregated_w_bandvals():
+    cd = sc.satval(r"data\\params.csv")
+    cd.merge_bandvals_and_data()
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--target", type=str)
     args = vars(parser.parse_args())
     target = args["target"]
 
-    methods = {'filtered.csv': filtered}
+    methods = {
+        'filtered.csv': filtered,
+        "pixel_centers.shp": pixel_centers,
+        "aggregated.csv": aggregated,
+        "aggregated_gee.csv": aggregated_gee,
+        "test2": test2,
+        "aggregated_w_bandvals.csv": aggregated_w_bandvals
+    }
     methods[target]()
 
 

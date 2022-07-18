@@ -7,8 +7,16 @@ Geographically aware estimates of remotely sensed water properties for Chesapeak
 ## Setup
 
 ```shell
+# software
 conda env create -f environment.yml
 ```
+
+<!-- ```shell
+# observtional data
+createdb -U postgres icom
+set PGPASSWORD=password psql -U postgres -d icom -c 'CREATE EXTENSION postgis;'
+python scripts/00_load_all_data.py
+``` -->
 
 ## Usage
 

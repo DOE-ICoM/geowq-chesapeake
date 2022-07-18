@@ -5,22 +5,18 @@ Created on Tue Nov  3 10:24:41 2020
 @author: muklu
 """
 
-
-import os
-os.chdir('C:/Users/muklu/Documents/GitHub/satval/Code/Plotting')
-import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
-import geopandas as gpd
-import plot_helpers as ph
+import pandas as pd
 from pyproj import CRS
+import geopandas as gpd
+import matplotlib.pyplot as plt
+
+from src.data import plot_helpers as ph
 
 
 # Import the reduced data frame and createa geopandas dataframe. Could skip
 # if importing the geodataframe directly. Assumes that the dataframe has a modis pixel id column
-filepath = 'F:/ICOM/'
-savepath = 'F:/ICOM/'
-filename = 'unique_pixeldays.csv'
+filename = 'data/unique_pixeldays_w_bandvals.csv'
 
 pix_ids = [274463844,270230367] # if you want to plot time series from individual modis pixels
 columns = ['SST (C)','SSS (psu)','turbidity (NTU)']

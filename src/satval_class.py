@@ -16,6 +16,7 @@ we apply different aggregations to different columns.
 import ee
 import os
 import sys
+import pickle
 import numpy as np
 import pandas as pd
 import geopandas as gpd
@@ -90,6 +91,16 @@ class satval():
         if column_map['latitude'] not in self.column_names:
             print('Specify the correct "latitude" column.')
 
+        if os.path.exists(self.paths['filtered']):
+            self.dateloc = pd.read_csv(self.paths['filtered'],
+                                       parse_dates=[column_map['datetime']])
+
+        if os.path.exists("data/skiprows.pkl"):
+            self.skiprows = pickle.load(open("data/skiprows.pkl", "rb"))
+
+        if os.path.exists(self.paths['aggregated']):
+            self.aggregated = pd.read_csv(self.paths['aggregated'])
+
     def get_points(
         self,
         column_map={
@@ -136,7 +147,7 @@ class satval():
         if gdf_pgon.crs.to_epsg() != 4326:
             gdf_pgon = gdf_pgon.to_crs(CRS.from_epsg(4326))
 
-        outside_points_idx = _unique_within(self.dateloc, gdf_pgon)        
+        outside_points_idx = _unique_within(self.dateloc, gdf_pgon)
 
         self.skiprows[outside_points_idx] = True
         self.skiprows_id[outside_points_idx] = 2
@@ -182,6 +193,7 @@ class satval():
 
         duplicates = self.dateloc.duplicated()
         self.skiprows[duplicates.values] = True
+        pickle.dump(self.skiprows, open("data/skiprows.pkl", "wb"))
         self.skiprows_id[duplicates.values] = 5
         self.ndata['duplicates'] = len(self.skiprows) - np.sum(self.skiprows)
 
@@ -217,7 +229,7 @@ class satval():
             print('Creating or reading shapefile of pixel centers...')
 
         # Create GeoDataFrame with pixel centers
-        if os.path.isfile(self.paths['pixel_centers']) is True:
+        if os.path.isfile(self.paths['pixel_centers']):
             self.gdf_pix_centers = gpd.read_file(self.paths['pixel_centers'])
         else:
             self.gdf_pix_centers = svu.pixel_centers_gdf(
@@ -251,6 +263,8 @@ class satval():
         self.dateloc = self.dateloc[
             self.dateloc.nearest_pix_dist <= thresh_dist]
         self.ndata['mapped_to_pixel_centers'] = self.dateloc.shape[0]
+
+        self.dateloc.to_csv(self.paths['filtered'], index=False)
 
     def aggregate_data_to_unique_pixeldays(self):
 
@@ -345,7 +359,7 @@ class satval():
 
         if too_big is True:
             gee_df.to_csv(self.paths['gee_asset_upload'], index=False)
-            print(
+            raise Exception(
                 "The table is too large to upload via the GEE API. You must upload the csv found at {} as a GEE asset, then re-run this and supply the asset path."
                 .format(self.paths['gee_asset_upload']))
 

@@ -5,6 +5,7 @@ Created on Tue Nov 10 14:36:19 2020
 @author: Jon
 """
 import os
+import httplib2
 import numpy as np
 from shapely.geometry import box, Point, Polygon, MultiPolygon, GeometryCollection
 from pyproj import CRS
@@ -536,8 +537,7 @@ def gee_fetch_bandvals(gdf, dataset, filename, asset=None, gdrive_folder=None):
         status with task.status().
 
     """
-
-    ee.Initialize()
+    ee.Initialize(http_transport=httplib2.Http())
 
     def getBandValues(im):
         # Filter the observations to the date range of the image

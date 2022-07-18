@@ -38,28 +38,35 @@ data/rf_random_turbidity.pkl: scripts/02_rf_tune.py data/X_train_turbidity.pkl
 
 # all_data.csv is not created with this code base...
 
-# python $< --target filtered.csv
-# assign_unique_location_ids
-
-# data_bbox: $(ICOM_DATA)/Modeling Data/Processed Data p1/bbox.csv
-
-# $(ICOM_DATA)/Modeling Data/Processed Data p1/bbox.csv:
-# 	python $< --target bbox.csv
-
 data_filtered: $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/filtered.csv
 
 $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/filtered.csv: scripts/00_get_data.py
 	python $< --target filtered.csv	
 
-pixel_centers.shp: scripts/00_get_data.py data/filtered.csv
+pixel_centers_shp: $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/pixel_centers.shp
+
+$(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/pixel_centers.shp: scripts/00_get_data.py \
+	| data_filtered
 	python $< --target pixel_centers.shp
-	# map_coordinates_to_pixels
 
-data/aggregated.csv: scripts/00_get_data.py
-	# aggregate_data_to_unique_pixeldays
 
-data/aggregated_w_bandvals.csv: src/run_satval.py
-	python $<
+data_aggregated_csv: $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated.csv
+
+$(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated.csv: scripts/00_get_data.py
+	python $< --target aggregated.csv
+
+data_aggregated_gee_csv: $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated_gee.csv
+
+$(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated_gee.csv: scripts/00_get_data.py
+	python $< --target aggregated_gee.csv
+
+unique_pixeldays_w_bandvals: scripts/00_get_data.py data_aggregated_gee_csv
+	python $< --target unique_pixeldays_w_bandvals
+
+data_aggregated_w_bandvals_csv: $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated_w_bandvals.csv
+
+$(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated_w_bandvals.csv: scripts/00_get_data.py
+	python $< --target aggregated_w_bandvals.csv
 
 # ----
 
