@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import pandas as pd
 
@@ -7,7 +6,6 @@ from figures import plot_helpers as ph
 # Import the reduced data frame and createa geopandas dataframe. Could skip
 # if importing the geodataframe directly. Assumes that the dataframe has a modis pixel id column
 filename = 'data/unique_pixeldays_w_bandvals.csv'
-
 pix_ids = [274463844, 270230367
            ]  # if you want to plot time series from individual modis pixels
 columns = ['SST (C)', 'SSS (psu)', 'turbidity (NTU)']

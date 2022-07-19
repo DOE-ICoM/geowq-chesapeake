@@ -142,7 +142,8 @@ def map_counts(df,
               labelspacing=1.5,
               borderpad=3)
     plt.title('Total Number of Observations: ' + column)
-    plt.show()
+    plt.savefig("figures/" + "".join(map(str.lower, column)).split(" ")[0] +
+                "_map_counts.pdf")
 
 
 def map_variable(df,
