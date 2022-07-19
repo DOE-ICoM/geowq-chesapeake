@@ -1,15 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Nov 13 15:39:38 2020
-
-@author: muklu
-"""
-
-import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
-import geopandas as gpd
-from pyproj import CRS
+import cartopy.crs as ccrs
+import matplotlib.pyplot as plt
+from cartopy.feature import NaturalEarthFeature, COLORS
 
 modis_proj4 = '+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs'  # pulled from GEE
 
@@ -47,6 +40,7 @@ def plot_counts(df,
     plt.ylabel('Count', fontsize=32)
     plt.xticks(fontsize=20)
     plt.yticks(fontsize=20)
+    plt.show()
 
 
 # mean time series of an individual or group of modis pixels
@@ -65,11 +59,8 @@ def plot_timeseries(gdf,
     plt.ylabel(column, fontsize=32)
     plt.xticks(fontsize=20)
     plt.yticks(fontsize=20)
+    plt.show()
 
-
-import cartopy.crs as ccrs
-import cartopy
-from cartopy.feature import NaturalEarthFeature, COLORS
 
 ocean = NaturalEarthFeature(category='physical',
                             name='ocean',
@@ -150,6 +141,7 @@ def map_counts(df,
               labelspacing=1.5,
               borderpad=3)
     plt.title('Total Number of Observations: ' + column)
+    plt.show()
 
 
 def map_variable(df,
@@ -197,6 +189,7 @@ def map_variable(df,
     ax.scatter(dfsub.longitude, dfsub.latitude, c=dfsub[column], zorder=2)
     ax.legend(handles, labels, loc="lower right", title=column)
     plt.title('Average ' + column + ': ' + startDate + ' - ' + endDate)
+    plt.show()
 
 
 #def load_dataframe(filepath,filename,datetime_col = 'datetime',pix_id_col = 'pix_id',date_format = '%Y-%m-%d %H:%M:%S'):

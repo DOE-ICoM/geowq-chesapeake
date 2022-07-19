@@ -13,3 +13,4 @@ dependencies:
         - tabulate
         - geojson
         - earthengine-api
+        - cartopy

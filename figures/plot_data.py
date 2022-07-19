@@ -1,17 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Nov  3 10:24:41 2020
-
-@author: muklu
-"""
-
-import numpy as np
+import os
 import pandas as pd
-from pyproj import CRS
-import geopandas as gpd
-import matplotlib.pyplot as plt
 
-from src.data import plot_helpers as ph
+from figures import plot_helpers as ph
 
 # Import the reduced data frame and createa geopandas dataframe. Could skip
 # if importing the geodataframe directly. Assumes that the dataframe has a modis pixel id column
@@ -27,6 +18,8 @@ extents = [-77.458841, -74.767094, 36.757802, 39.920274
 
 # load dataframe will have to tweak things once we get what the actual dataframe will look like
 #gdf = load_dataframe(filepath,filename,datetime_col,sat_pix_col)
+filepath = os.environ["icom_data"] + "/Modeling Data/Processed Data p1/"
+filename = "aggregated.csv"
 df = pd.read_csv(filepath + filename)
 df = ph.split_pixelday(df)  # add 'pix_id' and 'date' columns
 df['datetime'] = pd.to_datetime(df['datetime'], format='%Y-%m-%d %H:%M:%S')
