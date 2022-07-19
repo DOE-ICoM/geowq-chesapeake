@@ -25,7 +25,7 @@ python scripts/00_load_all_data.py
 ```shell
 make data_aggregated_gee_csv
 # manually upload aggregated_gee.csv to GEE
-# manually download results
+# manually download results to data/unique_pixeldays_w_bandvals.csv
 make data_aggregated_w_bandvals_csv
 ```
 

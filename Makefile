@@ -60,7 +60,7 @@ data_aggregated_gee_csv: $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggrega
 $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated_gee.csv: scripts/00_get_data.py
 	python $< --target aggregated_gee.csv
 
-unique_pixeldays_w_bandvals: scripts/00_get_data.py data_aggregated_gee_csv
+data/unique_pixeldays_w_bandvals.csv: scripts/00_get_data.py data_aggregated_gee_csv
 	python $< --target unique_pixeldays_w_bandvals
 
 data_aggregated_w_bandvals_csv: $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated_w_bandvals.csv

@@ -36,7 +36,7 @@ def unique_pixeldays_w_bandvals():
 
 def aggregated_w_bandvals():
     cd = sc.satval(r"data\\params.csv")
-    cd.merge_bandvals_and_data()
+    cd.merge_bandvals_and_data(path_bandvals="data/unique_pixeldays_w_bandvals.csv")
 
 
 def main():
