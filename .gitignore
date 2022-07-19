@@ -3,13 +3,16 @@ __pycache__
 */*/__pycache__
 .vscode
 *.png
+*.gpkg
+*.gpkg-shm
+*.gpkg-wal
 
 data/*.csv
 data/*.pkl
+data/*.md
 
 figures/*.png
-
-rf_icom/*.png
+figures/*.pdf
 
 src/*.png
 src/*.pptx
