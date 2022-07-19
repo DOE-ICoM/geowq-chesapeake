@@ -95,9 +95,8 @@ def map_counts(df,
     if len(dfsub) == 0:
         return print('No Data on this day')
 
-    plt.figure(figsize=[15, 15])
-
     # create dummy plot in order to get information for creating the legend
+    plt.figure(figsize=[15, 15])
     ax = plt.scatter(dfsub.longitude['mean'],
                      dfsub.latitude['mean'],
                      s=dfsub[column]['count'],
@@ -106,7 +105,9 @@ def map_counts(df,
                                          num=num,
                                          markerfacecolor='none',
                                          markeredgecolor='k')
+    plt.close()
 
+    plt.figure(figsize=[15, 15])
     # set up the actual background map
     ax = plt.axes(projection=ccrs.PlateCarree())
     ax.set_extent(extents)
@@ -158,14 +159,16 @@ def map_variable(df,
     if len(dfsub) == 0:
         return print('No Data on this day')
 
-    plt.figure(figsize=[15, 15])
     # create dummy plot in order to get information for creating the legend
+    plt.figure(figsize=[15, 15])
     ax = plt.scatter(dfsub.longitude,
                      dfsub.latitude,
                      c=dfsub[column],
                      zorder=2)
     handles, labels = ax.legend_elements(prop="colors", num=num)
+    plt.close()
 
+    plt.figure(figsize=[15, 15])
     # set up the actual background map
     ax = plt.axes(projection=ccrs.PlateCarree())
     ax.set_extent(extents)
