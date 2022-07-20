@@ -193,7 +193,8 @@ def map_variable(df,
     ax.scatter(dfsub.longitude, dfsub.latitude, c=dfsub[column], zorder=2)
     ax.legend(handles, labels, loc="lower right", title=column)
     plt.title('Average ' + column + ': ' + startDate + ' - ' + endDate)
-    # plt.show()
+    plt.savefig("figures/" + "".join(map(str.lower, column)).split(" ")[0] +
+                "_map_variable.pdf")
 
 
 #def load_dataframe(filepath,filename,datetime_col = 'datetime',pix_id_col = 'pix_id',date_format = '%Y-%m-%d %H:%M:%S'):

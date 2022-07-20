@@ -1,7 +1,6 @@
 .PHONY: data
 
 variables := sss sst turbidity
-variables_parsed := $(addprefix figures/, $(addsuffix _map_counts.pdf, ${variables}))
 
 test:
 	@echo $(variables_parsed)
@@ -77,16 +76,26 @@ $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated_w_bandvals.csv: scrip
 
 # ----
 
-figures: figures_map_counts figures/00_combined.pdf
+figures: figures/00_combined.pdf
 
 figures/_obs_stats.pdf: figures/obs_stats.py
 	python $<
 
-figures_map_counts: $(variables_parsed)
+path_map_counts := $(addprefix figures/, $(addsuffix _map_counts.pdf, ${variables}))
+
+figures/_map_counts_all.pdf: $(path_map_counts)
 	pdftk $(wildcard figures/*_map_counts.pdf) output figures/_map_counts_all.pdf
 
-figures/%_map_counts.pdf: figures/plot_data.py
-	python $<	
+figures/%_map_counts.pdf: figures/plot_data.py figures/plot_helpers.py
+	python $<
 
-figures/00_combined.pdf: figures_map_counts
+path_map_variable := $(addprefix figures/, $(addsuffix _map_variable.pdf, ${variables}))
+
+figures/_map_variable_all.pdf: $(path_map_variable)
+	pdftk $(wildcard figures/*_map_variable.pdf) output figures/_map_variable_all.pdf
+
+figures/%_map_variable.pdf: figures/plot_data.py figures/plot_helpers.py
+	python $<
+
+figures/00_combined.pdf: figures/_map_counts_all.pdf figures/_map_variable_all.pdf
 	pdftk $(wildcard figures/_*.pdf) output figures/00_combined.pdf
