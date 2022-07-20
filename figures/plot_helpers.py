@@ -97,8 +97,8 @@ def map_counts(df,
                                          markeredgecolor='k')
     plt.close()
 
-    plt.figure(figsize=[15, 15])
     # set up the actual background map
+    plt.figure(figsize=[15, 15])
     ax = plt.axes(projection=ccrs.PlateCarree())
     ax.set_extent(extents)
     ax.coastlines(resolution='10m', color='black', linewidth=1)
@@ -106,7 +106,6 @@ def map_counts(df,
     ax.add_feature(land)
     ax.add_feature(states_provinces, linestyle=':')
 
-    # manuallly add some state labels could probably put in a list for one call
     ax.text(-76.98, 39.56, 'Maryland', transform=ccrs.Geodetic(), color='gray')
     ax.text(-76.98, 39.81, 'New York', transform=ccrs.Geodetic(), color='gray')
     ax.text(-75.1,
@@ -117,7 +116,6 @@ def map_counts(df,
     ax.text(-75.5, 38.7, 'Delaware', transform=ccrs.Geodetic(), color='gray')
     ax.text(-77.16, 36.93, 'Virginia', transform=ccrs.Geodetic(), color='gray')
 
-    # plot the count information and add a rough legend
     ax.scatter(dfsub.longitude['mean'],
                dfsub.latitude['mean'],
                s=dfsub[column]['count'],
@@ -159,8 +157,8 @@ def map_variable(df,
     handles, labels = ax.legend_elements(prop="colors", num=num)
     plt.close()
 
-    plt.figure(figsize=[15, 15])
     # set up the actual background map
+    plt.figure(figsize=[15, 15])
     ax = plt.axes(projection=ccrs.PlateCarree())
     ax.set_extent(extents)
     ax.coastlines(resolution='10m', color='black', linewidth=1)
@@ -168,7 +166,6 @@ def map_variable(df,
     ax.add_feature(land)
     ax.add_feature(states_provinces, linestyle=':')
 
-    # manuallly add some state labels could probably put in a list for one call
     ax.text(-76.98, 39.56, 'Maryland', transform=ccrs.Geodetic(), color='gray')
     ax.text(-76.98, 39.81, 'New York', transform=ccrs.Geodetic(), color='gray')
     ax.text(-75.1,
@@ -179,7 +176,6 @@ def map_variable(df,
     ax.text(-75.5, 38.7, 'Delaware', transform=ccrs.Geodetic(), color='gray')
     ax.text(-77.16, 36.93, 'Virginia', transform=ccrs.Geodetic(), color='gray')
 
-    # plot the count information and add a rough legend
     ax.scatter(dfsub.longitude, dfsub.latitude, c=dfsub[column], zorder=2)
     ax.legend(handles, labels, loc="lower right", title=column)
     plt.title('Average ' + column + ': ' + startDate + ' - ' + endDate)
