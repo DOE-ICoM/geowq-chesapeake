@@ -1,10 +1,9 @@
-import utm
 import numpy as np
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 from cartopy.feature import NaturalEarthFeature, COLORS
 
-modis_proj4 = '+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs'  # pulled from GEE
+modis_proj4 = '+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs'
 
 
 def modisLonLat(p_idx):
@@ -44,15 +43,10 @@ def plot_counts(df,
 
 
 # mean time series of an individual or group of modis pixels
-def plot_timeseries(gdf,
-                    pix_ids,
-                    column,
-                    pix_id_col='pix_id',
-                    startDate='2001-01-01 00:00:00',
-                    endDate='2021-01-01 00:00:00'):
+def plot_timeseries(gdf, pix_ids, column, pix_id_col='pix_id'):
     gdfsub = gdf[gdf[pix_id_col].isin(pix_ids)].groupby([pix_id_col, 'date'
                                                          ])[column].mean()
-    fig, ax = plt.subplots(figsize=(15, 10))
+    _, ax = plt.subplots(figsize=(15, 10))
     gdfsub.reset_index().pivot('date', pix_id_col, column).plot(ax=ax)
     # plot time series of each point
     plt.xlabel('Date', fontsize=32)
@@ -62,19 +56,15 @@ def plot_timeseries(gdf,
     # plt.show()
 
 
-ocean = NaturalEarthFeature(category='physical',
-                            name='ocean',
-                            scale='10m',
-                            facecolor=COLORS['water'])
-
+scale = "10m"
 land = NaturalEarthFeature(category='physical',
                            name='land',
-                           scale='10m',
+                           scale=scale,
                            facecolor=COLORS['land'])
 
 states_provinces = NaturalEarthFeature(category='cultural',
                                        name='admin_1_states_provinces_lines',
-                                       scale='10m',
+                                       scale="50m",
                                        facecolor='none',
                                        edgecolor='gray')
 
@@ -112,8 +102,8 @@ def map_counts(df,
     ax = plt.axes(projection=ccrs.PlateCarree())
     ax.set_extent(extents)
     ax.coastlines(resolution='10m', color='black', linewidth=1)
+    ax.set_facecolor(COLORS['water'])
     ax.add_feature(land)
-    ax.add_feature(ocean)
     ax.add_feature(states_provinces, linestyle=':')
 
     # manuallly add some state labels could probably put in a list for one call
@@ -174,8 +164,8 @@ def map_variable(df,
     ax = plt.axes(projection=ccrs.PlateCarree())
     ax.set_extent(extents)
     ax.coastlines(resolution='10m', color='black', linewidth=1)
+    ax.set_facecolor(COLORS['water'])
     ax.add_feature(land)
-    ax.add_feature(ocean)
     ax.add_feature(states_provinces, linestyle=':')
 
     # manuallly add some state labels could probably put in a list for one call
