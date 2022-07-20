@@ -1,6 +1,8 @@
 import os
+import sys
 import pandas as pd
 
+sys.path.append(".")
 from figures import plot_helpers as ph
 
 columns = ['SST (C)', 'SSS (psu)', 'turbidity (NTU)']

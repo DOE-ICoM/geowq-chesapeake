@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+import utm
 import numpy as np
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
@@ -40,7 +40,7 @@ def plot_counts(df,
     plt.ylabel('Count', fontsize=32)
     plt.xticks(fontsize=20)
     plt.yticks(fontsize=20)
-    plt.show()
+    # plt.show()
 
 
 # mean time series of an individual or group of modis pixels
@@ -59,7 +59,7 @@ def plot_timeseries(gdf,
     plt.ylabel(column, fontsize=32)
     plt.xticks(fontsize=20)
     plt.yticks(fontsize=20)
-    plt.show()
+    # plt.show()
 
 
 ocean = NaturalEarthFeature(category='physical',
@@ -193,7 +193,7 @@ def map_variable(df,
     ax.scatter(dfsub.longitude, dfsub.latitude, c=dfsub[column], zorder=2)
     ax.legend(handles, labels, loc="lower right", title=column)
     plt.title('Average ' + column + ': ' + startDate + ' - ' + endDate)
-    plt.show()
+    # plt.show()
 
 
 #def load_dataframe(filepath,filename,datetime_col = 'datetime',pix_id_col = 'pix_id',date_format = '%Y-%m-%d %H:%M:%S'):

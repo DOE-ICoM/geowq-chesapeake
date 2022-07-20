@@ -1,9 +1,16 @@
 .PHONY: data
 
+variables := sss sst turbidity
+variables_parsed := $(addprefix figures/, $(addsuffix _map_counts.pdf, ${variables}))
+
+test:
+	@echo $(variables_parsed)
+
+
 ICOM_DATA = D:/ICOM
 export ICOM_DATA:=$(ICOM_DATA)
 
-test:
+env:
 	python -c "import os; print(os.environ['ICOM_DATA'])"
 
 # ----
@@ -70,7 +77,16 @@ $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated_w_bandvals.csv: scrip
 
 # ----
 
-figures: figures/00_combined.pdf
+figures: figures_map_counts figures/00_combined.pdf
 
-figures/00_combined.pdf: 
+figures/_obs_stats.pdf: figures/obs_stats.py
+	python $<
+
+figures_map_counts: $(variables_parsed)
+	pdftk $(wildcard figures/*_map_counts.pdf) output figures/_map_counts_all.pdf
+
+figures/%_map_counts.pdf: figures/plot_data.py
+	python $<	
+
+figures/00_combined.pdf: figures_map_counts
 	pdftk $(wildcard figures/_*.pdf) output figures/00_combined.pdf
