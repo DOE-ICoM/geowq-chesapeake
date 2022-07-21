@@ -109,6 +109,11 @@ class satval():
             'latitude': 'latitude'
         },
     ):
+        """Reads all_data.csv and retains points that satisfy the following criteria:
+            * within the CB footprint (chk_water_only.shp)
+            * is a surface observation (in the top 1m)
+            * has a timestamp during the MODIS overpass window time-of-day
+        """
         # Get a vector of dates and locations
         if self.verbose is True:
             print('Loading in dates and locations from observations file...')

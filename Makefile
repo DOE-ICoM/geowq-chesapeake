@@ -44,6 +44,7 @@ data/rf_random_turbidity.pkl: scripts/02_rf_tune.py data/X_train_turbidity.pkl
 
 # all_data.csv is not created with this code base...
 
+# data filtered to be within CB and a surface obs in the modis time-window
 data_filtered: $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/filtered.csv
 
 $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/filtered.csv: scripts/00_get_data.py
@@ -54,7 +55,6 @@ pixel_centers_shp: $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/pixel_centers
 $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/pixel_centers.shp: scripts/00_get_data.py \
 	| data_filtered
 	python $< --target pixel_centers.shp
-
 
 data_aggregated_csv: $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated.csv
 
@@ -80,6 +80,7 @@ figures: figures/00_combined.pdf
 
 figures/_obs_stats.pdf: figures/obs_stats.py
 	python $<
+	pdftk $(wildcard figures/obs_*.pdf) output $@
 
 path_map_counts := $(addprefix figures/, $(addsuffix _map_counts.pdf, ${variables}))
 
@@ -97,5 +98,6 @@ figures/_map_variable_all.pdf: $(path_map_variable)
 figures/%_map_variable.pdf: figures/plot_data.py figures/plot_helpers.py
 	python $<
 
-figures/00_combined.pdf: figures/_map_counts_all.pdf figures/_map_variable_all.pdf
+figures/00_combined.pdf: figures/_obs_stats.pdf \
+	figures/_map_counts_all.pdf figures/_map_variable_all.pdf 
 	pdftk $(wildcard figures/_*.pdf) output figures/00_combined.pdf
