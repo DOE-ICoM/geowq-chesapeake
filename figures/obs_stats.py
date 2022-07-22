@@ -57,8 +57,9 @@ def _count_stats(dt, variable):
         index=[0])
 
 
-pd.concat([_count_stats(dt_filtered, v)
+obs_counts = pd.concat([_count_stats(dt_filtered, v)
            for v in variables]).sort_values(["n_measures"], ascending=False)
+# obs_counts.to_clipboard()
 
 # --- loc_id frequency count histograms and hex map
 # dt_grp = dt_raw.groupby(['loc_id', "latitude",
