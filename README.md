@@ -20,7 +20,7 @@ python scripts/00_load_all_data.py
 
 ## Usage
 
-### Generate data
+### Generate training data
 
 ```shell
 make data_aggregated_gee_csv
@@ -29,7 +29,7 @@ make data_aggregated_gee_csv
 make data_aggregated_w_bandvals_csv
 ```
 
-### RF model
+### Train RF model
 
 ```shell
 # variable selection + initial fitting
@@ -37,7 +37,17 @@ python scripts/01_rf_fit.py
 
 # hyperparameter tuning
 python scripts/02_rf_tune.py
+```
 
-# generate prediction surfaces
+### Generate prediction data
+
+```python
+# see svu.gee_fetch_bandvals
+python scripts/
+```
+
+### Generate prediction surfaces
+
+```python
 python scripts/03_rf_predict.py
 ```
