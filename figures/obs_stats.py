@@ -10,7 +10,7 @@ from src import utils
 
 variables = ["SSS (psu)", "turbidity (NTU)", "SST (C)"]
 
-# --- variable histograms
+# --- raw data histograms by variable
 dt_raw = pd.read_csv(
     os.environ["ICOM_DATA"] +
     "/Modeling Data/Processed Data p1/aggregated_w_bandvals.csv")
@@ -26,7 +26,7 @@ g = sns.FacetGrid(dt_melt, col="variable", sharex=False)
 g.map(sns.histplot, "value")
 plt.savefig("figures/obs_varhist.pdf")
 
-# --- obs stats table
+# --- obs counts table
 dt_filtered = pd.read_csv(
     os.environ["ICOM_DATA"] +
     "/Modeling Data/Processed Data p1/filtered_w_data.csv",
@@ -58,8 +58,21 @@ def _count_stats(dt, variable):
 
 
 obs_counts = pd.concat([_count_stats(dt_filtered, v)
-           for v in variables]).sort_values(["n_measures"], ascending=False)
+                        for v in variables]).sort_values(["n_measures"],
+                                                         ascending=False)
 # obs_counts.to_clipboard()
+
+# --- obs distribution stats
+
+dt_agg = pd.read_csv(os.environ["ICOM_DATA"] +
+                     "/Modeling Data/Processed Data p1/aggregated.csv",
+                     parse_dates=['datetime'])
+obs_distribution = pd.concat([
+    pd.DataFrame(
+        utils.select_var(dt_agg, v)[v].quantile([0, 0.05, 0.5, 0.95, 1])).T
+    for v in variables
+]).round(2)
+# obs_distribution.to_clipboard()
 
 # --- loc_id frequency count histograms and hex map
 # dt_grp = dt_raw.groupby(['loc_id', "latitude",
