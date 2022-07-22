@@ -234,14 +234,11 @@ class satval():
             print('Creating or reading shapefile of pixel centers...')
 
         # Create GeoDataFrame with pixel centers
-        if os.path.isfile(self.paths['pixel_centers']):
-            self.gdf_pix_centers = gpd.read_file(self.paths['pixel_centers'])
-        else:
-            self.gdf_pix_centers = svu.pixel_centers_gdf(
-                self.crs_params,
-                path_bounding_pgon=self.paths['bounding_pgon'],
-                frac_pixel_thresh=self.params['frac_pixel_thresh'])
-            self.gdf_pix_centers.to_file(self.paths['pixel_centers'])
+        self.gdf_pix_centers = svu.pixel_centers_gdf(
+            self.crs_params,
+            path_bounding_pgon=self.paths['bounding_pgon'],
+            frac_pixel_thresh=self.params['frac_pixel_thresh'])
+        self.gdf_pix_centers.to_file(self.paths['pixel_centers'])
 
         if self.verbose is True:
             print('Mapping observations to their nearest pixel centers...')
@@ -272,6 +269,7 @@ class satval():
         self.dateloc.to_csv(self.paths['filtered'], index=False)
 
     def aggregate_data_to_unique_pixeldays(self):
+        """temporal AND spatial aggregation within unique pixeldays"""
 
         # Check that provided data columns are available
         for dc in self.params['data_cols']:
@@ -295,7 +293,8 @@ class satval():
                 set(self.dateloc.orig_row_idx.values))) + 1
         data_df = pd.read_csv(self.paths['data'],
                               sep=',',
-                              usecols=self.params['data_cols'],
+                              usecols=self.params['data_cols'] +
+                              ["source", "station_id"],
                               skiprows=skiprowlocs,
                               squeeze=True)
 
@@ -314,6 +313,13 @@ class satval():
             print('Filtering rows whose observations are all NaN...')
         self.dateloc = self.dateloc.drop(data_na_rows, axis=0)
         self.ndata['drop_na_observation_rows'] = self.dateloc.shape[0]
+
+        # save post-filtered, pre-aggregated data to run for obs stats
+        self.dateloc.to_csv(os.environ["icom_data"] +
+                            "/Modeling Data/Processed Data p1/" +
+                            "filtered_w_data.csv",
+                            index=False)
+        self.dateloc = self.dateloc.drop(columns=["source", "station_id"])
 
         if self.verbose is True:
             print('Aggregating observations to unique pixel/days...')
