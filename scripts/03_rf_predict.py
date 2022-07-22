@@ -1,31 +1,16 @@
-import re
 import os
 import pickle
 import numpy as np
 import pandas as pd
+import seaborn as sns
 import geopandas as gpd
 from sklearn.ensemble import RandomForestRegressor
+import matplotlib.pyplot as plt
+
+from src import utils
 
 variable = "salinity"
-
-
-def _unwrap(y):
-    return [[x for x in re.split('\s+', y)]]
-
-
-# load best_params_[variable].md
-bp_colnames = _unwrap(
-    str(
-        pd.read_table("data/best_params_" + variable + ".md",
-                      nrows=1,
-                      header=None)[0][0]).strip())[0]
-bp_colnames.remove("max_leaf_nodes")
-bp = pd.DataFrame(_unwrap(
-    str(
-        pd.read_table("data/best_params_" + variable + ".md",
-                      skiprows=2,
-                      header=None)[0][0]).strip()),
-                  columns=bp_colnames)
+best_params = utils.load_md(variable)
 
 # read in a single year of GEE data
 predictors = [
@@ -35,28 +20,37 @@ predictors = [
 ]
 X_predict = pd.read_csv(
     os.environ["ICOM_DATA"] +
-    "/Modeling Data/Processed Data p1/aggregated_w_bandvals.csv")
-X_predict.head()
-
-test = X_predict.groupby(['loc_id', "latitude",
-                          "longitude"]).size().reset_index().rename(columns={
-                              0: 'count'
-                          }).sort_values("count", ascending=False).reset_index(drop=True)
-test.head()
-test2 = gpd.GeoDataFrame(test, geometry=gpd.points_from_xy(test["longitude"], test["latitude"]))
-test2.to_file("test2.gpkg", driver="GPKG")
-
-# TODO: groupby loc_id and see if all locs have the same frequency counts
-test = X_predict.groupby(["loc_id"]).size().reset_index()
+    "/Modeling Data/Processed Data p1/aggregated_w_bandvals.csv").dropna()
+X_predict["datetime"] = utils.datetime_to_doy(X_predict["datetime"])
 
 test = np.array(X_predict[predictors])
 # calculate 'Ratio 1', 'Ratio 2', 'Ratio 3' ?
 X_train = pickle.load(open("data/X_train_" + variable + ".pkl", "rb"))
 # X_train.shape
+X_train[0]
 
-ols_path = "data/ols_" + variable + ".pkl"
-ols = pickle.load(open(ols_path, "rb"))
+rf_random_path = "data/rf_random_" + variable + ".pkl"
+rf_random = pickle.load(open(rf_random_path, "rb"))
+predictions = rf_random.predict(test)
 
-predictions = ols.predict(X_predict)
+res = X_predict[["SSS (psu)"]].copy()
+res["predict"] = predictions.copy()
 
-# .predict()
+sns.scatterplot(data=res, x="predict", y="SSS (psu)")
+plt.show()
+
+# ---- parking lot
+
+# test = X_predict.groupby(
+#     ['loc_id', "latitude", "longitude"]).size().reset_index().rename(columns={
+#         0: 'count'
+#     }).sort_values("count", ascending=False).reset_index(drop=True)
+# test.head()
+# test2 = gpd.GeoDataFrame(test,
+#                          geometry=gpd.points_from_xy(test["longitude"],
+#                                                      test["latitude"]))
+# test2.to_file("test2.gpkg", driver="GPKG")
+
+# test = X_predict.groupby(["loc_id"]).size().reset_index()
+
+# ---
