@@ -7,7 +7,7 @@ from src import utils
 from src import fit_sine
 
 
-def clean_data(variable, var_col, predictors, test_size=0.5):
+def clean_data(variable, var_col, predictors, test_size=0.5, data=None):
     """
     Get the data from the split .csv files based on the label, remove
     unwanted columns; remove NaNs; split temperature into fitted sine and
@@ -29,7 +29,9 @@ def clean_data(variable, var_col, predictors, test_size=0.5):
     var_col = "SST (C)"
     """
 
-    data = pd.read_csv("data/aggregated_w_bandvals.csv")
+    if data is None:
+        data = pd.read_csv("data/aggregated_w_bandvals.csv")
+
     data = utils.select_var(data, var_col)
 
     ## For turbidity get rid of negative numbers
@@ -93,6 +95,9 @@ def clean_data(variable, var_col, predictors, test_size=0.5):
     data.hist()
     plt.tight_layout()
     plt.savefig("figures/" + variable + '_data_hist.png')
+
+    if test_size == 0:
+        return X, y
 
     X_train, X_test, y_train, y_test = train_test_split(X,
                                                         y,

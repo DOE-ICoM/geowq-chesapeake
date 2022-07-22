@@ -8,8 +8,10 @@ from sklearn.ensemble import RandomForestRegressor
 import matplotlib.pyplot as plt
 
 from src import utils
+from src import rf_icom_call_data2 as call_data2
 
 variable = "salinity"
+var_col = "SSS (psu)"
 best_params = utils.load_md(variable)
 
 # read in a single year of GEE data
@@ -21,22 +23,25 @@ predictors = [
 X_predict = pd.read_csv(
     os.environ["ICOM_DATA"] +
     "/Modeling Data/Processed Data p1/aggregated_w_bandvals.csv").dropna()
-X_predict["datetime"] = utils.datetime_to_doy(X_predict["datetime"])
+X_predict = call_data2.clean_data(variable,
+                                  var_col,
+                                  predictors,
+                                  test_size=0,
+                                  data=X_predict)
 
-test = np.array(X_predict[predictors])
 # calculate 'Ratio 1', 'Ratio 2', 'Ratio 3' ?
-X_train = pickle.load(open("data/X_train_" + variable + ".pkl", "rb"))
+# X_train = pickle.load(open("data/X_train_" + variable + ".pkl", "rb"))
 # X_train.shape
-X_train[0]
+# X_train[0]
 
 rf_random_path = "data/rf_random_" + variable + ".pkl"
 rf_random = pickle.load(open(rf_random_path, "rb"))
-predictions = rf_random.predict(test)
+predictions = rf_random.predict(X_predict[0])
 
-res = X_predict[["SSS (psu)"]].copy()
+res = pd.DataFrame(X_predict[1], columns=["obs"])
 res["predict"] = predictions.copy()
 
-sns.scatterplot(data=res, x="predict", y="SSS (psu)")
+sns.scatterplot(data=res, x="predict", y="obs")
 plt.show()
 
 # ---- parking lot
