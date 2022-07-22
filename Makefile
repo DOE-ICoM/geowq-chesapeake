@@ -56,14 +56,17 @@ $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/pixel_centers.shp: scripts/00_ge
 	| data_filtered
 	python $< --target pixel_centers.shp
 
+# data aggregated spatially and temporally within MODIS pixels
 data_aggregated_csv: $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated.csv
 
-$(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated.csv: scripts/00_get_data.py
+$(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated.csv: scripts/00_get_data.py \
+	| pixel_centers_shp
 	python $< --target aggregated.csv
 
 data_aggregated_gee_csv: $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated_gee.csv
 
-$(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated_gee.csv: scripts/00_get_data.py
+$(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated_gee.csv: scripts/00_get_data.py \
+	| data_aggregated_csv
 	python $< --target aggregated_gee.csv
 
 data/unique_pixeldays_w_bandvals.csv: scripts/00_get_data.py data_aggregated_gee_csv
@@ -71,7 +74,8 @@ data/unique_pixeldays_w_bandvals.csv: scripts/00_get_data.py data_aggregated_gee
 
 data_aggregated_w_bandvals_csv: $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated_w_bandvals.csv
 
-$(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated_w_bandvals.csv: scripts/00_get_data.py
+$(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated_w_bandvals.csv: scripts/00_get_data.py \
+	| data/unique_pixeldays_w_bandvals.csv
 	python $< --target aggregated_w_bandvals.csv
 
 # ----

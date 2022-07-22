@@ -1,15 +1,18 @@
+import os
 import sys
 import argparse
-import numpy as np
-import pandas as pd
 
 sys.path.append(".")
 from src import satval_class as sc
 
 
 def filtered():
+    filtered_path = os.environ[
+        "icom_data"] + "/Modeling Data/Processed Data p1/filtered.csv"
+    if os.path.exists(filtered_path):
+        os.remove(filtered_path)
+
     cd = sc.satval(r"data\\params.csv")
-    # cd.paths['filtered']
     cd.get_points()
     cd.assign_unique_location_ids()
 
@@ -36,7 +39,8 @@ def unique_pixeldays_w_bandvals():
 
 def aggregated_w_bandvals():
     cd = sc.satval(r"data\\params.csv")
-    cd.merge_bandvals_and_data(path_bandvals="data/unique_pixeldays_w_bandvals.csv")
+    cd.merge_bandvals_and_data(
+        path_bandvals="data/unique_pixeldays_w_bandvals.csv")
 
 
 def main():
