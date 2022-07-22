@@ -29,19 +29,17 @@ def clean_data(variable, var_col, predictors, test_size=0.5):
     var_col = "SST (C)"
     """
 
-    ##Read in Data
-    # data = pd.read_csv(variable + '.csv')
     data = pd.read_csv("data/aggregated_w_bandvals.csv")
     data = utils.select_var(data, var_col)
 
-    ##For turbidity get rid of negative numbers
+    ## For turbidity get rid of negative numbers
     print(len(data))
     if var_col == 'turbidity (NTU)':
         data = data[data['turbidity (NTU)'] > 0]
 
     print(len(data))
 
-    ##Find Predictors and Variable Column
+    ## Find Predictors and Variable Column
     notsur = []
     for s in data.keys():
         for predictor in predictors:
@@ -58,7 +56,7 @@ def clean_data(variable, var_col, predictors, test_size=0.5):
             else:
                 notsur.append(s)
 
-    ##Get rid of unnecessary data
+    ## Get rid of unnecessary data
     data = data.drop(notsur, axis=1)
     data = data.dropna()
 
@@ -79,12 +77,11 @@ def clean_data(variable, var_col, predictors, test_size=0.5):
     #    plt.scatter(data['datetime'],data['SST (C)'])
     #    plt.show()
 
-    ##Convert to Day of Year
+    ## Convert to Day of Year
     data['datetime'] = pd.to_datetime(data['datetime'])
-    ##Subtract from fitted sine wave/ Calculate day of Year instead
+    ## Subtract from fitted sine wave/ Calculate day of Year instead
     #    data['datetime']=pd.to_datetime(data['datetime'], infer_datetime_format=True)
     data['datetime'] = data['datetime'].astype('datetime64')
-    #.astype(int).astype(float)
     data['datetime'] = data['datetime'].dt.strftime('%j')
     data['datetime'] = pd.to_numeric(data["datetime"], downcast="float")
 
@@ -92,7 +89,7 @@ def clean_data(variable, var_col, predictors, test_size=0.5):
     #    data=data.drop(data['turbidity (NTU)']<0)
     #    print(len(data))
 
-    ##Get features
+    ## Get features
     y = data[var_col].values
     X = data.drop(var_col, axis=1).values
     feature_names = [k for k in data.keys() if k in predictors]
@@ -101,8 +98,7 @@ def clean_data(variable, var_col, predictors, test_size=0.5):
     data.hist()
     plt.tight_layout()
     plt.savefig("figures/" + variable + '_data_hist.png')
-
-    ##split everything
+    
     X_train, X_test, y_train, y_test = train_test_split(X,
                                                         y,
                                                         test_size=test_size)
