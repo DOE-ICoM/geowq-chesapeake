@@ -45,3 +45,14 @@ def load_md(variable, fpath_prestring="data/best_params_"):
 
 def clean_var_name(x):
     return "".join(map(str.lower, x)).split(" ")[0]
+
+
+def datetime_to_doy(dt):
+    dt = dt.copy()
+    dt = pd.to_datetime(dt)
+    ## Subtract from fitted sine wave/ Calculate day of Year instead
+    #    data['datetime']=pd.to_datetime(data['datetime'], infer_datetime_format=True)
+    dt = dt.astype('datetime64')
+    dt = dt.dt.strftime('%j')
+    dt = pd.to_numeric(dt, downcast="float")
+    return dt

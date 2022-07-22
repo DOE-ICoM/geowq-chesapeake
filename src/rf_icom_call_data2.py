@@ -78,12 +78,7 @@ def clean_data(variable, var_col, predictors, test_size=0.5):
     #    plt.show()
 
     ## Convert to Day of Year
-    data['datetime'] = pd.to_datetime(data['datetime'])
-    ## Subtract from fitted sine wave/ Calculate day of Year instead
-    #    data['datetime']=pd.to_datetime(data['datetime'], infer_datetime_format=True)
-    data['datetime'] = data['datetime'].astype('datetime64')
-    data['datetime'] = data['datetime'].dt.strftime('%j')
-    data['datetime'] = pd.to_numeric(data["datetime"], downcast="float")
+    data["datetime"] = utils.datetime_to_doy(data["datetime"])
 
     #    print(len(data))
     #    data=data.drop(data['turbidity (NTU)']<0)
@@ -98,7 +93,7 @@ def clean_data(variable, var_col, predictors, test_size=0.5):
     data.hist()
     plt.tight_layout()
     plt.savefig("figures/" + variable + '_data_hist.png')
-    
+
     X_train, X_test, y_train, y_test = train_test_split(X,
                                                         y,
                                                         test_size=test_size)
