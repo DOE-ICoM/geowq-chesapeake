@@ -1,9 +1,9 @@
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
 from sklearn.model_selection import train_test_split
 
+from src import utils
 from src import fit_sine
 
 
@@ -24,16 +24,15 @@ def clean_data(variable, var_col, predictors, test_size=0.5):
     feature_names => list, names of feature columns
     X_train, X_test => array, features for train and test sets
     y_train, y_test => array, label for train and test sets
-    
+
+    Examples:
+    var_col = "SST (C)"
     """
 
     ##Read in Data
     # data = pd.read_csv(variable + '.csv')
     data = pd.read_csv("data/aggregated_w_bandvals.csv")
-    var_key = ["SST (C)", "depth (m)", "SSS (psu)", "turbidity (NTU)"]
-    var_key.remove(var_col)
-    data = data.loc[:, ~data.columns.str.startswith(tuple(var_key))]
-    data.replace([np.inf, -np.inf], np.nan, inplace=True)
+    data = utils.select_var(data, var_col)
 
     ##For turbidity get rid of negative numbers
     print(len(data))
