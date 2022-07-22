@@ -1,4 +1,6 @@
+import re
 import numpy as np
+import pandas as pd
 
 
 def select_var(dt, var_col):
@@ -17,3 +19,29 @@ def freq_count(dt, grp_cols):
         0: 'count'
     }).sort_values("count", ascending=False).reset_index(drop=True)
     return dt
+
+
+def _unwrap(y):
+    return [[x for x in re.split('\s+', y)]]
+
+
+def load_md(variable, fpath_prestring="data/best_params_"):
+    # load best_params_[variable].md
+    bp_colnames = _unwrap(
+        str(
+            pd.read_table(fpath_prestring + variable + ".md",
+                          nrows=1,
+                          header=None)[0][0]).strip())[0]
+    if "max_leaf_nodes" in bp_colnames:
+        bp_colnames.remove("max_leaf_nodes")
+    bp = pd.DataFrame(_unwrap(
+        str(
+            pd.read_table(fpath_prestring + variable + ".md",
+                          skiprows=2,
+                          header=None)[0][0]).strip()),
+                      columns=bp_colnames)
+    return bp
+
+
+def clean_var_name(x):
+    return "".join(map(str.lower, x)).split(" ")[0]
