@@ -34,9 +34,8 @@ def main():
 
     ##Tune hyperparameters
     print('tune hyperparameters')
-    rmse, best_params = utils.tune_hyper_params(random_grid, predictors,
-                                                X_train, y_train, X_test,
-                                                y_test, variable)
+    rmse, best_params = utils.tune_hyper_params(random_grid, X_train, y_train,
+                                                X_test, y_test, variable)
 
     print('Final RMSE:')
     print(rmse)

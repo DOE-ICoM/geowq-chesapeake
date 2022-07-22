@@ -167,7 +167,6 @@ def build_grid():
 
 
 def tune_hyper_params(grid,
-                      params,
                       X_train,
                       y_train,
                       X_test,
@@ -178,7 +177,6 @@ def tune_hyper_params(grid,
     Runs Halving Random Search to compare different hyperparamter combinations
     Inputs: 
     parameter grid (can use build_grid())
-    parameters (found by feature selection)
     X_train and X_test (can use X arrays from run_rfe)
     y_train and y_test
     
