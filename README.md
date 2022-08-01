@@ -23,6 +23,7 @@ python scripts/00_load_all_data.py
 ### Generate training data
 
 ```shell
+# executes scripts/00_get_data.py
 make data_aggregated_gee_csv
 # manually upload aggregated_gee.csv to GEE
 # manually download results to data/unique_pixeldays_w_bandvals.csv
@@ -39,15 +40,14 @@ python scripts/01_rf_fit.py
 python scripts/02_rf_tune.py
 ```
 
-### Generate prediction data
+### Pull prediction data
 
 ```python
-# see svu.gee_fetch_bandvals
-python scripts/
+python scripts/03_get_data_predict.py --date "2018-01-01"
 ```
 
 ### Generate prediction surfaces
 
 ```shell
-python scripts/03_rf_predict.py
+python scripts/03_rf_predict.py --date "2018-01-01"
 ```
