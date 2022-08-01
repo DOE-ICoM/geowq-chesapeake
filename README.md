@@ -48,6 +48,6 @@ python scripts/
 
 ### Generate prediction surfaces
 
-```python
+```shell
 python scripts/03_rf_predict.py
 ```
