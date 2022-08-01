@@ -1,7 +1,9 @@
 # make data/unique_pixeldays_w_bandvals.csv
 
 import ee
+import requests
 import argparse
+import pandas as pd
 
 ee.Initialize()
 
@@ -36,13 +38,26 @@ def get_modis(date):
 
     task.start()
 
+    return (bandVals.getDownloadURL(filetype="csv",
+                                    filename=filename), filename)
+
+
+def _fetch_data(url, fname="test.csv"):
+    response = requests.get(url)
+    with open("data/prediction/" + fname + ".csv", "wb") as fd:
+        fd.write(response.content)
+
+    return fname
+
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--date", type=str)
     args = vars(parser.parse_args())
     date = args["date"]
-    get_modis(date)
+    (url, filename) = get_modis(date)
+    data = _fetch_data(url, filename)
+    # pd.read_csv(data).head()
 
 
 if __name__ == "__main__":
