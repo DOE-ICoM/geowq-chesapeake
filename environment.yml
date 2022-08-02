@@ -17,3 +17,4 @@ dependencies:
         - utm
         - h3pandas
         - geocube
+        - dataretrieval
