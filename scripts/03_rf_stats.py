@@ -8,6 +8,17 @@ variables = ["SSS (psu)", "turbidity (NTU)", "SST (C)"]
 variables_str = ["salinity (psu)", "turbidity (NTU)", "temperature (C)"]
 variables_str_short = [utils.clean_var_name(v) for v in variables_str]
 
+# ---
+
+rf_bestparams = pd.concat([
+    utils.load_md(
+        variables_str_short[i]).assign(variable=variables_str_short[i])
+    for i in range(0, len(variables_str_short))
+])
+rf_bestparams.to_csv("data/best_params_rf.csv", index=False)
+
+# ---
+
 rf_rmse = pd.concat([
     pd.DataFrame(variables_str_short, columns=["variable"
                                                ]).reset_index(drop=True),

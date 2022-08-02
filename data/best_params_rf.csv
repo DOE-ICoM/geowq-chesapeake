@@ -1,0 +1,4 @@
+n_estimators,min_samples_split,min_samples_leaf,max_features,max_depth,bootstrap,variable
+1810,10,5,auto,20,True,salinity
+1620,2,6,sqrt,50,True,turbidity
+2000,2,6,auto,10,True,temperature
