@@ -12,7 +12,7 @@ export ICOM_DATA:=$(ICOM_DATA)
 env:
 	python -c "import os; print(os.environ['ICOM_DATA'])"
 
-# ----
+# ---- training
 
 data: data_X_train
 
@@ -27,7 +27,7 @@ data/X_train_salinity.pkl: scripts/01_rf_fit.py
 data/X_train_turbidity.pkl: scripts/01_rf_fit.py
 	python $< --variable turbidity --var_col "turbidity (NTU)"
 
-# ----
+# ---- tuning
 
 data_rf_random: data/rf_random_temperature.pkl data/rf_random_salinity.pkl data/rf_random_turbidity.pkl
 
@@ -40,7 +40,11 @@ data/rf_random_salinity.pkl: scripts/02_rf_tune.py data/X_train_salinity.pkl
 data/rf_random_turbidity.pkl: scripts/02_rf_tune.py data/X_train_turbidity.pkl
 	python $< --variable turbidity
 
-# ----
+data/rmse_rf.csv: scripts/03_rf_stats.py \
+	data/rf_random_temperature.pkl data/rf_random_salinity.pkl data/rf_random_turbidity.pkl
+	python $<
+
+# ---- training data
 
 # all_data.csv is not created with this code base...
 
@@ -78,7 +82,7 @@ $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated_w_bandvals.csv: scrip
 	| data/unique_pixeldays_w_bandvals.csv
 	python $< --target aggregated_w_bandvals.csv
 
-# ----
+# ---- figures
 
 figures: figures/00_combined.pdf
 
