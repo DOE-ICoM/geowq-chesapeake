@@ -16,3 +16,4 @@ dependencies:
         - cartopy
         - utm
         - h3pandas
+        - geocube

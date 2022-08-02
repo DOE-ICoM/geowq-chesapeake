@@ -1,11 +1,13 @@
 import os
 import pickle
-import numpy as np
 import pandas as pd
 import seaborn as sns
 import geopandas as gpd
-from sklearn.ensemble import RandomForestRegressor
 import matplotlib.pyplot as plt
+
+from functools import partial
+from geocube.api.core import make_geocube
+from geocube.rasterize import rasterize_points_griddata
 
 from src import utils
 from src import rf_icom_call_data2 as call_data2
@@ -67,12 +69,25 @@ res = pd.DataFrame(test[1], columns=["obs"])
 res["predict"] = predictions.copy()
 res["longitude"] = longs
 res["latitude"] = lats
-res = gpd.GeoDataFrame(data=res, geometry=gpd.points_from_xy(res.longitude, res.latitude))
+res = gpd.GeoDataFrame(data=res,
+                       geometry=gpd.points_from_xy(res.longitude,
+                                                   res.latitude))
 
-res.to_file("test.gpkg", driver="GPKG")
+geo_grid = make_geocube(
+    vector_data=res,
+    measurements=['predict'],
+    resolution=(-0.1, 0.00001),    
+    rasterize_function=partial(rasterize_points_griddata, filter_nan=True),
+)
 
-sns.histplot(data=res, x="predict")
+geo_grid.predict.where(geo_grid.predict != geo_grid.predict.rio.nodata).plot()
 plt.show()
+
+geo_grid["predict"].rio.to_raster("my_rasterized_column.tif")
+
+# res.to_file("test.gpkg", driver="GPKG")
+# sns.histplot(data=res, x="predict")
+# plt.show()
 
 # --- prep validation data
 X_predict_raw = pd.read_csv(
