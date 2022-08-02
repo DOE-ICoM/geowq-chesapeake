@@ -11,7 +11,7 @@ ee.Initialize()
 def get_modis(date):
     filename = "modis-" + date.replace("-", "_")
     gdrive_folder = 'ICOM exports'
-    asset = "users/jstacompute/icom_pixelcenters"
+    asset = "users/jstacompute/icom_pixelcenters_4326"
     dataset = 'MODIS/006/MYDOCGA'
 
     obs = ee.FeatureCollection(asset)

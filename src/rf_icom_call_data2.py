@@ -88,7 +88,9 @@ def clean_data(variable, var_col, predictors, test_size=0.5, data=None):
 
     ## Get features
     y = data[var_col].values
-    X = data.drop(var_col, axis=1).values
+    X = data.drop(var_col, axis=1)
+    print(X.columns)
+    X = X.values
     feature_names = [k for k in data.keys() if k in predictors]
 
     plt.figure(figsize=(20, 10))
