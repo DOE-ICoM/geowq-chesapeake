@@ -23,8 +23,7 @@ def main():
     predictors = [
         'datetime', 'Ratio 1', 'Ratio 2', 'Ratio 3', 'sur_refl_b08',
         'sur_refl_b09', 'sur_refl_b10', 'sur_refl_b11', 'sur_refl_b12',
-        'sur_refl_b13', 'sur_refl_b14', 'sur_refl_b15', 'sur_refl_b16',
-        'latitude', 'longitude'
+        'sur_refl_b13', 'sur_refl_b14', 'sur_refl_b15', 'sur_refl_b16'
     ]
 
     ##Split into training and test data, test size=.33
@@ -37,8 +36,13 @@ def main():
 
     #Run Feature Selection
     print('run feature selection')
-    X_train, X_test = utils.run_rfe(X_train, y_train, X_test, y_test,
-                                    feature_names, variable)
+    X_train, X_test = utils.run_rfe(X_train,
+                                    y_train,
+                                    X_test,
+                                    y_test,
+                                    feature_names,
+                                    variable,
+                                    overwrite=True)
 
     pickle.dump(X_train, open("data/X_train_" + variable + ".pkl", "wb"))
     pickle.dump(X_test, open("data/X_test_" + variable + ".pkl", "wb"))
