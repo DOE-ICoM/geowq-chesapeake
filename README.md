@@ -42,7 +42,7 @@ python scripts/02_rf_tune.py
 
 ### Pull prediction data
 
-```python
+```shell
 python scripts/03_get_data_predict.py --date "2018-01-01"
 ```
 
