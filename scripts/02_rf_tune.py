@@ -14,7 +14,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--variable", default="temperature", type=str)
     args = vars(parser.parse_args())
-    variable = args["variable"]    
+    variable = args["variable"]
 
     X_train = pickle.load(open("data/X_train_" + variable + ".pkl", "rb"))
     X_test = pickle.load(open("data/X_test_" + variable + ".pkl", "rb"))
@@ -27,8 +27,13 @@ def main():
 
     ##Tune hyperparameters
     print('tune hyperparameters')
-    rmse, best_params = utils.tune_hyper_params(random_grid, X_train, y_train,
-                                                X_test, y_test, variable)
+    rmse, best_params = utils.tune_hyper_params(random_grid,
+                                                X_train,
+                                                y_train,
+                                                X_test,
+                                                y_test,
+                                                variable,
+                                                overwrite=True)
 
     print('Final RMSE:')
     print(rmse)
