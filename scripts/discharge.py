@@ -23,7 +23,7 @@ df3 = df3.merge(pd.DataFrame(nwis_stations,
                 on="site_no")
 
 # df3.columns
-# df3["site_no"].unique()
+# df3["site_str"].unique()
 
 g = sns.lineplot(data=df3, x="measurement_dt", y="discharge_va", hue="site_str")
 g.set_yscale("log")

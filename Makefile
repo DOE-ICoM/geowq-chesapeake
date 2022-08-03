@@ -12,6 +12,14 @@ export ICOM_DATA:=$(ICOM_DATA)
 env:
 	python -c "import os; print(os.environ['ICOM_DATA'])"
 
+# ---- infrastructure
+
+data/Boundaries/bay_gdf.gpkg: data/Boundaries/chk_water_only.shp
+	python -c 'import geopandas as gpd; gpd.read_file("$<").to_crs(4326).buffer(0.02).to_file("$@", driver="GPKG")'
+
+data/cost_surface.tif: scripts/00_make_costsurface.py
+	python $<
+
 # ---- training
 
 data: data_X_train
