@@ -83,16 +83,22 @@ def main():
                            geometry=gpd.points_from_xy(res.longitude,
                                                        res.latitude))
 
-    res.to_file("test.gpkg", driver="GPKG")
+    # res.to_file("test.gpkg", driver="GPKG")
     # sns.histplot(data=res, x="predict")
     # plt.show()
 
     geo_grid = make_geocube(
         vector_data=res,
         measurements=['predict'],
-        resolution=(-0.1, 0.00001),
+        resolution=(-0.002, 0.002),
         rasterize_function=partial(rasterize_points_griddata, filter_nan=True),
     )
+
+    # bay_gdf = gpd.read_file("data/Boundaries/chk_water_only.shp").to_crs(
+    #     4326).buffer(0.02)
+    # bay_gdf.to_file("data/Boundaries/bay_gdf.gpkg", driver="GPKG")
+    bay_gdf = gpd.read_file("data/Boundaries/bay_gdf.gpkg")
+    geo_grid = geo_grid.rio.clip(bay_gdf.geometry)
 
     # geo_grid.predict.where(
     #     geo_grid.predict != geo_grid.predict.rio.nodata).plot()

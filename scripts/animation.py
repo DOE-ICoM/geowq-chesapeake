@@ -44,8 +44,7 @@ animation = anim.FuncAnimation(fig,
                                update,
                                frames=variable.time.values,
                                blit=False)
-
-#animation.save('tasmax.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
+# animation.save("test.gif")
 plt.show()
 
 # --- simple plotting
