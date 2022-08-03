@@ -43,11 +43,11 @@ python scripts/02_rf_tune.py
 ### Pull prediction data
 
 ```shell
-python scripts/03_get_data_predict.py --date "2018-01-01"
+python scripts/03_get_data_predict.py --date "2018-01-02"
 ```
 
 ### Generate prediction surfaces
 
 ```shell
-python scripts/03_rf_predict.py --date "2018-01-01"
+python scripts/04_rf_predict.py --date "2018-01-02"
 ```

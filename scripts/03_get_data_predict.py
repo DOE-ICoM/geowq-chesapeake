@@ -55,6 +55,7 @@ def main():
     parser.add_argument("--date", type=str)
     args = vars(parser.parse_args())
     date = args["date"]
+
     (url, filename) = get_modis(date)
     data = _fetch_data(url, filename)
     # pd.read_csv(data).head()
