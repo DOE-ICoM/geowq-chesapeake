@@ -18,3 +18,4 @@ dependencies:
         - h3pandas
         - geocube
         - dataretrieval
+        - scikit-image
