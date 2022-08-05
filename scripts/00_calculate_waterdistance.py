@@ -44,11 +44,13 @@ indices, weight = route_through_array(cost_surface_array,
                                       geometric=True,
                                       fully_connected=True)
 indices = np.array(indices).T
+
 path = np.zeros_like(cost_surface_array)
-path[indices[0], indices[1]] = 1
+path[np.array([indices[0][0]]), np.array([indices[1][0]])] = int(round(weight, 0))
+# path[indices[0], indices[1]] = weight
 
 res = xr.DataArray(path, coords=[dt.y.values, dt.x.values], dims=["y", "x"])
 res["spatial_ref"] = dt["spatial_ref"]
 res = res.where(res > 0)
 
-res.rio.to_raster("data/testasdf2.tif")
+# res.rio.to_raster("data/testasdf35.tif")
