@@ -10,6 +10,8 @@ __pycache__
 data/*.csv
 data/*.pkl
 data/*.md
+data/*.tif
+data/*.tif.aux.xml
 
 figures/*.png
 figures/*.pdf

@@ -19,3 +19,4 @@ dependencies:
         - geocube
         - dataretrieval
         - scikit-image
+        - tqdm
