@@ -6,8 +6,8 @@ test:
 	@echo $(variables_parsed)
 
 
-ICOM_DATA = D:/ICOM
-export ICOM_DATA:=$(ICOM_DATA)
+# ICOM_DATA = D:/ICOM
+# export ICOM_DATA:=$(ICOM_DATA)
 
 env:
 	python -c "import os; print(os.environ['ICOM_DATA'])"
