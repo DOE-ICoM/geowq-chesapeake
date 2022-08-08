@@ -19,4 +19,6 @@ dependencies:
         - geocube
         - dataretrieval
         - scikit-image
-        - tqdm
+        # rivgraph deps
+        - loguru
+        - fastdtw
