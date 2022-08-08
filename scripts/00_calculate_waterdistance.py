@@ -3,8 +3,8 @@
 import numpy as np
 import xarray as xr
 import pandas as pd
-from tqdm import tqdm
 import geopandas as gpd
+from joblib import Parallel, delayed
 from skimage.graph import route_through_array
 
 
@@ -53,12 +53,13 @@ def get_distance(stop_idx_y, stop_idx_x):
 
 stations = gpd.GeoDataFrame({
     "name": ['Choptank', 'Susquehanna', 'Pautexent', 'Potomac'],
-    "longitude": [-75.900, -76.083, -76.698, -77.059],
-    "latitude": [38.811, 39.553, 38.8311, 39.379]
+    "longitude": [-75.900, -76.083, -76.692, -77.110],
+    "latitude": [38.811, 39.553, 38.664, 38.38]
 })
 stations = gpd.GeoDataFrame(stations,
                             geometry=gpd.points_from_xy(
                                 stations["longitude"], stations["latitude"]))
+# stations.to_file("stations.gpkg", driver="GPKG")
 
 fpath = "data/cost.tif"
 dt = xr.open_dataset(fpath, engine="rasterio").sel(band=1)
@@ -71,10 +72,19 @@ cost_surface_array = dt.to_array().values[0, :, :]
                                             stations.iloc[[0]]["latitude"][0])
 end_points = get_idx_water()
 
-res = []
-for i in tqdm(range(0, end_points.shape[0])):
-    res.append(get_distance(end_points[i][0], end_points[i][1]))
+# res = []
+# for i in tqdm(range(0, end_points.shape[0])):
+#     res.append(get_distance(end_points[i][0], end_points[i][1]))
 
 # sum each layer
 # res.rio.to_raster("data/testasdf35222.tif")
 # gdf.to_file("test2.gpkg", driver="GPKG")
+
+end_points.shape[0]  # 294049
+par_njobs = 5
+res = Parallel(n_jobs=par_njobs,
+               verbose=25)(delayed(get_distance)(end_points[i][0],
+                                                 end_points[i][1])
+                           for i in range(0, end_points.shape[0]))  #
+
+pd.concat(res).to_file("test.gpkg", driver="GPKG")
