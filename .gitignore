@@ -6,6 +6,8 @@ __pycache__
 *.gpkg
 *.gpkg-shm
 *.gpkg-wal
+*.tif
+*.gif
 
 data/*.csv
 data/*.pkl

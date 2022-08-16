@@ -255,26 +255,34 @@ def weight_grid(f):
 
     return (discharge_site / cost_grid).expand_dims(band=1)
 
+if not os.path.exists("data/waterdistance.tif"):
+    grids = [weight_grid(f) for f in flist]
 
-grids = [weight_grid(f) for f in flist]
+    merged = xr.concat(grids, dim="band")
+    merged = merged.sum(dim="band", skipna=True)
+    merged = merged.where(merged > 10)
+    merged = merged.where(merged < 5000)
+    merged = merged.bfill('time')
 
-merged = xr.concat(grids, dim="band")
-merged = merged.sum(dim="band", skipna=True)
-merged = merged.where(merged > 10)
-merged = merged.where(merged < 5000)
-merged = merged.bfill('time')
+    merged.rio.to_raster("data/waterdistance.tif")
 
-merged.rio.to_raster("data/waterdistance.tif")
-
+merged = xr.open_dataset('data/waterdistance.tif', engine="rasterio")
 aggregated_w_bandvals = pd.read_csv("data/aggregated_w_bandvals.csv")
-unique_locs = aggregated_w_bandvals.groupby(["latitude", "longitude"]).size().reset_index().rename(columns={0:'count'})
-test = merged.sel(x=[x for x in unique_locs.longitude], y=[y for y in unique_locs.latitude], method='nearest')
-test = test.to_dataframe().reset_index()
 
-gpd.GeoDataFrame(geometry=gpd.points_from_xy(test.x, test.y)).head()
+unique_locs = aggregated_w_bandvals.groupby(["latitude", "longitude", "pix_id"]).size().reset_index().rename(columns={0:'count'})
+unique_locs = gpd.GeoDataFrame(unique_locs, geometry=gpd.points_from_xy(unique_locs.longitude, unique_locs.latitude))
+unique_locs_gc = make_geocube(
+        vector_data=unique_locs,
+        measurements=['pix_id'],
+        resolution=(-0.002, 0.002),
+    )
+test = xr.merge([merged, unique_locs_gc.expand_dims(band=1)])
+test = test.to_dataframe().reset_index().rename(columns={"band_data":"cost"})
+test = test[(~pd.isna(test["pix_id"])) & (~pd.isna(test["cost"]))]
+# gpd.GeoDataFrame(test, geometry=gpd.points_from_xy(test.x, test.y)).to_file("test4.gpkg")
+res = aggregated_w_bandvals.merge(test[["cost", "pix_id"]], on="pix_id", how="left").head()
+unique_locs[unique_locs["pix_id"] == 267983918]
 
-
-test = aggregated_w_bandvals.groupby(["latitude", "longitude"])["pix_id"].unique()
 
 # ---
 # # --- susq
