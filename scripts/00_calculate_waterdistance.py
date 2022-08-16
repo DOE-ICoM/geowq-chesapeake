@@ -10,6 +10,7 @@ import pandas as pd
 from tqdm import tqdm
 import geopandas as gpd
 from joblib import Parallel, delayed
+from geocube.api.core import make_geocube
 from skimage.graph import route_through_array
 
 
@@ -155,6 +156,7 @@ if not os.path.exists("susquehanna.gpkg"):
                                                 stations.iloc[[1]].reset_index()["latitude"][0])
     # end_points.shape[0]  # 294049
     l = np.array_split(np.array(range(0, end_points.shape[0])), 20)
+    
     l[0] = np.delete(l[0], np.array([10170+156])) # resolve mystery coredump error
     l[4] = np.delete(l[4], np.array([2600+77])) # resolve mystery coredump error
     l[4] = np.delete(l[4], np.array([3100+116])) # resolve mystery coredump error
@@ -232,9 +234,37 @@ if not os.path.exists("susquehanna.gpkg"):
 #     # print(i)
 #     res.append(get_distance(end_points[i][1], end_points[i][0], i))
 
-# sum each layer
-# res.rio.to_raster("data/testasdf35222.tif")
-# gdf.to_file("test2.gpkg", driver="GPKG")
+discharge = pd.read_csv("data/discharge_median.csv")
+
+flist = glob.glob("*.gpkg")
+flist.remove("stations.gpkg")
+
+def weight_grid(f):
+    # f = flist[0]
+    site_str = f.replace(".gpkg", "").title()
+
+    gdf = gpd.read_file(f)
+    cost_grid = make_geocube(
+        vector_data=gdf,
+        measurements=['cost'],
+        resolution=(-0.002, 0.002),
+    )
+
+    discharge_site = float(
+        discharge[discharge["site_str"] == site_str]["discharge_va"])
+
+    return (discharge_site / cost_grid).expand_dims(band=1)
+
+
+grids = [weight_grid(f) for f in flist]
+
+merged = xr.concat(grids, dim="band")
+merged = merged.sum(dim="band", skipna=True)
+merged = merged.where(merged > 10)
+merged = merged.where(merged < 5000)
+merged = merged.bfill('time')
+
+merged.rio.to_raster("data/waterdistance.tif")
 
 # ---
 # # --- susq
