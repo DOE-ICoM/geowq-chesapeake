@@ -266,6 +266,16 @@ merged = merged.bfill('time')
 
 merged.rio.to_raster("data/waterdistance.tif")
 
+aggregated_w_bandvals = pd.read_csv("data/aggregated_w_bandvals.csv")
+unique_locs = aggregated_w_bandvals.groupby(["latitude", "longitude"]).size().reset_index().rename(columns={0:'count'})
+test = merged.sel(x=[x for x in unique_locs.longitude], y=[y for y in unique_locs.latitude], method='nearest')
+test = test.to_dataframe().reset_index()
+
+gpd.GeoDataFrame(geometry=gpd.points_from_xy(test.x, test.y)).head()
+
+
+test = aggregated_w_bandvals.groupby(["latitude", "longitude"])["pix_id"].unique()
+
 # ---
 # # --- susq
 # test_coords = []
