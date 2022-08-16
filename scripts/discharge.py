@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import seaborn as sns
 import dataretrieval.nwis as nwis
@@ -13,18 +14,27 @@ nwis_stations = {
 
 stations = [x for x in nwis_stations.values()]
 
-df3 = nwis.get_discharge_measurements(sites=stations)[0]
+outpath = "data/discharge.csv"
+if not os.path.exists(outpath):
+    df3 = nwis.get_discharge_measurements(sites=stations)[0]
+    df3["measurement_dt"] = pd.to_datetime(df3["measurement_dt"])
+    df3 = df3.merge(pd.DataFrame(nwis_stations,
+                                index=[0]).T.reset_index().rename(columns={
+                                    "index": "site_str",
+                                    0: "site_no"
+                                }),
+                    on="site_no")
+    df3.to_csv(outpath, index=False)
+
+df3 = pd.read_csv(outpath)
 df3["measurement_dt"] = pd.to_datetime(df3["measurement_dt"])
-df3 = df3.merge(pd.DataFrame(nwis_stations,
-                             index=[0]).T.reset_index().rename(columns={
-                                 "index": "site_str",
-                                 0: "site_no"
-                             }),
-                on="site_no")
 
 # df3.columns
 # df3["site_str"].unique()
 
-g = sns.lineplot(data=df3, x="measurement_dt", y="discharge_va", hue="site_str")
+g = sns.lineplot(data=df3,
+                 x="measurement_dt",
+                 y="discharge_va",
+                 hue="site_str")
 g.set_yscale("log")
 plt.show()
