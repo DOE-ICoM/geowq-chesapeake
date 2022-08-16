@@ -14,15 +14,15 @@ nwis_stations = {
 
 stations = [x for x in nwis_stations.values()]
 
-outpath = "data/discharge.csv"
+outpath = "data/discharge_raw.csv"
 if not os.path.exists(outpath):
     df3 = nwis.get_discharge_measurements(sites=stations)[0]
     df3["measurement_dt"] = pd.to_datetime(df3["measurement_dt"])
     df3 = df3.merge(pd.DataFrame(nwis_stations,
-                                index=[0]).T.reset_index().rename(columns={
-                                    "index": "site_str",
-                                    0: "site_no"
-                                }),
+                                 index=[0]).T.reset_index().rename(columns={
+                                     "index": "site_str",
+                                     0: "site_no"
+                                 }),
                     on="site_no")
     df3.to_csv(outpath, index=False)
 
@@ -32,9 +32,13 @@ df3["measurement_dt"] = pd.to_datetime(df3["measurement_dt"])
 # df3.columns
 # df3["site_str"].unique()
 
+pd.DataFrame(
+    df3.groupby("site_str")["discharge_va"].median()).reset_index().to_csv(
+        "data/discharge_median.csv", index=False)
+
 g = sns.lineplot(data=df3,
                  x="measurement_dt",
                  y="discharge_va",
                  hue="site_str")
 g.set_yscale("log")
-plt.show()
+plt.show(block=False)
