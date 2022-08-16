@@ -117,3 +117,8 @@ figures/%_map_variable.pdf: figures/plot_data.py figures/plot_helpers.py
 figures/00_combined.pdf: figures/_obs_stats.pdf \
 	figures/_map_counts_all.pdf figures/_map_variable_all.pdf 
 	pdftk $(wildcard figures/_*.pdf) output figures/00_combined.pdf
+
+# ---
+
+clean:
+	rm core.*

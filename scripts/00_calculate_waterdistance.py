@@ -2,6 +2,7 @@
 
 import os
 import glob
+import random
 import pickle
 import numpy as np
 import xarray as xr
@@ -156,9 +157,65 @@ if not os.path.exists("susquehanna.gpkg"):
     l = np.array_split(np.array(range(0, end_points.shape[0])), 20)
     l[0] = np.delete(l[0], np.array([10170+156])) # resolve mystery coredump error
     l[4] = np.delete(l[4], np.array([2600+77])) # resolve mystery coredump error
-    l[4] = np.delete(l[4], np.array([3100+116])) # resolve mystery coredump error   
-
+    l[4] = np.delete(l[4], np.array([3100+116])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([1300+100])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([1300+100])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([1800+79])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([2100+56])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([2100+56])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([2200+63])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([2600+61])) # resolve mystery coredump error    
+    l[6] = np.delete(l[6], np.array([2900+11])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([3000+27])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([3500+17])) # resolve mystery coredump error    
+    l[6] = np.delete(l[6], np.array([8850+44])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([8850+44])) # resolve mystery coredump error    
+    l[6] = np.delete(l[6], np.array([9600+14])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([10350+21])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([10640+9])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([10640+9])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([10640+9])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([10640+9])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([10640+9])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([10640+9])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([10640+9])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([10640+9])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([10900+25])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([11200+5])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([11450+49])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([12100+10])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([12100+10])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([12100+10])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([12100+10])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([12100+10])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([12100+10])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([12100+10])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([12700+13])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([13000+9])) # resolve mystery coredump error    
+    l[6] = np.delete(l[6], np.array([13000+9])) # resolve mystery coredump error    
+    l[6] = np.delete(l[6], np.array([13000+9])) # resolve mystery coredump error    
+    l[6] = np.delete(l[6], np.array([13000+9])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([13300+24])) # resolve mystery coredump error    
+    l[6] = np.delete(l[6], np.array([13600+47])) # resolve mystery coredump error
+    l[6] = np.delete(l[6], np.array([14300+21])) # resolve mystery coredump error
+    l[7] = np.delete(l[7], np.array([350+36])) # resolve mystery coredump error    
+    l[7] = np.delete(l[7], np.array([720+21])) # resolve mystery coredump error
+    l[7] = np.delete(l[7], np.array([1050+25])) # resolve mystery coredump error
+    l[7] = np.delete(l[7], np.array([1400+15])) # resolve mystery coredump error
+    l[7] = np.delete(l[7], np.array([1400+15])) # resolve mystery coredump error
+    l[7] = np.delete(l[7], np.array([1400+15])) # resolve mystery coredump error
+    l[7] = np.delete(l[7], np.array([1700+58])) # resolve mystery coredump error
+    l[7] = np.delete(l[7], np.array([2050+40])) # resolve mystery coredump error
+    l[7] = np.delete(l[7], np.array([2080+10])) # resolve mystery coredump error
+    l[7] = np.delete(l[7], np.array([2400+32])) # resolve mystery coredump error
+    l[7] = np.delete(l[7], np.array([2400+32])) # resolve mystery coredump error
+    l[7] = np.delete(l[7], np.array([2400+32])) # resolve mystery coredump error
+    l[7] = np.delete(l[7], np.array([2750+34])) # resolve mystery coredump error
+    l[7] = np.delete(l[7], np.array([3140+4])) # resolve mystery coredump error
+    l[7] = np.delete(l[7], np.array([3890+9])) # resolve mystery coredump error
+            
     # [s[-1] for s in l]
+    # random.shuffle(l)
     [get_distance_grp(s) for s in l]
 
     flist = glob.glob("test_*.gpkg")
@@ -166,69 +223,69 @@ if not os.path.exists("susquehanna.gpkg"):
     pd.concat(gdfs).to_file("susquehanna.gpkg")
     [os.remove(f) for f in flist]
 
-i = l[4][3100+116]
-get_distance(end_points[i][1], end_points[i][0], i)
+# i = l[7][1700+58]
+# get_distance(end_points[i][1], end_points[i][0], i)
 
-test = np.array(range(l[4][3100], l[4][len(l[4])-1])) 
-res = []
-for i in tqdm(test):
-    # print(i)
-    res.append(get_distance(end_points[i][1], end_points[i][0], i))
+# test = np.array(range(l[7][3890], l[7][len(l[7])-1])) 
+# res = []
+# for i in tqdm(test):
+#     # print(i)
+#     res.append(get_distance(end_points[i][1], end_points[i][0], i))
 
 # sum each layer
 # res.rio.to_raster("data/testasdf35222.tif")
 # gdf.to_file("test2.gpkg", driver="GPKG")
 
 # ---
-# --- susq
-test_coords = []
-if not os.path.exists("susq.gpkg"):
-    (start_idx_x, start_idx_y) = get_idx_coords(stations.iloc[[1]].reset_index(drop=True)["longitude"][0],
-                                                stations.iloc[[1]].reset_index(drop=True)["latitude"][0])    
-    l = np.array_split(np.array(range(0, end_points.shape[0])), 6)
+# # --- susq
+# test_coords = []
+# if not os.path.exists("susq.gpkg"):
+#     (start_idx_x, start_idx_y) = get_idx_coords(stations.iloc[[1]].reset_index(drop=True)["longitude"][0],
+#                                                 stations.iloc[[1]].reset_index(drop=True)["latitude"][0])    
+#     l = np.array_split(np.array(range(0, end_points.shape[0])), 6)
 
-    i = l[0][8162]
-    get_distance(end_points[i][1], end_points[i][0], i)
+#     i = l[0][8162]
+#     get_distance(end_points[i][1], end_points[i][0], i)
 
-    test_coords.append(end_points[l[0][8162]])
-    l[0] = np.delete(l[0], np.array([8162])) # resolve mystery coredump error
-    test_coords.append(end_points[l[0][9680]])
-    l[0] = np.delete(l[0], np.array([9680])) # resolve mystery coredump error
-    test_coords.append(end_points[l[0][9680]])
-    l[0] = np.delete(l[0], np.array([9680])) # resolve mystery coredump error
-    test_coords.append(end_points[l[0][20675]])
-    l[0] = np.delete(l[0], np.array([20675])) # resolve mystery coredump error
-    test_coords.append(end_points[l[0][20679]])
-    l[0] = np.delete(l[0], np.array([20679])) # resolve mystery coredump error
-    l[0] = np.delete(l[0], np.array([20678])) # resolve mystery coredump error
-    l[0] = np.delete(l[0], np.array([20678])) # resolve mystery coredump error
-    l[0] = np.delete(l[0], np.array([20678])) # resolve mystery coredump error
-    l[0] = np.delete(l[0], np.array([20678])) # resolve mystery coredump error
+#     test_coords.append(end_points[l[0][8162]])
+#     l[0] = np.delete(l[0], np.array([8162])) # resolve mystery coredump error
+#     test_coords.append(end_points[l[0][9680]])
+#     l[0] = np.delete(l[0], np.array([9680])) # resolve mystery coredump error
+#     test_coords.append(end_points[l[0][9680]])
+#     l[0] = np.delete(l[0], np.array([9680])) # resolve mystery coredump error
+#     test_coords.append(end_points[l[0][20675]])
+#     l[0] = np.delete(l[0], np.array([20675])) # resolve mystery coredump error
+#     test_coords.append(end_points[l[0][20679]])
+#     l[0] = np.delete(l[0], np.array([20679])) # resolve mystery coredump error
+#     l[0] = np.delete(l[0], np.array([20678])) # resolve mystery coredump error
+#     l[0] = np.delete(l[0], np.array([20678])) # resolve mystery coredump error
+#     l[0] = np.delete(l[0], np.array([20678])) # resolve mystery coredump error
+#     l[0] = np.delete(l[0], np.array([20678])) # resolve mystery coredump error
 
-    # get_idx_coords(*get_geo_coords(test_coords[0][0],test_coords[0][1]))
-    # test_coords_pd = pd.DataFrame([get_geo_coords(coords[1], coords[0]) for coords in end_points[0:1000]], columns=["x", "y"])
-    test_coords_pd = pd.DataFrame([get_geo_coords(coords[1], coords[0]) for coords in test_coords], columns=["x", "y"])
-    gpd.GeoDataFrame(geometry=gpd.points_from_xy(test_coords_pd.x, test_coords_pd.y)).to_file("test3.gpkg", driver="GPKG")
+#     # get_idx_coords(*get_geo_coords(test_coords[0][0],test_coords[0][1]))
+#     # test_coords_pd = pd.DataFrame([get_geo_coords(coords[1], coords[0]) for coords in end_points[0:1000]], columns=["x", "y"])
+#     test_coords_pd = pd.DataFrame([get_geo_coords(coords[1], coords[0]) for coords in test_coords], columns=["x", "y"])
+#     gpd.GeoDataFrame(geometry=gpd.points_from_xy(test_coords_pd.x, test_coords_pd.y)).to_file("test3.gpkg", driver="GPKG")
     
 
-    # i = l[0][0]
-    # get_distance(end_points[i][1], end_points[i][0], i)
+#     # i = l[0][0]
+#     # get_distance(end_points[i][1], end_points[i][0], i)
 
-    # [s[-1] for s in l]
-    [get_distance_grp(s) for s in l]
+#     # [s[-1] for s in l]
+#     [get_distance_grp(s) for s in l]
 
-    flist = glob.glob("test_*.gpkg")
-    gdfs = [gpd.read_file(f) for f in flist]
-    pd.concat(gdfs).to_file("susq.gpkg")
-    [os.remove(f) for f in flist]
+#     flist = glob.glob("test_*.gpkg")
+#     gdfs = [gpd.read_file(f) for f in flist]
+#     pd.concat(gdfs).to_file("susq.gpkg")
+#     [os.remove(f) for f in flist]
 
-test = np.array(range(20675, l[0][len(l[0])-1])) 
-# plus 3
-i = 20676 + 2
-i = l[0][len(l[0])-1]
-get_distance(end_points[i][1], end_points[i][0], i)
-
-# i = l[-1][11311]
+# test = np.array(range(20675, l[0][len(l[0])-1])) 
+# # plus 3
+# i = 20676 + 2
+# i = l[0][len(l[0])-1]
 # get_distance(end_points[i][1], end_points[i][0], i)
-# (end_points[i][1], end_points[i][0])
-# get_geo_coords(end_points[i][1], end_points[i][0])
+
+# # i = l[-1][11311]
+# # get_distance(end_points[i][1], end_points[i][0], i)
+# # (end_points[i][1], end_points[i][0])
+# # get_geo_coords(end_points[i][1], end_points[i][0])
