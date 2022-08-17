@@ -317,7 +317,7 @@ res_unique = (
 # gpd.GeoDataFrame(res_unique, geometry=gpd.points_from_xy(res.longitude, res.latitude)).to_file("test.gpkg")
 res = aggregated_w_bandvals.merge(res_unique)
 res.to_csv(
-    os.environ["ICOM_DATA"] + "/Modeling Data/Processed Data p1/data_w_fwi.csv",
+    "data/data_w_fwi.csv",
     index=False,
 )
 

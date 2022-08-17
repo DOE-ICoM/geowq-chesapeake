@@ -11,9 +11,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--variable", default="temperature", type=str)
     parser.add_argument("--var_col", default="SST (C)", type=str)
+    parser.add_argument("--data",
+                        default="data/aggregated_w_bandvals.csv",
+                        type=str)
     args = vars(parser.parse_args())
     variable = args["variable"]
     var_col = args["var_col"]
+    data = args["data"]
 
     #variable='salinity'
     #var_col='SSS (psu)'
@@ -29,7 +33,7 @@ def main():
     ##Split into training and test data, test size=.33
     print('split data')
     X_train, y_train, X_test, y_test, feature_names = call_data2.clean_data(
-        variable, var_col, predictors, test_size=0.33)
+        variable, var_col, predictors, test_size=0.33, data=data)
 
     ##Feature Selection vs Hyperparameter Tuning: https://stats.stackexchange.com/questions/264533/how-should-feature-selection-and-hyperparameter-optimization-be-ordered-in-the-m
     ##I added n_estimators=1000, and a max_depth =20 for the hyperparameters used in feature selection

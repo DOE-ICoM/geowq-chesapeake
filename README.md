@@ -37,7 +37,7 @@ make data_w_fwi
 
 ```shell
 # variable selection + initial fitting
-python scripts/01_rf_fit.py
+python scripts/01_rf_fit.py --variable 'salinity' --var_col 'SSS (psu)' --data "data/data_w_fwi.csv"
 
 # hyperparameter tuning
 python scripts/02_rf_tune.py
