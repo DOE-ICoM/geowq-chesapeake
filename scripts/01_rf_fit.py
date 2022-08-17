@@ -27,7 +27,8 @@ def main():
     predictors = [
         'datetime', 'Ratio 1', 'Ratio 2', 'Ratio 3', 'sur_refl_b08',
         'sur_refl_b09', 'sur_refl_b10', 'sur_refl_b11', 'sur_refl_b12',
-        'sur_refl_b13', 'sur_refl_b14', 'sur_refl_b15', 'sur_refl_b16'
+        'sur_refl_b13', 'sur_refl_b14', 'sur_refl_b15', 'sur_refl_b16', 
+        "cost", "latitude", "longitude"
     ]
 
     ##Split into training and test data, test size=.33

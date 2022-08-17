@@ -4,12 +4,17 @@ import pandas as pd
 
 
 def select_var(dt, var_col):
-    # drop columns associated with all other vars from dt
+    if isinstance(dt, str):
+        dt = pd.read_csv(dt)
     dt = dt.copy()
+
+    # drop columns associated with all other vars from dt    
     var_key = ["SST (C)", "depth (m)", "SSS (psu)", "turbidity (NTU)"]
     var_key.remove(var_col)
+
     dt = dt.loc[:, ~dt.columns.str.startswith(tuple(var_key))]
     dt.replace([np.inf, -np.inf], np.nan, inplace=True)
+    
     return dt
 
 
