@@ -90,6 +90,15 @@ $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated_w_bandvals.csv: scrip
 	| data/unique_pixeldays_w_bandvals.csv
 	python $< --target aggregated_w_bandvals.csv
 
+data/cost.tif: scripts/00_make_costsurface.py
+	python $<
+
+data_w_fwi: $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/data_w_fwi.csv
+
+$(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/data_w_fwi.csv: scripts/00_calculate_waterdistance.py \
+	| data/cost.tif
+	python $<
+
 # ---- figures
 
 figures: figures/00_combined.pdf

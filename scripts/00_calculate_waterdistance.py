@@ -266,7 +266,7 @@ if not os.path.exists("data/waterdistance.tif"):
 
     merged.rio.to_raster("data/waterdistance.tif")
 
-merged = xr.open_dataset('data/waterdistance.tif', engine="rasterio")
+wd_raw = xr.open_dataset('data/waterdistance.tif', engine="rasterio")
 aggregated_w_bandvals = pd.read_csv("data/aggregated_w_bandvals.csv")
 
 unique_locs = aggregated_w_bandvals.groupby(["latitude", "longitude", "pix_id"]).size().reset_index().rename(columns={0:'count'})
@@ -276,12 +276,14 @@ unique_locs_gc = make_geocube(
         measurements=['pix_id'],
         resolution=(-0.002, 0.002),
     )
-test = xr.merge([merged, unique_locs_gc.expand_dims(band=1)])
-test2 = test.to_dataframe().reset_index().rename(columns={"band_data":"cost"})
+wd_xr = xr.merge([wd_raw, unique_locs_gc.expand_dims(band=1)])
+wd_df = wd_xr.to_dataframe().reset_index().rename(columns={"band_data":"cost"})
 
-res = aggregated_w_bandvals.merge(test2)
-res = res.groupby(["latitude", "longitude", "pix_id", "cost"]).size().reset_index().rename(columns={0:'count'})
-gpd.GeoDataFrame(res, geometry=gpd.points_from_xy(res.longitude, res.latitude)).to_file("test.gpkg")
+res = aggregated_w_bandvals.merge(wd_df)
+res_unique = res.groupby(["latitude", "longitude", "pix_id", "cost"]).size().reset_index().rename(columns={0:'count'})
+# gpd.GeoDataFrame(res_unique, geometry=gpd.points_from_xy(res.longitude, res.latitude)).to_file("test.gpkg")
+res = aggregated_w_bandvals.merge(res_unique)
+res.to_csv(os.environ["ICOM_DATA"] + "/Modeling Data/Processed Data p1/data_w_fwi.csv", index=False)
 
 # ---
 # # --- susq
