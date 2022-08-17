@@ -277,12 +277,11 @@ unique_locs_gc = make_geocube(
         resolution=(-0.002, 0.002),
     )
 test = xr.merge([merged, unique_locs_gc.expand_dims(band=1)])
-test = test.to_dataframe().reset_index().rename(columns={"band_data":"cost"})
-test = test[(~pd.isna(test["pix_id"])) & (~pd.isna(test["cost"]))]
-# gpd.GeoDataFrame(test, geometry=gpd.points_from_xy(test.x, test.y)).to_file("test4.gpkg")
-res = aggregated_w_bandvals.merge(test[["cost", "pix_id"]], on="pix_id", how="left").head()
-unique_locs[unique_locs["pix_id"] == 267983918]
+test2 = test.to_dataframe().reset_index().rename(columns={"band_data":"cost"})
 
+res = aggregated_w_bandvals.merge(test2)
+res = res.groupby(["latitude", "longitude", "pix_id", "cost"]).size().reset_index().rename(columns={0:'count'})
+gpd.GeoDataFrame(res, geometry=gpd.points_from_xy(res.longitude, res.latitude)).to_file("test.gpkg")
 
 # ---
 # # --- susq
