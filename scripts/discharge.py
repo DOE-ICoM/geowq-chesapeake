@@ -41,4 +41,4 @@ g = sns.lineplot(data=df3,
                  y="discharge_va",
                  hue="site_str")
 g.set_yscale("log")
-plt.show(block=False)
+plt.savefig("figures/discharge.png")
