@@ -8,6 +8,7 @@ __pycache__
 *.gpkg-wal
 *.tif
 *.gif
+*.tif.aux.xml
 
 data/*.csv
 data/*.pkl

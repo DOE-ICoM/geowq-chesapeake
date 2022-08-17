@@ -93,15 +93,24 @@ $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/aggregated_w_bandvals.csv: scrip
 data/cost.tif: scripts/00_make_costsurface.py
 	python $<
 
+data/discharge_median.csv: scripts/00_pull_discharge.py
+	python $<
+
+data/discharge_raw.csv: scripts/00_pull_discharge.py
+	python $<
+
 data_w_fwi: $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/data_w_fwi.csv
 
 $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/data_w_fwi.csv: scripts/00_calculate_waterdistance.py \
-	| data/cost.tif
+	| data/cost.tif data/discharge_median.csv
 	python $<
 
 # ---- figures
 
 figures: figures/00_combined.pdf
+
+figures/discharge.pdf: figures/discharge.py data/discharge_raw.csv
+	python $<
 
 figures/_obs_stats.pdf: figures/obs_stats.py
 	python $<
