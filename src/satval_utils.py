@@ -463,6 +463,11 @@ def make_gdf_for_GEE(aggregated, df=False):
         int(1e6)).astype(np.int64)
     out['pixelday'] = aggregated.pixelday.values
 
+    # add pix_id
+    # aggregated["pix_id"].head()
+    # out["pixelday"].head()
+    # breakpoint()
+
     return out
 
 

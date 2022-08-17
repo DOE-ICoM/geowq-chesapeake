@@ -314,6 +314,8 @@ res_unique = (
     .reset_index()
     .rename(columns={0: "count"})
 )
+res_unique.to_csv("data/fwi_cost.csv", index=False)
+
 # gpd.GeoDataFrame(res_unique, geometry=gpd.points_from_xy(res.longitude, res.latitude)).to_file("test.gpkg")
 res = aggregated_w_bandvals.merge(res_unique)
 res.to_csv(

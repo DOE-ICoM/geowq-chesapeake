@@ -104,6 +104,7 @@ data_w_fwi: $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/data_w_fwi.csv
 $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/data_w_fwi.csv: scripts/00_calculate_waterdistance.py \
 	| data/cost.tif data/discharge_median.csv
 	python $<
+	cp "$@" data
 
 # ---- figures
 
