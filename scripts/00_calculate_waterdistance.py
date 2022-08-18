@@ -302,6 +302,8 @@ coord_list = [
 ]
 
 pixel_centers["cost"] = [x[0] for x in wd_raw.sample(coord_list)]
+pixel_centers["longitude"] = [x[0] for x in coord_list]
+pixel_centers["latitude"] = [x[1] for x in coord_list]
 # pixel_centers.to_file("test.gpkg")
 pixel_centers = pixel_centers.drop(columns=["geometry"])
 pixel_centers.to_csv("data/fwi_cost.csv", index=False)

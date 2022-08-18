@@ -41,7 +41,7 @@ def main():
 
     #Run Feature Selection
     print('run feature selection')
-    X_train, X_test = utils.run_rfe(X_train,
+    X_train, X_test, important_params = utils.run_rfe(X_train,
                                     y_train,
                                     X_test,
                                     y_test,
@@ -53,6 +53,7 @@ def main():
     pickle.dump(X_test, open("data/X_test_" + variable + ".pkl", "wb"))
     pickle.dump(y_train, open("data/y_train_" + variable + ".pkl", "wb"))
     pickle.dump(y_test, open("data/y_test_" + variable + ".pkl", "wb"))
+    pickle.dump(important_params, open("data/imp_params_" + variable + ".pkl", "wb"))
 
 
 if __name__ == "__main__":

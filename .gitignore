@@ -15,6 +15,12 @@ data/*.pkl
 data/*.md
 data/*.tif
 data/*.tif.aux.xml
+data/*.cpg
+data/*.dbf
+data/*.prj
+data/*.qmd
+data/*.shx
+data/*.shp
 
 figures/*.png
 figures/*.pdf

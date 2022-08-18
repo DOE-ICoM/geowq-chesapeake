@@ -30,12 +30,12 @@ best_params = utils.load_md(variable)
 rf_random_path = "data/rf_random_" + variable + ".pkl"
 rf_random = pickle.load(open(rf_random_path, "rb"))
 
-# read in a single year of GEE data
-predictors = [
-    'datetime', 'sur_refl_b08', 'sur_refl_b09', 'sur_refl_b10', 'sur_refl_b11',
-    'sur_refl_b12', 'sur_refl_b13', 'sur_refl_b14', 'sur_refl_b15',
-    'sur_refl_b16', 'latitude', 'longitude', "cost"
-]
+predictors = pickle.load(open("data/imp_params_" + variable + ".pkl", "rb"))
+# predictors = [
+#     'datetime', 'sur_refl_b08', 'sur_refl_b09', 'sur_refl_b10', 'sur_refl_b11',
+#     'sur_refl_b12', 'sur_refl_b13', 'sur_refl_b14', 'sur_refl_b15',
+#     'sur_refl_b16', 'latitude', 'longitude', "cost"
+# ]
 
 
 def main():
@@ -68,26 +68,26 @@ def main():
     dt.insert(2, "latitude", latitude)
 
     # add fwi data
-    fwi = pd.read_csv("data/fwi_cost.csv").drop(columns=["latitude", "longitude", "count"])
-    dt = dt.merge(fwi, left_on="pix_idx", right_on="pix_id")    
+    fwi = pd.read_csv("data/fwi_cost.csv").drop(columns=["latitude", "longitude"])
+    dt_raw = dt.merge(fwi, left_on="pix_idx", right_on="pix_id")
 
-    dt = call_data2.clean_data(variable,
+    dt_clean_X, dt_clean_y, lon_list, lat_list = call_data2.clean_data(variable,
                                var_col,
                                predictors,
                                test_size=0,
-                               data=dt)
+                               data=dt_raw)
 
     # --- predict prediction data
-    predictions = rf_random.predict(dt[0])
-    res = pd.DataFrame(dt[1], columns=["obs"])
+    predictions = rf_random.predict(dt_clean_X)
+    res = pd.DataFrame(dt_clean_y, columns=["obs"])
     res["predict"] = predictions.copy()
-    res["longitude"] = longs
-    res["latitude"] = lats
+    res["longitude"] = lon_list
+    res["latitude"] = lat_list
     res = gpd.GeoDataFrame(data=res,
                            geometry=gpd.points_from_xy(res.longitude,
                                                        res.latitude))
 
-    # res.to_file("test.gpkg", driver="GPKG")
+    # res.to_file("test3.gpkg", driver="GPKG")
     # sns.histplot(data=res, x="predict")
     # plt.show()
 

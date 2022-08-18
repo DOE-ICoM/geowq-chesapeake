@@ -114,7 +114,7 @@ def run_rfe(X_train,
     predictions = ols.predict(X_test)
     errors = abs(predictions - y_test)
     print(metrics.mean_squared_error(y_test, predictions))
-    return X, X_test
+    return X, X_test, important_params
 
 
 def build_grid():

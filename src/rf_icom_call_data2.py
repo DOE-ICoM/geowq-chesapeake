@@ -89,7 +89,10 @@ def clean_data(variable, var_col, predictors, test_size=0.5, data=None):
     ## Get features
     y = data[var_col].values
     X = data.drop(var_col, axis=1)
-    print(X.columns)
+    print(X.columns)    
+    lon_list = [lon for lon in X.longitude.values]
+    lat_list = [lon for lon in X.latitude.values]
+
     X = X.values
     feature_names = [k for k in data.keys() if k in predictors]
 
@@ -99,7 +102,7 @@ def clean_data(variable, var_col, predictors, test_size=0.5, data=None):
     plt.savefig("figures/" + variable + '_data_hist.png')
 
     if test_size == 0:
-        return X, y
+        return X, y, lon_list, lat_list
 
     X_train, X_test, y_train, y_test = train_test_split(X,
                                                         y,
