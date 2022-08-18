@@ -27,13 +27,13 @@ data: data_X_train
 data_X_train: data/X_train_temperature.pkl data/X_train_salinity.pkl data/X_train_turbidity.pkl
 
 data/X_train_temperature.pkl: scripts/01_rf_fit.py
-	python $< --variable temperature --var_col "SST (C)"
+	python $< --variable temperature --var_col "SST (C)" --data "data/data_w_fwi.csv"
 
 data/X_train_salinity.pkl: scripts/01_rf_fit.py
 	python $< --variable salinity --var_col "SSS (psu)" --data "data/data_w_fwi.csv"
 
 data/X_train_turbidity.pkl: scripts/01_rf_fit.py
-	python $< --variable turbidity --var_col "turbidity (NTU)"
+	python $< --variable turbidity --var_col "turbidity (NTU)" --data "data/data_w_fwi.csv"
 
 # ---- tuning
 
