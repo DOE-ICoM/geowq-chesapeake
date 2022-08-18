@@ -4,6 +4,7 @@ import os
 import glob
 import random
 import pickle
+import rasterio
 import numpy as np
 import xarray as xr
 import pandas as pd
@@ -269,7 +270,9 @@ def weight_grid(f):
 
     gdf = gpd.read_file(f)
     cost_grid = make_geocube(
-        vector_data=gdf, measurements=["cost"], resolution=(-0.002, 0.002),
+        vector_data=gdf,
+        measurements=["cost"],
+        resolution=(-0.002, 0.002),
     )
 
     discharge_site = float(discharge[discharge["site_str"] == site_str]["discharge_va"])
@@ -288,36 +291,32 @@ if not os.path.exists("data/waterdistance.tif"):
 
     merged.rio.to_raster("data/waterdistance.tif")
 
-wd_raw = xr.open_dataset("data/waterdistance.tif", engine="rasterio")
+# extract cost for ALL locations including prediction locations
+wd_raw = rasterio.open("data/waterdistance.tif")
+pixel_centers = gpd.read_file("data/pixel_centers_4326.shp").rename(
+    columns={"pix_idx": "pix_id"}
+)
+
+coord_list = [
+    (x, y) for x, y in zip(pixel_centers["geometry"].x, pixel_centers["geometry"].y)
+]
+
+pixel_centers["cost"] = [x[0] for x in wd_raw.sample(coord_list)]
+# pixel_centers.to_file("test.gpkg")
+pixel_centers = pixel_centers.drop(columns=["geometry"])
+pixel_centers.to_csv("data/fwi_cost.csv", index=False)
+
+
+# join cost to measurement locations
 aggregated_w_bandvals = pd.read_csv("data/aggregated_w_bandvals.csv")
-
-unique_locs = (
-    aggregated_w_bandvals.groupby(["latitude", "longitude", "pix_id"])
-    .size()
-    .reset_index()
-    .rename(columns={0: "count"})
-)
-unique_locs = gpd.GeoDataFrame(
-    unique_locs,
-    geometry=gpd.points_from_xy(unique_locs.longitude, unique_locs.latitude),
-)
-unique_locs_gc = make_geocube(
-    vector_data=unique_locs, measurements=["pix_id"], resolution=(-0.002, 0.002),
-)
-wd_xr = xr.merge([wd_raw, unique_locs_gc.expand_dims(band=1)])
-wd_df = wd_xr.to_dataframe().reset_index().rename(columns={"band_data": "cost"})
-
-res = aggregated_w_bandvals.merge(wd_df)
+res = aggregated_w_bandvals.merge(pixel_centers)
 res_unique = (
     res.groupby(["latitude", "longitude", "pix_id", "cost"])
     .size()
     .reset_index()
     .rename(columns={0: "count"})
 )
-res_unique.to_csv("data/fwi_cost.csv", index=False)
-
-# gpd.GeoDataFrame(res_unique, geometry=gpd.points_from_xy(res.longitude, res.latitude)).to_file("test.gpkg")
-res = aggregated_w_bandvals.merge(res_unique)
+# gpd.GeoDataFrame(res_unique, geometry=gpd.points_from_xy(res_unique.longitude, res_unique.latitude)).to_file("test2.gpkg")
 res.to_csv(
     "data/data_w_fwi.csv",
     index=False,
