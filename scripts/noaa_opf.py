@@ -2,9 +2,10 @@
 
 # data products are every 6 hours
 
+import rioxarray
 import pandas as pd
 import xarray as xr
-import rioxarray
+import matplotlib.pyplot as plt
 
 tod = pd.Timestamp.today()
 locs = [
@@ -18,8 +19,10 @@ locs = [
 
 ds1 = xr.open_dataset(locs[0])
 
-test = ds1.sel({"Depth":0})
-test = test.isel(ocean_time=[0])
-test = test.drop_vars(["Depth"])
+test = ds1.sel({"Depth":0}).isel(ocean_time=[0]).drop_vars(["Depth"])
+test = test.salt.to_dataset()
 
-test.salt.to_dataset().to_netcdf("salt.nc")
+test.salt[0,:,:].plot.imshow()
+plt.show()
+
+# test.to_netcdf("salt.nc")
