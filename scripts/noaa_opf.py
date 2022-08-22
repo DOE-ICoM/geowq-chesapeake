@@ -2,10 +2,9 @@
 
 # data products are every 6 hours
 
-# netcdf on aws
-
 import pandas as pd
 import xarray as xr
+import rioxarray
 
 tod = pd.Timestamp.today()
 locs = [
@@ -17,9 +16,10 @@ locs = [
     )
 ]
 
-# THIS WORKS: using `open_mfdataset` with 1 file
-ds1 = xr.open_mfdataset([locs[0]])
-print('DATASET1: ', ds1['ocean_time'].attrs, ds1['ocean_time'].encoding)
-print(ds1['ocean_time'].dtype)
-print(xr.decode_cf(ds1).ocean_time.encoding)
-xr.decode_cf(ds1).to_netcdf('test1.nc')
+ds1 = xr.open_dataset(locs[0])
+
+test = ds1.sel({"Depth":0})
+test = test.isel(ocean_time=[0])
+test = test.drop_vars(["Depth"])
+
+test.salt.to_dataset().to_netcdf("salt.nc")
