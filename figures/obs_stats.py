@@ -1,4 +1,5 @@
 import os
+import sys
 import h3pandas
 import pandas as pd
 import seaborn as sns
@@ -6,6 +7,7 @@ import geopandas as gpd
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 
+sys.path.append(".")
 from src import utils
 
 variables = ["SSS (psu)", "turbidity (NTU)", "SST (C)"]
