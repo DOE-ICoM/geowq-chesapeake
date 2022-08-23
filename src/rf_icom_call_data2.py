@@ -11,7 +11,7 @@ def clean_data(variable, var_col, predictors, test_size=0.5, data=None):
     """
     Get the data from the split .csv files based on the label, remove
     unwanted columns; remove NaNs; split temperature into fitted sine and
-    variablity of temperature from the fitted sine if the label is 
+    variablity of temperature from the fitted sine if the label is
     temperature
 
     Inputs:
@@ -26,8 +26,19 @@ def clean_data(variable, var_col, predictors, test_size=0.5, data=None):
     y_train, y_test => array, label for train and test sets
 
     Examples:
-    var_col = "SST (C)"
-    """
+    ```python
+    from src import rf_icom_call_data2 as call_data2
+    predictors = [
+        'datetime', 'Ratio 1', 'Ratio 2', 'Ratio 3', 'sur_refl_b08',
+        'sur_refl_b09', 'sur_refl_b10', 'sur_refl_b11', 'sur_refl_b12',
+        'sur_refl_b13', 'sur_refl_b14', 'sur_refl_b15', 'sur_refl_b16',
+        "cost", "latitude", "longitude"
+    ]
+    X_train, y_train, X_test, y_test, feature_names = call_data2.clean_data(
+        "salinity", "SSS (psu)", predictors
+    )
+    ```
+    """    
 
     if data is None:
         data = pd.read_csv("data/aggregated_w_bandvals.csv")
@@ -36,8 +47,12 @@ def clean_data(variable, var_col, predictors, test_size=0.5, data=None):
 
     ## For turbidity get rid of negative numbers
     print(len(data))
-    if var_col == 'turbidity (NTU)':
-        data = data[data['turbidity (NTU)'] > 0]
+    if var_col == "turbidity (NTU)":
+        data = data[data["turbidity (NTU)"] > 0]
+
+    ## For salinity, set negative numbers to 0
+    if var_col == "SSS (psu)":        
+        data.loc[data["SSS (psu)"] < 0, "SSS (psu)"] = 0        
 
     print(len(data))
 
@@ -62,19 +77,19 @@ def clean_data(variable, var_col, predictors, test_size=0.5, data=None):
     data = data.drop(notsur, axis=1)
     data = data.dropna()
 
-    data['datetime'] = pd.to_datetime(data['datetime'])
+    data["datetime"] = pd.to_datetime(data["datetime"])
     #    data['datetime'] = data['datetime'].astype('datetime64')
     #    data['datetime']=data['datetime'].dt.strftime('%j')
-    data['datetime'] = pd.to_numeric(data["datetime"], downcast="float")
+    data["datetime"] = pd.to_numeric(data["datetime"], downcast="float")
 
-    if variable == 'temperature':
-        print(data['SST (C)'])
+    if variable == "temperature":
+        print(data["SST (C)"])
         fitted_sine = fit_sine.fit_sine(data)
         # print('fitted_sine')
         # print(fitted_sine)
-        data['SST (C)'] = data['SST (C)'] - fitted_sine
+        data["SST (C)"] = data["SST (C)"] - fitted_sine
         data.insert(3, "fitted_sine", fitted_sine)
-        predictors.append('fitted_sine')
+        predictors.append("fitted_sine")
 
     #    plt.scatter(data['datetime'],data['SST (C)'])
     #    plt.show()
@@ -89,7 +104,7 @@ def clean_data(variable, var_col, predictors, test_size=0.5, data=None):
     ## Get features
     y = data[var_col].values
     X = data.drop(var_col, axis=1)
-    print(X.columns)    
+    print(X.columns)
     lon_list = [lon for lon in X.longitude.values]
     lat_list = [lon for lon in X.latitude.values]
 
@@ -99,13 +114,11 @@ def clean_data(variable, var_col, predictors, test_size=0.5, data=None):
     plt.figure(figsize=(20, 10))
     data.hist()
     plt.tight_layout()
-    plt.savefig("figures/" + variable + '_data_hist.png')
+    plt.savefig("figures/" + variable + "_data_hist.png")
 
     if test_size == 0:
         return X, y, lon_list, lat_list
 
-    X_train, X_test, y_train, y_test = train_test_split(X,
-                                                        y,
-                                                        test_size=test_size)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size)
 
     return X_train, y_train, X_test, y_test, feature_names
