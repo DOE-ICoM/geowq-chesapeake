@@ -17,6 +17,13 @@ dt_raw = pd.read_csv(
     os.environ["ICOM_DATA"] +
     "/Modeling Data/Processed Data p1/aggregated_w_bandvals.csv")
 
+# remove turbidity below 0
+dt_raw.loc[dt_raw["turbidity (NTU)"] < 0, "turbidity (NTU)"] = None
+
+# replace salinity less than 0 with 0
+dt_raw.loc[dt_raw["SSS (psu)"] < 0, "SSS (psu)"] = 0
+
+
 dt_melt = pd.melt(dt_raw[variables + ["pixelday"]],
                   id_vars=["pixelday"],
                   value_vars=variables)

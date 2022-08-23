@@ -110,7 +110,7 @@ $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/data_w_fwi.csv: scripts/00_calcu
 
 figures: figures/00_combined.pdf
 
-figures/discharge.pdf: figures/discharge.py data/discharge_raw.csv
+figures/_discharge.pdf: figures/discharge.py data/discharge_raw.csv
 	python $<
 
 figures/_obs_stats.pdf: figures/obs_stats.py
@@ -119,22 +119,21 @@ figures/_obs_stats.pdf: figures/obs_stats.py
 
 path_map_counts := $(addprefix figures/, $(addsuffix _map_counts.pdf, ${variables}))
 
-figures/_map_counts_all.pdf: $(path_map_counts)
-	pdftk $(wildcard figures/*_map_counts.pdf) output figures/_map_counts_all.pdf
+figures/map_counts_all.pdf: $(path_map_counts)
+	pdftk $(wildcard figures/*_map_counts.pdf) output figures/map_counts_all.pdf
 
 figures/%_map_counts.pdf: figures/plot_data.py figures/plot_helpers.py
 	python $<
 
 path_map_variable := $(addprefix figures/, $(addsuffix _map_variable.pdf, ${variables}))
 
-figures/_map_variable_all.pdf: $(path_map_variable)
-	pdftk $(wildcard figures/*_map_variable.pdf) output figures/_map_variable_all.pdf
+figures/map_variable_all.pdf: $(path_map_variable)
+	pdftk $(wildcard figures/*_map_variable.pdf) output figures/map_variable_all.pdf
 
 figures/%_map_variable.pdf: figures/plot_data.py figures/plot_helpers.py
 	python $<
 
-figures/00_combined.pdf: figures/_obs_stats.pdf \
-	figures/_map_counts_all.pdf figures/_map_variable_all.pdf 
+figures/00_combined.pdf: figures/_discharge.pdf figures/_obs_stats.pdf
 	pdftk $(wildcard figures/_*.pdf) output figures/00_combined.pdf
 
 # ---
