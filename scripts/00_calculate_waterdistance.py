@@ -121,7 +121,7 @@ if not os.path.exists("data/end_points.pkl"):
 end_points = pickle.load(open("data/end_points.pkl", "rb"))
 
 # --- choptank
-if not os.path.exists("choptank.gpkg"):
+if not os.path.exists("data/waterdistance/choptank.gpkg"):
     (start_idx_x, start_idx_y) = get_idx_coords(
         stations.iloc[[0]]["longitude"][0], stations.iloc[[0]]["latitude"][0]
     )
@@ -133,11 +133,11 @@ if not os.path.exists("choptank.gpkg"):
 
     flist = glob.glob("test_*.gpkg")
     gdfs = [gpd.read_file(f) for f in flist]
-    pd.concat(gdfs).to_file("choptank.gpkg")
+    pd.concat(gdfs).to_file("data/waterdistance/choptank.gpkg")
     [os.remove(f) for f in flist]
 
 # --- pautexent
-if not os.path.exists("pautexent.gpkg"):
+if not os.path.exists("data/waterdistance/pautexent.gpkg"):
     (start_idx_x, start_idx_y) = get_idx_coords(
         stations.iloc[[2]].reset_index()["longitude"][0],
         stations.iloc[[2]].reset_index()["latitude"][0],
@@ -150,11 +150,11 @@ if not os.path.exists("pautexent.gpkg"):
 
     flist = glob.glob("test_*.gpkg")
     gdfs = [gpd.read_file(f) for f in flist]
-    pd.concat(gdfs).to_file("pautexent.gpkg")
+    pd.concat(gdfs).to_file("data/waterdistance/pautexent.gpkg")
     [os.remove(f) for f in flist]
 
 # --- potomac
-if not os.path.exists("potomac.gpkg"):
+if not os.path.exists("data/waterdistance/potomac.gpkg"):
     (start_idx_x, start_idx_y) = get_idx_coords(
         stations.iloc[[3]].reset_index()["longitude"][0],
         stations.iloc[[3]].reset_index()["latitude"][0],
@@ -167,11 +167,11 @@ if not os.path.exists("potomac.gpkg"):
 
     flist = glob.glob("test_*.gpkg")
     gdfs = [gpd.read_file(f) for f in flist]
-    pd.concat(gdfs).to_file("potomac.gpkg")
+    pd.concat(gdfs).to_file("data/waterdistance/potomac.gpkg")
     [os.remove(f) for f in flist]
 
 # --- susquehanna
-if not os.path.exists("susquehanna.gpkg"):
+if not os.path.exists("data/waterdistance/susquehanna.gpkg"):
     (start_idx_x, start_idx_y) = get_idx_coords(
         stations.iloc[[1]].reset_index()["longitude"][0],
         stations.iloc[[1]].reset_index()["latitude"][0],
@@ -246,7 +246,7 @@ if not os.path.exists("susquehanna.gpkg"):
 
     flist = glob.glob("test_*.gpkg")
     gdfs = [gpd.read_file(f) for f in flist]
-    pd.concat(gdfs).to_file("susquehanna.gpkg")
+    pd.concat(gdfs).to_file("data/waterdistance/susquehanna.gpkg")
     [os.remove(f) for f in flist]
 
 # i = l[7][1700+58]
@@ -260,13 +260,12 @@ if not os.path.exists("susquehanna.gpkg"):
 
 discharge = pd.read_csv("data/discharge_median.csv")
 
-flist = glob.glob("*.gpkg")
-flist.remove("stations.gpkg")
+flist = glob.glob("data/waterdistance/*.gpkg")
 
 
 def weight_grid(f):
     # f = flist[0]
-    site_str = f.replace(".gpkg", "").title()
+    site_str = os.path.basename(f).replace(".gpkg", "").title()
 
     gdf = gpd.read_file(f)
     cost_grid = make_geocube(
