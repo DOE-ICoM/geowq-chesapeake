@@ -1,5 +1,6 @@
 import os
 import sys
+import numpy as np
 import pandas as pd
 import geopandas as gpd
 import cartopy.crs as ccrs
@@ -13,7 +14,7 @@ from src import utils
 def get_pnt_counts(dt, variable):
     # variable = variables[0]
     dt_sub = utils.select_var(dt, variable)
-    dt_sub = dt_sub[~pd.isna(dt_sub[variable])]
+    dt_sub = dt_sub[~pd.isna(dt_sub["value"])]
 
     res = dt_sub[dt_sub["variable"] == variable].groupby(
         ["loc_id", "latitude", "longitude"]
@@ -41,23 +42,28 @@ dt_melt = pd.melt(dt_filtered, id_vars=id_vars, value_vars=variables)
 dt_grps = [get_pnt_counts(dt_melt, variable) for variable in variables]
 
 # ---
-all(dt_grps[0]["count"] == dt_grps[1]["count"])
 
-dt_grps[2].head()
-dt_grps[1].head()
+fig, axs = plt.subplots(ncols=3, nrows=1, constrained_layout=True, subplot_kw={"projection": ccrs.PlateCarree()})
 
-
-
-fig, axs = plt.subplots(ncols=3, nrows=1, subplot_kw={"projection": ccrs.PlateCarree()})
-
+mins = []
+maxs = []
 for i in range(0, len(axs)):
     ax = axs[i]
+    ax.set_title(variables[i])
     gdf = dt_grps[i]
-    if i == len(axs) - 1:
-        gdf.h3.geo_to_h3_aggregate(6).plot("count", ax=ax, legend=True)
-    else:
-        gdf.h3.geo_to_h3_aggregate(6).plot("count", ax=ax, legend=False)
+    gdf_agg = gdf.h3.geo_to_h3_aggregate(6)
+    mins.append(min(gdf_agg.reset_index()["count"]))
+    maxs.append(max(gdf_agg.reset_index()["count"]))    
+    gdf_agg.plot("count", ax=ax, legend=False)
     ax.coastlines(resolution="10m", color="black", linewidth=1)
 
-plt.show()
-plt.savefig("figures/freqcount_hex.pdf")
+scales = np.linspace(1, max(maxs), 7)
+cmap = plt.get_cmap("viridis")
+norm = plt.Normalize(scales.min(), scales.max())
+sm =  plt.cm.ScalarMappable(norm=norm, cmap=cmap)
+sm.set_array([])
+cbar = fig.colorbar(sm, ax=axs[len(axs)-1], shrink=0.78)
+cbar.ax.set_title("count", y=-0.08)
+
+# plt.show()
+plt.savefig("figures/_freqcount_hex.pdf")

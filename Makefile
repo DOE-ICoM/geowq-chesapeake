@@ -133,7 +133,11 @@ figures/map_variable_all.pdf: $(path_map_variable)
 figures/%_map_variable.pdf: figures/plot_data.py figures/plot_helpers.py
 	python $<
 
-figures/00_combined.pdf: figures/_discharge.pdf figures/_obs_stats.pdf
+figures/_freqcount_hex.pdf: figures/maps.py
+	python $<
+
+figures/00_combined.pdf: figures/_discharge.pdf figures/_obs_stats.pdf \
+	figures/_freqcount_hex.pdf
 	pdftk $(wildcard figures/_*.pdf) output figures/00_combined.pdf
 
 # ---
