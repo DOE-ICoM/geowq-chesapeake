@@ -16,12 +16,14 @@ def get_pnt_counts(dt, variable):
     dt_sub = utils.select_var(dt, variable)
     dt_sub = dt_sub[~pd.isna(dt_sub["value"])]
 
-    res = dt_sub[dt_sub["variable"] == variable].groupby(
-        ["loc_id", "latitude", "longitude"]
-    ).size().reset_index().rename(columns={0: "count"}).sort_values(
-        "count", ascending=False
-    ).reset_index(
-        drop=True
+    res = (
+        dt_sub[dt_sub["variable"] == variable]
+        .groupby(["loc_id", "latitude", "longitude"])
+        .size()
+        .reset_index()
+        .rename(columns={0: "count"})
+        .sort_values("count", ascending=False)
+        .reset_index(drop=True)
     )
 
     res_gdf = gpd.GeoDataFrame(
@@ -29,6 +31,7 @@ def get_pnt_counts(dt, variable):
     )
 
     return res_gdf
+
 
 dt_raw = pd.read_csv(
     os.environ["ICOM_DATA"]
@@ -43,26 +46,36 @@ dt_grps = [get_pnt_counts(dt_melt, variable) for variable in variables]
 
 # ---
 
-fig, axs = plt.subplots(ncols=3, nrows=1, constrained_layout=True, subplot_kw={"projection": ccrs.PlateCarree()})
+fig, axs = plt.subplots(
+    ncols=3,
+    nrows=1,
+    constrained_layout=True,
+    subplot_kw={"projection": ccrs.PlateCarree()},
+)
 
 mins = []
 maxs = []
-for i in range(0, len(axs)):
-    ax = axs[i]
-    ax.set_title(variables[i])
+gdf_aggs = []
+for i in range(0, len(dt_grps)):
     gdf = dt_grps[i]
     gdf_agg = gdf.h3.geo_to_h3_aggregate(6)
     mins.append(min(gdf_agg.reset_index()["count"]))
-    maxs.append(max(gdf_agg.reset_index()["count"]))    
-    gdf_agg.plot("count", ax=ax, legend=False)
+    maxs.append(max(gdf_agg.reset_index()["count"]))
+    gdf_aggs.append(gdf_agg)
+
+for i in range(0, len(axs)):
+    ax = axs[i]
+    ax.set_title(variables[i])
+    gdf_agg = gdf_aggs[i]
+    gdf_agg.plot("count", ax=ax, legend=False, vmax=max(maxs))
     ax.coastlines(resolution="10m", color="black", linewidth=1)
 
 scales = np.linspace(1, max(maxs), 7)
 cmap = plt.get_cmap("viridis")
 norm = plt.Normalize(scales.min(), scales.max())
-sm =  plt.cm.ScalarMappable(norm=norm, cmap=cmap)
+sm = plt.cm.ScalarMappable(norm=norm, cmap=cmap)
 sm.set_array([])
-cbar = fig.colorbar(sm, ax=axs[len(axs)-1], shrink=0.78)
+cbar = fig.colorbar(sm, ax=axs[len(axs) - 1], shrink=0.78)
 cbar.ax.set_title("count", y=-0.08)
 
 # plt.show()
