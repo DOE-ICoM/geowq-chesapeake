@@ -37,7 +37,7 @@ plt.plot([0, 28], [0, 28], color="red")
 ax.set_xlim(-0.5, 32)
 ax.set_ylim(-0.5, 32)
 g.set_xlabel("Predicted")
-g.set_xlabel("Observed")
+g.set_ylabel("Observed")
 
 # plt.show()
 plt.savefig("figures/_validation.pdf")
