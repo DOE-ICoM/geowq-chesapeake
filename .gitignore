@@ -24,6 +24,7 @@ data/*.shp
 
 figures/*.png
 figures/*.pdf
+figures/*.md
 
 src/*.png
 src/*.pptx
