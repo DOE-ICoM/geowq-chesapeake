@@ -76,7 +76,7 @@ norm = plt.Normalize(scales.min(), scales.max())
 sm = plt.cm.ScalarMappable(norm=norm, cmap=cmap)
 sm.set_array([])
 cbar = fig.colorbar(sm, ax=axs[len(axs) - 1], shrink=0.78)
-cbar.ax.set_title("count", y=-0.08)
+cbar.ax.set_title("obs count (n)", y=-0.08)
 
 # plt.show()
 plt.savefig("figures/_freqcount_hex.pdf")
