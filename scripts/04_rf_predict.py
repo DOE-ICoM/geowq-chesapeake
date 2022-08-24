@@ -113,26 +113,6 @@ def main():
 
     return out_path
 
-
-# --- prep validation data
-# X_predict_raw = pd.read_csv(
-#     os.environ["ICOM_DATA"] +
-#     "/Modeling Data/Processed Data p1/aggregated_w_bandvals.csv").dropna()
-# X_predict = call_data2.clean_data(variable,
-#                                   var_col,
-#                                   predictors,
-#                                   test_size=0,
-#                                   data=X_predict_raw)
-# calculate 'Ratio 1', 'Ratio 2', 'Ratio 3' ?
-
-# --- predict validation data
-# predictions = rf_random.predict(X_predict[0])
-# res = pd.DataFrame(X_predict[1], columns=["obs"])
-# res["predict"] = predictions.copy()
-
-# sns.scatterplot(data=res, x="predict", y="obs")
-# plt.show()
-
 if __name__ == "__main__":
     main()
 
