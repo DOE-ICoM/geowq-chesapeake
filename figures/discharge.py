@@ -17,12 +17,11 @@ g = sns.lineplot(
 
 handles, labels = ax.get_legend_handles_labels()
 ax.legend(handles=handles[0:], labels=labels[0:])
-# g.legend(handles,labels, ncol=3)
-sns.move_legend(ax, "upper center", bbox_to_anchor=(0.5, 1.15), ncol=3)
+plt.legend(loc=(0.05, -0.2), ncol=3)
 
 g.set_yscale("log")
 plt.xlabel("")
 plt.ylabel("Discharge (cfs)")
 
 # plt.show()
-plt.savefig("figures/_discharge.pdf")
+plt.savefig("figures/_discharge.pdf", bbox_inches='tight')
