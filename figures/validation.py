@@ -3,6 +3,7 @@ import pickle
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
 
 sys.path.append(".")
 from src import rf_icom_call_data2 as call_data2
@@ -36,6 +37,12 @@ ax.set_xlim(-0.5, 32)
 ax.set_ylim(-0.5, 32)
 g.set_xlabel("Predicted")
 g.set_ylabel("Observed")
+
+X = res["predict"].to_numpy().reshape(-1,1)
+y = res["obs"].to_numpy()
+reg = LinearRegression().fit(X,y)
+reg.score(X, y)
+eq = "y = " + str(round(reg.coef_[0], 2)) + "x - " + str(round(abs(reg.intercept_), 2))
 
 # plt.show()
 plt.savefig("figures/_validation.pdf")
