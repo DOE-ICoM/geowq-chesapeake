@@ -72,3 +72,14 @@ def datetime_to_doy(dt):
     dt = dt.dt.strftime("%j")
     dt = pd.to_numeric(dt, downcast="float")
     return dt
+
+def tabulate_to_latex(tabulate_output, fname):
+    with open(fname, "w") as f:
+        f.write("\\documentclass{article}" + "\r\n")
+    with open(fname, "a") as f:
+        f.write("\\begin{document}" + "\r\n")
+        f.write("\\begin{table}[h!]" + "\r\n")
+        f.write(tabulate_output + "\r\n")
+        f.write("\\caption{nasdf}" + "\r\n")
+        f.write("\\end{table}" + "\r\n")
+        f.write("\\end{document}" + "\r\n")

@@ -74,6 +74,13 @@ obs_counts = pd.concat([_count_stats(dt_filtered, v) for v in variables]).sort_v
 print(obs_counts)
 with open("figures/obs_counts.md", "w") as f:
     f.write(tabulate(obs_counts.values, headers=[x for x in obs_counts.columns]))
+utils.tabulate_to_latex(
+    tabulate(
+        obs_counts.values, headers=[x for x in obs_counts.columns], tablefmt="latex"
+    ),
+    "figures/obs_counts.tex",
+)
+
 # obs_counts.to_clipboard()
 
 # --- obs distribution stats
@@ -81,12 +88,19 @@ dt_agg = pd.read_csv(
     os.environ["ICOM_DATA"] + "/Modeling Data/Processed Data p1/aggregated.csv",
     parse_dates=["datetime"],
 )
-obs_distribution = pd.concat(
-    [
-        pd.DataFrame(utils.select_var(dt_agg, v)[v].quantile([0, 0.05, 0.5, 0.95, 1])).T
-        for v in variables
-    ]
-).round(2).reset_index().rename(columns={"index": "variable"})
+obs_distribution = (
+    pd.concat(
+        [
+            pd.DataFrame(
+                utils.select_var(dt_agg, v)[v].quantile([0, 0.05, 0.5, 0.95, 1])
+            ).T
+            for v in variables
+        ]
+    )
+    .round(2)
+    .reset_index()
+    .rename(columns={"index": "variable"})
+)
 print(obs_distribution)
 with open("figures/obs_distribution.md", "w") as f:
     f.write(

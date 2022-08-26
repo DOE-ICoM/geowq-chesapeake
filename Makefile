@@ -145,5 +145,18 @@ figures/00_combined.pdf: figures/_discharge.pdf figures/_obs_stats.pdf \
 
 # ---
 
+tables: figures/00_tables.pdf
+
+figures/obs_counts_table.pdf: figures/obs_stats.py
+	python $<	
+	pdflatex figures/obs_counts.tex
+	rm figures/obs_counts.tex
+	mv obs_counts.pdf $@
+
+figures/00_tables.pdf: figures/obs_counts_table.pdf
+	pdftk $(wildcard figures/*_table.pdf) output $@
+
+# ---
+
 clean:
 	rm core.*

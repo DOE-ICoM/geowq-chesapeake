@@ -9,6 +9,10 @@ __pycache__
 *.tif
 *.gif
 *.tif.aux.xml
+*.log
+*.aux
+*.pdf
+
 
 data/*.csv
 data/*.pkl
