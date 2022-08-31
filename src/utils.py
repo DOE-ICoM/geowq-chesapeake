@@ -73,13 +73,17 @@ def datetime_to_doy(dt):
     dt = pd.to_numeric(dt, downcast="float")
     return dt
 
-def tabulate_to_latex(tabulate_output, fname):
+def tabulate_to_latex(tabulate_output, fname, caption='nasdf', table_num=1):
     with open(fname, "w") as f:
         f.write("\\documentclass{article}" + "\r\n")
     with open(fname, "a") as f:
+        f.write("\\usepackage{standalone}" + "\r\n")
+        f.write("\\setcounter{table}{" + str(table_num) + "}" + "\r\n")
+        f.write("\\renewcommand\\thetable{\\arabic{table}}" + "\r\n")        
+        f.write("\\pagestyle{empty}" + "\r\n")        
         f.write("\\begin{document}" + "\r\n")
         f.write("\\begin{table}[h!]" + "\r\n")
         f.write(tabulate_output + "\r\n")
-        f.write("\\caption{nasdf}" + "\r\n")
+        f.write("\\caption{" + caption + "}" + "\r\n")
         f.write("\\end{table}" + "\r\n")
         f.write("\\end{document}" + "\r\n")
