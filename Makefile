@@ -1,6 +1,7 @@
 .PHONY: data
 
 variables := sss sst turbidity
+variables_str := salinity temperature turbidity
 
 test:
 	@echo $(variables_parsed)
@@ -140,15 +141,16 @@ figures/_validation.pdf: figures/validation.py
 	python $<
 
 figures/%_importance.pdf: figures/importance.py
-	python $<
+	-python $<
 
-path_importance := $(addprefix figures/, $(addsuffix _importance.pdf, ${variables}))
+path_importance := $(addprefix figures/, $(addsuffix _importance.pdf, ${variables_str}))
 
 figures/_importance_all.pdf: $(path_importance)
 	pdftk $(wildcard figures/*_importance.pdf) output $@
 
 figures/00_combined.pdf: figures/_discharge.pdf figures/_obs_stats.pdf \
-	figures/_freqcount_hex.pdf figures/_validation.pdf
+	figures/_freqcount_hex.pdf figures/_validation.pdf \
+	figures/_importance_all.pdf
 	pdftk $(wildcard figures/_*.pdf) output figures/00_combined.pdf
 
 # ---
