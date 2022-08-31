@@ -139,6 +139,14 @@ figures/_freqcount_hex.pdf: figures/maps.py
 figures/_validation.pdf: figures/validation.py
 	python $<
 
+figures/%_importance.pdf: figures/importance.py
+	python $<
+
+path_importance := $(addprefix figures/, $(addsuffix _importance.pdf, ${variables}))
+
+figures/_importance_all.pdf: $(path_importance)
+	pdftk $(wildcard figures/*_importance.pdf) output $@
+
 figures/00_combined.pdf: figures/_discharge.pdf figures/_obs_stats.pdf \
 	figures/_freqcount_hex.pdf figures/_validation.pdf
 	pdftk $(wildcard figures/_*.pdf) output figures/00_combined.pdf
