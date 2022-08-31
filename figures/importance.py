@@ -17,10 +17,10 @@ def imp_plot(variable):
     dset = dset.sort_values(by="importance", ascending=False)
     dset.loc[dset["attr"] == "cost", "attr"] = "fwi"
 
-    plt.figure(figsize=(16, 14))
+    plt.figure(figsize=(5.7, 5))
 
     plt.barh(y=dset["attr"], width=dset["importance"], color="#1976D2")
-    plt.title(variable + " - Feature Importances", fontsize=20, fontweight="bold", pad=20)
+    plt.title(variable + " - feature importances", fontsize=16, fontweight="bold", pad=20)
     plt.xlabel("Importance", fontsize=14, labelpad=20)
 
     # plt.show()
