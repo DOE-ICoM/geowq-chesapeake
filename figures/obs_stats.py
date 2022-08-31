@@ -78,7 +78,7 @@ utils.tabulate_to_latex(
     tabulate(
         obs_counts.values, headers=[x for x in obs_counts.columns], tablefmt="latex"
     ),
-    "figures/obs_counts.tex",
+    "figures/counts_obs.tex",
     "Number of measurements, programs, and stations in the observational dataset.",
     0,
 )

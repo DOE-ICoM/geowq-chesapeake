@@ -157,14 +157,27 @@ figures/00_combined.pdf: figures/_discharge.pdf figures/_obs_stats.pdf \
 
 tables: figures/00_tables.pdf
 
-figures/obs_counts_table.pdf: figures/obs_stats.py
+figures/counts_obs_table.pdf: figures/obs_stats.py
 	python $<	
-	pdflatex figures/obs_counts.tex
-	rm figures/obs_counts.tex
-	pdfcrop obs_counts.pdf obs_counts.pdf
-	mv obs_counts.pdf $@
+	pdflatex figures/counts_obs.tex
+	rm figures/counts_obs.tex
+	pdfcrop counts_obs.pdf counts_obs.pdf
+	mv counts_obs.pdf $@
 
-figures/00_tables.pdf: figures/obs_counts_table.pdf
+figures/rf_stats_table.pdf: figures/rf_stats_table.py
+	python $<	
+	pdflatex figures/rf_stats_table_0.tex
+	rm figures/rf_stats_table_0.tex
+	pdfcrop rf_stats_table_0.pdf rf_stats_table_0.pdf	
+	pdflatex figures/rf_stats_table_1.tex
+	rm figures/rf_stats_table_1.tex
+	pdfcrop rf_stats_table_1.pdf rf_stats_table_1.pdf
+	pdftk rf_stats_table_*.pdf output rf_stats_table.pdf
+	mv rf_stats_table.pdf $@
+	rm rf_stats_table_*.pdf
+
+figures/00_tables.pdf: figures/counts_obs_table.pdf \
+	figures/rf_stats_table.pdf
 	pdftk $(wildcard figures/*_table.pdf) output $@
 
 # ---
