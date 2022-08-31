@@ -175,6 +175,8 @@ figures/rf_stats_table.pdf: figures/rf_stats_table.py
 	pdftk rf_stats_table_*.pdf output rf_stats_table.pdf
 	mv rf_stats_table.pdf $@
 	rm rf_stats_table_*.pdf
+	-@rm *.aux
+	-@rm *.log
 
 figures/00_tables.pdf: figures/counts_obs_table.pdf \
 	figures/rf_stats_table.pdf
