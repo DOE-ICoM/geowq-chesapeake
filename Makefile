@@ -107,6 +107,13 @@ $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/data_w_fwi.csv: scripts/00_calcu
 	python $<
 	cp "$@" data
 
+data/prediction/modis-2022_09_04.csv: scripts/03_get_data_predict.py
+	python $< --date "2022-09-04"
+
+data/prediction/2022-09-04.tif: scripts/04_rf_predict.py \
+	data/prediction/modis-2022_09_04.csv
+	python $< --date "2022-09-04"
+
 # ---- figures
 
 figures: figures/00_combined.pdf
@@ -153,7 +160,7 @@ figures/00_combined.pdf: figures/_discharge.pdf figures/_obs_stats.pdf \
 	figures/_importance_all.pdf
 	pdftk $(wildcard figures/_*.pdf) output figures/00_combined.pdf
 
-# ---
+# --- tables
 
 tables: figures/00_tables.pdf
 
