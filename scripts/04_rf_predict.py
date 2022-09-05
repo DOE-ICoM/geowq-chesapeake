@@ -43,6 +43,7 @@ def main():
     parser.add_argument("--date", type=str)
     args = vars(parser.parse_args())
     date = args["date"]
+    # date = "2022-09-04"
 
     # --- prep prediction data
     dt = pd.read_csv("data/prediction/modis-" + date.replace("-", "_") +
