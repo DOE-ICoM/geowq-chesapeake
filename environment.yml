@@ -7,18 +7,21 @@ dependencies:
         - pytest
         - yapf
         - matplotlib
-        - scikit-learn
-        - seaborn
         - geopandas
-        - tabulate
-        - geojson
-        - earthengine-api
         - cartopy
-        - utm
         - h3pandas
+        - xarray
+        - rioxarray
+        - earthengine-api
+        - seaborn
         - geocube
-        - dataretrieval
-        - scikit-image
+        #
+        # - scikit-learn
+        # - tabulate
+        # - geojson        
+        # - utm
+        # - dataretrieval
+        # - scikit-image
         # rivgraph deps
-        - loguru
-        - fastdtw
+        # - loguru
+        # - fastdtw

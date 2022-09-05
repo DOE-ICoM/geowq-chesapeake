@@ -1,0 +1,9 @@
+name: netcdf4
+channels:
+- conda-forge
+dependencies:        
+        # - pandas
+        - matplotlib
+        - xarray
+        - rioxarray
+        - netcdf4
