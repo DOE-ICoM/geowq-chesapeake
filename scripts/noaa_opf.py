@@ -18,8 +18,9 @@ ds1 = xr.open_dataset(locs[0])
 test = ds1.sel({"Depth":0}).isel(ocean_time=[0]).drop_vars(["Depth"])
 test = test.salt.to_dataset()
 
-test.salt[0,:,:].plot.imshow()
-plt.show()
+# test.salt[0,:,:].plot.imshow()
+# plt.show()
 
-# test.to_netcdf("salt.nc")
-test = xr.open_dataset("salt.nc")
+nc_path = "data/cbofs/salt_{date}.nc".format(date=tod)
+test.to_netcdf(nc_path)
+# test = xr.open_dataset(nc_path)
