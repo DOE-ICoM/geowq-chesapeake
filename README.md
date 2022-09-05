@@ -1,8 +1,6 @@
-# geowq
+## Geographically aware estimates of remotely sensed water properties for Chesapeake Bay
 
 [![Paper DOI](https://img.shields.io/badge/Paper-XXXX/XXXX-blue.svg)](https://doi.org) [![Code DOI](https://img.shields.io/badge/Code-XXXX/XXXX-blue.svg)](https://doi.org) [![Data DOI](https://img.shields.io/badge/Data-XXXX/XXXX-blue.svg)](https://doi.org)
-
-Geographically aware estimates of remotely sensed water properties for Chesapeake Bay
 
 ## Setup
 
@@ -46,11 +44,11 @@ make data/rf_random_salinity.pkl
 ### Pull prediction data
 
 ```shell
-python scripts/03_get_data_predict.py --date "2018-01-02"
+python scripts/03_get_data_predict.py --date "2022-09-04"
 ```
 
 ### Generate prediction surfaces
 
 ```shell
-python scripts/04_rf_predict.py --date "2018-01-02"
+python scripts/04_rf_predict.py --date "2022-09-04"
 ```
