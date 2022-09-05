@@ -1,20 +1,16 @@
 # https://tidesandcurrents.noaa.gov/ofs/cbofs/cbofs.html
 
 # data products are every 6 hours
+# data products seem to be archived for only a month in time
 
 import rioxarray
-import pandas as pd
 import xarray as xr
 import matplotlib.pyplot as plt
 
-tod = pd.Timestamp.today()
+tod = "20220904"
 locs = [
-    tod.strftime(
-        'https://opendap.co-ops.nos.noaa.gov/thredds/dodsC/NOAA/CBOFS/MODELS/%Y/%m/%d/nos.cbofs.regulargrid.n001.%Y%m%d.t00z.nc'
-    ),
-    tod.strftime(
-        'https://opendap.co-ops.nos.noaa.gov/thredds/dodsC/NOAA/CBOFS/MODELS/%Y/%m/%d/nos.cbofs.regulargrid.n002.%Y%m%d.t00z.nc'
-    )
+    'https://opendap.co-ops.nos.noaa.gov/thredds/dodsC/NOAA/CBOFS/MODELS/{year}/{month}/{day}/nos.cbofs.regulargrid.n001.{date}.t00z.nc'.format(date=tod, year=tod[0:4], month=tod[4:6], day=tod[6:8]),
+    'https://opendap.co-ops.nos.noaa.gov/thredds/dodsC/NOAA/CBOFS/MODELS/%Y/%m/%d/nos.cbofs.regulargrid.n002.{date}.t00z.nc'.format(date=tod)    
 ]
 
 ds1 = xr.open_dataset(locs[0])
@@ -26,3 +22,4 @@ test.salt[0,:,:].plot.imshow()
 plt.show()
 
 # test.to_netcdf("salt.nc")
+test = xr.open_dataset("salt.nc")
