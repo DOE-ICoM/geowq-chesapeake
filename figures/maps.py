@@ -89,22 +89,40 @@ date = "2022-09-04"
 img_rf = xr.open_dataset("data/prediction/" + date + ".tif", engine="rasterio")
 img_rf = img_rf.rio.clip(bay_gdf.geometry)
 img_rf = img_rf["band_data"].sel(band=1)
-img_rf.plot.imshow()
-plt.show()
+# img_rf.plot.imshow()
+# plt.show()
 
 # get GEE image of sur_refl_08 band
 date = "2022-09-03"
 img_gee = xr.open_dataset(utils.modisaqua_path(date), engine="rasterio")
-geo_grid = img_gee.rio.clip(bay_gdf.geometry)
-geo_grid = geo_grid["band_data"].sel(band=1)
-geo_grid.plot.imshow()
-plt.show()
+img_gee = img_gee.rio.clip(bay_gdf.geometry)
+img_gee = img_gee["band_data"].sel(band=1)
+# img_gee.plot.imshow()
+# plt.show()
 
 # get cbofs image
 tod = "20220904"
 tif_path = "data/cbofs/salt_{date}.tif".format(date=tod)
 img_cbofs = xr.open_dataset(tif_path)
-geo_grid = img_cbofs.rio.clip(bay_gdf.geometry)
-geo_grid = geo_grid["band_data"].sel(band=1)
-geo_grid.plot.imshow()
+img_cbofs = img_cbofs.rio.clip(bay_gdf.geometry)
+img_cbofs = img_cbofs["band_data"].sel(band=1)
+# img_cbofs.plot.imshow()
+# plt.show()
+
+fig, axs = plt.subplots(
+    ncols=3,
+    nrows=1,
+    constrained_layout=True,
+    subplot_kw={"projection": ccrs.PlateCarree()},
+)
+
+def panel_add(i, axs, title, geo_grid):    
+    ax = axs[i]    
+    ax.set_title(title)
+    geo_grid.plot.imshow(ax=ax)
+    ax.coastlines(resolution="10m", color="black", linewidth=1)
+
+panel_add(0, axs, "0", img_rf)
+panel_add(1, axs, "0", img_gee)
+panel_add(2, axs, "0", img_cbofs)
 plt.show()
