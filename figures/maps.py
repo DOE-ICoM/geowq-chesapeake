@@ -4,6 +4,7 @@ import rioxarray
 import numpy as np
 import pandas as pd
 import xarray as xr
+from osgeo import gdal
 import geopandas as gpd
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
@@ -82,32 +83,53 @@ cbar.ax.set_title("obs count (n)", y=-0.08)
 plt.savefig("figures/_freqcount_hex.pdf")
 
 # --- input/output map
-bay_gdf = gpd.read_file("data/Boundaries/bay_gdf.gpkg")
-
-# get rf prediction image
-date = "2022-09-04"
-img_rf = xr.open_dataset("data/prediction/" + date + ".tif", engine="rasterio")
-img_rf = img_rf.rio.clip(bay_gdf.geometry)
-img_rf = img_rf["band_data"].sel(band=1)
-# img_rf.plot.imshow()
-# plt.show()
-
-# get GEE image of sur_refl_08 band
-date = "2022-09-03"
-img_gee = xr.open_dataset(utils.modisaqua_path(date), engine="rasterio")
-img_gee = img_gee.rio.clip(bay_gdf.geometry)
-img_gee = img_gee["band_data"].sel(band=1)
-# img_gee.plot.imshow()
-# plt.show()
+bay_gdf_hires = gpd.read_file("data/Boundaries/chk_water_only.shp").to_crs(epsg=4326)
 
 # get cbofs image
 tod = "20220904"
 tif_path = "data/cbofs/salt_{date}.tif".format(date=tod)
 img_cbofs = xr.open_dataset(tif_path)
-img_cbofs = img_cbofs.rio.clip(bay_gdf.geometry)
+img_cbofs = img_cbofs.rio.clip(bay_gdf_hires.geometry)
 img_cbofs = img_cbofs["band_data"].sel(band=1)
 # img_cbofs.plot.imshow()
 # plt.show()
+
+# get rf prediction image
+# gdalwarp -te -77.3425000000000011 36.1675000000000040 -74.7974999999999994 39.6325000000000074 -ts 509 693 -overwrite 2022-09-04.tif 2022-09-04_downsample.tif
+
+date = "2022-09-04"
+img_rf = xr.open_dataset("data/prediction/" + date + "_downsample.tif", engine="rasterio")
+img_rf = img_rf.rio.clip(bay_gdf_hires.geometry)
+img_rf = img_rf["band_data"].sel(band=1)
+img_rf.rio.to_raster("data/prediction/" + date + "_downsample_clip.tif")
+# img_rf.plot.imshow()
+# plt.show()
+
+# gdal_calc.py -a data/prediction/2022-09-04_downsample_clip.tif -b data/cbofs/salt_20220904.tif --calc="a - b" --outfile c.tif
+
+# get GEE image of sur_refl_08 band
+date = "2022-09-03"
+img_gee = xr.open_dataset(utils.modisaqua_path(date), engine="rasterio")
+img_gee = img_gee.rio.clip(bay_gdf_hires.geometry)
+img_gee = img_gee["band_data"].sel(band=1)
+# img_gee.plot.imshow()
+# plt.show()
+
+# create raster diff
+lons = img_rf.sortby("y", "x").x.as_numpy().values
+lats = img_rf.sortby("y", "x").y.as_numpy().values
+data = img_rf.sortby("y", "x").to_numpy() - img_cbofs.sortby("y", "x").to_numpy()
+test = xr.DataArray(data=data, dims=["y", "x"], coords=dict(x=(lons), y=(lats)))
+test = test.rio.set_spatial_dims("x", "y")
+
+def panel_add(i, axs, title, geo_grid, diff=False):    
+    ax = axs[i]        
+    if diff:
+        geo_grid.plot.imshow(ax=ax, center=0)# , vmax=np.nanmax(img_cbofs.to_numpy()))
+    else:
+        geo_grid.plot.imshow(ax=ax, vmin=0)# , vmax=np.nanmax(img_cbofs.to_numpy()))
+    ax.set_title(title)
+    ax.coastlines(resolution="10m", color="black", linewidth=1)
 
 fig, axs = plt.subplots(
     ncols=3,
@@ -116,13 +138,8 @@ fig, axs = plt.subplots(
     subplot_kw={"projection": ccrs.PlateCarree()},
 )
 
-def panel_add(i, axs, title, geo_grid):    
-    ax = axs[i]    
-    ax.set_title(title)
-    geo_grid.plot.imshow(ax=ax)
-    ax.coastlines(resolution="10m", color="black", linewidth=1)
-
-panel_add(0, axs, "0", img_rf)
-panel_add(1, axs, "0", img_gee)
-panel_add(2, axs, "0", img_cbofs)
+# st = fig.suptitle("Number of days for each month meeting the criteria in 2017", fontsize="large")
+panel_add(0, axs, "RF Results", img_rf)
+panel_add(1, axs, "CBOFS Snapshot", img_cbofs)
+panel_add(2, axs, "RF-CBOFS", test, diff=True)
 plt.show()
