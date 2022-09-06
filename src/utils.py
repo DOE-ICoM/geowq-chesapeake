@@ -87,3 +87,7 @@ def tabulate_to_latex(tabulate_output, fname, caption='nasdf', table_num=1):
         f.write("\\caption{" + caption + "}" + "\r\n")
         f.write("\\end{table}" + "\r\n")
         f.write("\\end{document}" + "\r\n")
+
+def modisaqua_path(date, band="sur_refl_b08"):
+    # date='2018-01-01'
+    return "data/MODIS-Aqua/{date}_{band}.tif".format(date=date, band=band)
