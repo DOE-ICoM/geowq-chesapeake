@@ -125,17 +125,17 @@ test = test.rio.set_spatial_dims("x", "y")
 def panel_add(i, axs, title, geo_grid, diff=False):    
     ax = axs[i]        
     if diff:
-        geo_grid.plot.imshow(ax=ax, center=0)# , vmax=np.nanmax(img_cbofs.to_numpy()))
+        geo_grid.plot.imshow(ax=ax, center=0, cbar_kwargs={"shrink":0.5})# , vmax=np.nanmax(img_cbofs.to_numpy()))
     else:
-        geo_grid.plot.imshow(ax=ax, vmin=0)# , vmax=np.nanmax(img_cbofs.to_numpy()))
+        geo_grid.plot.imshow(ax=ax, vmin=0, cbar_kwargs={"shrink":0.5})# , vmax=np.nanmax(img_cbofs.to_numpy()))
     ax.set_title(title)
-    ax.coastlines(resolution="10m", color="black", linewidth=1)
+    ax.coastlines(resolution="10m", color="black", linewidth=1)    
 
 fig, axs = plt.subplots(
     ncols=3,
     nrows=1,
     constrained_layout=True,
-    subplot_kw={"projection": ccrs.PlateCarree()},
+    subplot_kw={"projection": ccrs.PlateCarree(), "xlabel":""},
 )
 
 # st = fig.suptitle("Number of days for each month meeting the criteria in 2017", fontsize="large")
