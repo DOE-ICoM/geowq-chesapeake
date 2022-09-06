@@ -1,7 +1,9 @@
 import os
 import sys
+import rioxarray
 import numpy as np
 import pandas as pd
+import xarray as xr
 import geopandas as gpd
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
@@ -44,8 +46,6 @@ dt_melt = pd.melt(dt_filtered, id_vars=id_vars, value_vars=variables)
 
 dt_grps = [get_pnt_counts(dt_melt, variable) for variable in variables]
 
-# ---
-
 fig, axs = plt.subplots(
     ncols=3,
     nrows=1,
@@ -80,3 +80,31 @@ cbar.ax.set_title("obs count (n)", y=-0.08)
 
 # plt.show()
 plt.savefig("figures/_freqcount_hex.pdf")
+
+# --- input/output map
+bay_gdf = gpd.read_file("data/Boundaries/bay_gdf.gpkg")
+
+# get rf prediction image
+date = "2022-09-04"
+img_rf = xr.open_dataset("data/prediction/" + date + ".tif", engine="rasterio")
+img_rf = img_rf.rio.clip(bay_gdf.geometry)
+img_rf = img_rf["band_data"].sel(band=1)
+img_rf.plot.imshow()
+plt.show()
+
+# get GEE image of sur_refl_08 band
+date = "2022-09-03"
+img_gee = xr.open_dataset(utils.modisaqua_path(date), engine="rasterio")
+geo_grid = img_gee.rio.clip(bay_gdf.geometry)
+geo_grid = geo_grid["band_data"].sel(band=1)
+geo_grid.plot.imshow()
+plt.show()
+
+# get cbofs image
+tod = "20220904"
+tif_path = "data/cbofs/salt_{date}.tif".format(date=tod)
+img_cbofs = xr.open_dataset(tif_path)
+geo_grid = img_cbofs.rio.clip(bay_gdf.geometry)
+geo_grid = geo_grid["band_data"].sel(band=1)
+geo_grid.plot.imshow()
+plt.show()
