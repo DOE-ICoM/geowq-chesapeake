@@ -125,10 +125,10 @@ test = test.rio.set_spatial_dims("x", "y")
 def panel_add(i, axs, title, geo_grid, diff=False):    
     ax = axs[i]        
     if diff:
-        geo_grid.plot.imshow(ax=ax, center=0, cbar_kwargs={"shrink":0.5})# , vmax=np.nanmax(img_cbofs.to_numpy()))
+        geo_grid.plot.imshow(ax=ax, center=0, cbar_kwargs={"shrink":0.5, 'label':''})
     else:
-        geo_grid.plot.imshow(ax=ax, vmin=0, cbar_kwargs={"shrink":0.5})# , vmax=np.nanmax(img_cbofs.to_numpy()))
-    ax.set_title(title)
+        geo_grid.plot.imshow(ax=ax, vmin=0, cbar_kwargs={"shrink":0.5, 'label':''})# , vmax=np.nanmax(img_cbofs.to_numpy()))
+    ax.set_title(title)    
     ax.coastlines(resolution="10m", color="black", linewidth=1)    
 
 fig, axs = plt.subplots(
@@ -142,4 +142,6 @@ fig, axs = plt.subplots(
 panel_add(0, axs, "RF Results", img_rf)
 panel_add(1, axs, "CBOFS Snapshot", img_cbofs)
 panel_add(2, axs, "RF-CBOFS", test, diff=True)
-plt.show()
+
+# plt.show()
+plt.savefig("figures/_rf-vs-cbofs.pdf")
