@@ -114,6 +114,9 @@ data/prediction/2022-09-04.tif: scripts/04_rf_predict.py \
 	data/prediction/modis-2022_09_04.csv
 	python $< --date "2022-09-04"
 
+data/cbofs/salt_20220904.tif: scripts/00_get_cbofs.py
+	python $< --tod 20220904
+
 # ---- figures
 
 figures: figures/00_combined.pdf
