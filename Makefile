@@ -150,6 +150,9 @@ figures/_freqcount_hex.pdf: figures/maps.py
 figures/_rf-vs-cbofs.pdf: figures/maps.py
 	python $<
 
+figures/_annual-cycle.pdf: figures/timeseries.py
+	python $<
+
 figures/_validation.pdf: figures/validation.py
 	python $<
 
@@ -163,7 +166,8 @@ figures/_importance_all.pdf: $(path_importance)
 
 figures/00_combined.pdf: figures/_discharge.pdf figures/_obs_stats.pdf \
 	figures/_freqcount_hex.pdf figures/_validation.pdf \
-	figures/_importance_all.pdf figures/_rf-vs-cbofs.pdf
+	figures/_importance_all.pdf figures/_rf-vs-cbofs.pdf \
+	figures/_annual-cycle.pdf
 	pdftk $(wildcard figures/_*.pdf) output figures/00_combined.pdf
 
 # --- tables
