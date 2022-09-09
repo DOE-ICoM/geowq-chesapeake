@@ -50,6 +50,11 @@ def _count_stats(dt, variable):
     dt_sub = utils.freq_count(
         dt_sub, ["daystamp", "source", "station_id"]
     )  # collapse to daily
+
+    # What are the top 3 programs and what percentage of obs do they account for?
+    utils.freq_count(dt_sub, ["source"]).head(3)
+    sum(utils.freq_count(dt_sub, ["source"]).iloc[0:3]["count"]) / sum(utils.freq_count(dt_sub, ["source"])["count"])
+
     n_measures = (
         utils.freq_count(dt_sub, ["daystamp", "source", "station_id"])
         .sort_values(["station_id", "daystamp"], ascending=False)
