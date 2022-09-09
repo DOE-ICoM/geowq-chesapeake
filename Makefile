@@ -1,4 +1,4 @@
-.PHONY: data
+.PHONY: data figures tables manuscript
 
 variables := sss sst turbidity
 variables_str := salinity temperature turbidity
@@ -201,5 +201,18 @@ figures/00_tables.pdf: figures/counts_obs_table.pdf \
 
 # ---
 
+manuscript/manuscript.pdf: manuscript/manuscript.tex \
+	figures/00_tables.pdf figures/00_combined.pdf
+	pdflatex $<
+	mv manuscript.pdf $@
+
+manuscript/supplement.pdf: manuscript/supplement.tex \
+	figures/00_tables.pdf figures/00_combined.pdf
+	pdflatex $<
+	mv supplement.pdf $@
+
+# ---
+
 clean:
-	rm core.*
+	-@rm core.*
+	-@rm *.aux *.log
