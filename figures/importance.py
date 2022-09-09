@@ -20,7 +20,7 @@ def imp_plot(variable):
     plt.figure(figsize=(5.7, 5))
 
     plt.barh(y=dset["attr"], width=dset["importance"], color="#1976D2")
-    plt.title(variable + " - feature importances", fontsize=16, fontweight="bold", pad=20)
+    plt.title(variable, fontsize=16, fontweight="bold", pad=20)
     plt.xlabel("Importance", fontsize=14, labelpad=20)
 
     # plt.show()
