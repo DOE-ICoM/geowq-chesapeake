@@ -1,4 +1,5 @@
 \documentclass{article}
+\usepackage[breaklinks]{hyperref}
 \usepackage{graphicx}
 \usepackage{lipsum}
 \usepackage[margin=1in]{geometry}
@@ -17,14 +18,16 @@
 \maketitle
 
 \begin{abstract}
-    \noindent Remotely sensed water properties are important for a variety of applications, including validation of Earth Systems models (ESMs). However, the usefulness of operational forecasting products and directly-observing satellite-based sensors for validation of next-generation ESMs is limited due to their temporal availability and spatial resolution of $<$ 1 year and $>$ 10 km2 respectively. To address this validation data gap, we developed a data-driven model to produce high-resolution ($<$ 1 km2) estimates of temperature, salinity, and turbidity over decadal time scales as required by next-generation ESMs. Our model fits daily MODIS Aqua reflectance data to surface observations ($<$ 1 m depth) from 2000-2021 in Chesapeake Bay, USA. Our model has similar error statistics as prior efforts of this type for salinity (RMSE: 2.2) and temperature (RMSE: 1.9 C). However, unlike prior efforts our model is set up as a pipeline meaning that it has the advantage of producing predictions of water properties in future time periods as additional MODIS data is collected. In addition, our study is unique in that the predictions produced by our model are “geographically-aware” insofar as they capture geographic variation in the influence of flow and surface water exchange in upstream coastal watersheds. 
+    \noindent Remotely sensed water properties are important for a variety of applications, including validation of Earth Systems models (ESMs). However, the usefulness of operational forecasting products and directly-observing satellite-based sensors for validation of next-generation ESMs is limited due to their temporal availability and spatial resolution of $<$ 1 year and $>$ 30 $km^2$ respectively. To address this validation data gap, we developed a data-driven model to produce high-resolution ($<$ 1 $km^2$) estimates of temperature, salinity, and turbidity over decadal time scales as required by next-generation ESMs. Our model fits daily MODIS Aqua reflectance data to surface observations ($<$ 1 m depth) from 2000-2021 in Chesapeake Bay, USA. Our model has similar error statistics as prior efforts of this type for salinity (RMSE: 2.2) and temperature (RMSE: 1.9 C). However, unlike prior efforts our model is set up as a pipeline meaning that it has the advantage of producing predictions of water properties in future time periods as additional MODIS data is collected. In addition, our study is unique in that the predictions produced by our model are “geographically-aware” insofar as they capture geographic variation in the influence of flow and surface water exchange in upstream coastal watersheds.
     \end{abstract} \hspace{10pt}
 
 \linenumbers
 
 \section{Introduction}
 
-In partially mixed estuaries such as the Chesapeake Bay (hereafter, “the Bay”), productivity, organic matter production, and phytoplankton community composition are largely determined by stratification. Because stratification is primarily driven by salinity and temperature, extensive measurement networks exist to monitor these water properties. This data is critical for many uses such as establishing point-based trends and relationships (e.g. river flow or sea level rise vs salinity). However, direct observations alone are not adequate for many applications that require spatially extensive data such as SLR forecasting and habitat suitability assessments \citep{hoodChesapeakeBayProgram2021}. Applications such as these often turn to alternatives to direct observations such as output from directly-observing satellite-based sensors or operational now/fore-casting products. Unfortunately, these too are of limited use for applications such as validation of next-generation ESMs, where the temporal availability of operational forecasting products is too short ($<$ 1 year) and the spatial resolution of directly-observing satellite-based sensors is too coarse ($>$ 10 $km^2$). To address this validation data gap, we developed a data-driven model to produce high-resolution ($<$ 1 $km^2$) estimates of temperature, salinity, and turbidity over decadal time scales as required by next-generation ESMs.
+In partially mixed estuaries such as the Chesapeake Bay (hereafter, “the Bay”), productivity, organic matter production, and phytoplankton community composition are largely determined by stratification \citep{xuClimateForcingSalinity2012}. Because stratification is primarily controlled by salinity and temperature, extensive measurement networks exist to monitor these water properties (Chesapeake Bay Program Water Quality Database, \url{https://www.chesapeakebay.net/what/downloads/cbp_water_quality_database_1984_present}). These data are critical for many uses such as establishing point-based trends and relationships (e.g. river flow or sea level rise vs salinity or hypoxia, \citet{hagyHypoxiaChesapeakeBay2004}. However, direct observations alone are not adequate for many applications that require spatially extensive data such as SLR forecasting and habitat suitability assessments \citep{hoodChesapeakeBayProgram2021}. For example, habitat suitability calculations are typically done on a gridded basis for the entirety of a particular estuary rather than at selected point locations. Applications such as these often turn to gridded alternatives to direct observations such as output from directly-observing satellite-based sensors \citep{foreCombinedActivePassive2016} or operational now/fore-casting products \citep{lanerolle2011second}. Unfortunately, these too are of limited use for applications such as validation of next-generation ESMs, where the temporal availability of operational forecasting products is too short ($<$ 1 year) and the spatial resolution of directly-observing satellite-based sensors is too coarse ($>$ 30 $km^2$).
+
+To address this validation data gap, we developed a data-driven model to produce high-resolution (< 1 $km^2$) estimates of temperature, salinity, and turbidity over decadal time scales as required by next-generation ESMs. The primary input to our model is remotely sensed reflectance data. In particular, we use Moderate Resolution Imaging Spectroradiometer (MODIS) Aqua multiband data, which has been shown to be predictive of salinity in coastal Louisiana \citep{wangDevelopmentMODISData2018}. We supplemented MODIS data with gridded estimates of tributary inflows which we used to enforce physical realism (i.e. geographic “awareness”) especially in areas of the Bay with little to no observations.
 
 \section{Methods}
 This is the second section
@@ -33,13 +36,15 @@ This is the second section
 
 \begin{figure}[ht!]
     \begin{center}
-          \includegraphics[width=0.95\textwidth,keepaspectratio]{figures/_rf-vs-cbofs}
+          \includegraphics[width=0.75\textwidth,keepaspectratio]{figures/_rf-vs-cbofs}
+          \caption{Comparison between Random Forest prediction results and a CBOFS snapshot for Sept, 4, 2022.}
     \end{center}    
 \end{figure}
 
 \begin{figure}[ht!]
     \begin{center}
           \includegraphics[width=0.95\textwidth,keepaspectratio]{figures/_importance_all}
+          \caption{Random Forest importance plot for salinity, temperature, and turbidity models.}
     \end{center}    
 \end{figure}
 

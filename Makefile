@@ -149,6 +149,7 @@ figures/_freqcount_hex.pdf: figures/maps.py
 
 figures/_rf-vs-cbofs.pdf: figures/maps.py
 	python $<
+	pdfcrop $@ $@
 
 figures/_annual-cycle.pdf: figures/timeseries.py
 	python $<
@@ -209,7 +210,7 @@ manuscript/manuscript.pdf: manuscript/manuscript.tex manuscript/geowq.bib \
 	pdflatex manuscript
 	pdflatex manuscript
 	-@rm manuscript.tex
-	mv manuscript.pdf $@
+	-mv manuscript.pdf $@
 	-@rm *.aux *.log *.bbl *.blg
 
 manuscript/supplement.pdf: manuscript/supplement.tex \
