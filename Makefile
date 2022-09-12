@@ -211,7 +211,7 @@ manuscript/manuscript.pdf: manuscript/manuscript.tex manuscript/geowq.bib \
 	pdflatex manuscript
 	-@rm manuscript.tex
 	-mv manuscript.pdf $@
-	-@rm *.aux *.log *.bbl *.blg
+	-@rm *.aux *.log *.bbl *.blg *.out
 
 manuscript/supplement.pdf: manuscript/supplement.tex \
 	figures/00_tables.pdf figures/00_combined.pdf
