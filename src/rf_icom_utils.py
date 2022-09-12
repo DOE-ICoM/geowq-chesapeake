@@ -33,7 +33,7 @@ def run_rfe(X_train,
             variable,
             overwrite=False):
     """
-    Run recursive feature extraction using RFECV
+    Run recursive feature elimination using RFECV
     Inputs: 
     X_train => array of feature values (training set)
     y_train => array of label values (training set)
