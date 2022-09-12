@@ -201,15 +201,22 @@ figures/00_tables.pdf: figures/counts_obs_table.pdf \
 
 # ---
 
-manuscript/manuscript.pdf: manuscript/manuscript.tex \
+manuscript/manuscript.pdf: manuscript/manuscript.tex manuscript/geowq.bib \
 	figures/00_tables.pdf figures/00_combined.pdf
 	pdflatex $<
+	cp $< manuscript.tex
+	-bibtex manuscript
+	pdflatex manuscript
+	pdflatex manuscript
+	-@rm manuscript.tex
 	mv manuscript.pdf $@
+	-@rm *.aux *.log *.bbl *.blg
 
 manuscript/supplement.pdf: manuscript/supplement.tex \
 	figures/00_tables.pdf figures/00_combined.pdf
 	pdflatex $<
 	mv supplement.pdf $@
+	-@rm *.aux *.log
 
 # ---
 
