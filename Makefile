@@ -156,6 +156,7 @@ figures/_annual-cycle.pdf: figures/timeseries.py
 
 figures/_validation.pdf: figures/validation.py
 	python $<
+	pdfcrop $@ $@
 
 figures/%_importance.pdf: figures/importance.py
 	-python $<
@@ -216,7 +217,7 @@ manuscript/manuscript.pdf: manuscript/manuscript.tex manuscript/geowq.bib \
 manuscript/supplement.pdf: manuscript/supplement.tex \
 	figures/00_tables.pdf figures/00_combined.pdf
 	pdflatex $<
-	mv supplement.pdf $@
+	-mv supplement.pdf $@
 	-@rm *.aux *.log
 
 # ---
