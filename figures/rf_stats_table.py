@@ -10,17 +10,17 @@ utils.tabulate_to_latex(
     tabulate(
         dt.values, headers=[x for x in dt.columns], tablefmt="latex"
     ),
-    "figures/rf_stats_table_0.tex",
+    "figures/rf_stats_table_0_.tex",
     "Random Forest tuning results.",
     2,
 )
 
-dt = pd.read_csv("data/rmse_rf.csv")
+dt = pd.read_csv("data/rmse_rf.csv").round(2)
 utils.tabulate_to_latex(
     tabulate(
         dt.values, headers=[x for x in dt.columns], tablefmt="latex"
     ),
-    "figures/rf_stats_table_1.tex",
-    "Random Forest fitting results.",
-    1,
+    "figures/rf_stats_table_1_.tex",
+    "Random Forest fitting results. Values shown are root mean square error.",
+    0,
 )

@@ -185,14 +185,14 @@ figures/counts_obs_table.pdf: figures/obs_stats.py
 
 figures/rf_stats_table.pdf: figures/rf_stats_table.py
 	python $<	
-	pdflatex figures/rf_stats_table_0.tex
-	rm figures/rf_stats_table_0.tex
-	pdfcrop rf_stats_table_0.pdf rf_stats_table_0.pdf	
-	pdflatex figures/rf_stats_table_1.tex
-	rm figures/rf_stats_table_1.tex
-	pdfcrop rf_stats_table_1.pdf rf_stats_table_1.pdf
-	pdftk rf_stats_table_*.pdf output rf_stats_table.pdf
-	mv rf_stats_table.pdf $@
+	pdflatex figures/rf_stats_table_0_.tex
+	rm figures/rf_stats_table_0_.tex
+	pdfcrop rf_stats_table_0_.pdf figures/rf_stats_table_0_.pdf
+	#
+	pdflatex figures/rf_stats_table_1_.tex
+	rm figures/rf_stats_table_1_.tex
+	pdfcrop rf_stats_table_1_.pdf figures/rf_stats_table_1_.pdf
+	pdftk rf_stats_table_*.pdf output $@	
 	rm rf_stats_table_*.pdf
 	-@rm *.aux
 	-@rm *.log
@@ -219,6 +219,9 @@ manuscript/supplement.pdf: manuscript/supplement.tex \
 	pdflatex $<
 	-mv supplement.pdf $@
 	-@rm *.aux *.log
+
+manuscript/combined.pdf: manuscript/manuscript.pdf manuscript/supplement.pdf
+	pdftk manuscript/manuscript.pdf manuscript/supplement.pdf output $@
 
 # ---
 
