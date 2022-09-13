@@ -36,6 +36,10 @@ def main():
     X_train, y_train, X_test, y_test, feature_names = call_data2.clean_data(
         variable, var_col, predictors, test_size=0.33, data=data)
 
+    pickle.dump(X_test, open("data/X_test_prerfe_" + variable + ".pkl", "wb"))
+    pickle.dump(y_test, open("data/y_test_prerfe_" + variable + ".pkl", "wb"))
+    pickle.dump(feature_names, open("data/feature_names_" + variable + ".pkl", "wb"))
+
     ##Feature Selection vs Hyperparameter Tuning: https://stats.stackexchange.com/questions/264533/how-should-feature-selection-and-hyperparameter-optimization-be-ordered-in-the-m
     ##I added n_estimators=1000, and a max_depth =20 for the hyperparameters used in feature selection
 
