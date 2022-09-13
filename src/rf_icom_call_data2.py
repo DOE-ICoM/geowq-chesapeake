@@ -35,7 +35,7 @@ def clean_data(variable, var_col, predictors, test_size=0.5, data=None):
         "cost", "latitude", "longitude"
     ]
     X_train, y_train, X_test, y_test, feature_names = call_data2.clean_data(
-        "salinity", "SSS (psu)", predictors
+        "temperature", "SST (C)", predictors
     )
     ```
     """    
@@ -83,7 +83,6 @@ def clean_data(variable, var_col, predictors, test_size=0.5, data=None):
     data["datetime"] = pd.to_numeric(data["datetime"], downcast="float")
 
     if variable == "temperature":
-        print(data["SST (C)"])
         fitted_sine = fit_sine.fit_sine(data)
         # print('fitted_sine')
         # print(fitted_sine)
@@ -97,10 +96,6 @@ def clean_data(variable, var_col, predictors, test_size=0.5, data=None):
     ## Convert to Day of Year
     data["datetime"] = utils.datetime_to_doy(data["datetime"])
 
-    #    print(len(data))
-    #    data=data.drop(data['turbidity (NTU)']<0)
-    #    print(len(data))
-
     ## Get features
     y = data[var_col].values
     X = data.drop(var_col, axis=1)
@@ -108,6 +103,7 @@ def clean_data(variable, var_col, predictors, test_size=0.5, data=None):
     lon_list = [lon for lon in X.longitude.values]
     lat_list = [lon for lon in X.latitude.values]
 
+    print(X.shape)
     X = X.values
     feature_names = [k for k in data.keys() if k in predictors]
 
