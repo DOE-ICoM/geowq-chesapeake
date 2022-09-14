@@ -27,7 +27,7 @@ data: data_X_train
 
 data_X_train: data/X_train_temperature.pkl data/X_train_salinity.pkl data/X_train_turbidity.pkl
 
-data/X_train_temperature.pkl: scripts/01_rf_fit.py
+data/X_train_temperature.pkl: scripts/01_rf_fit.py src/rf_icom_call_data2.py
 	python $< --variable temperature --var_col "SST (C)" --data "data/data_w_fwi.csv"
 
 data/X_train_salinity.pkl: scripts/01_rf_fit.py

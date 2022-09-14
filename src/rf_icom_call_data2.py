@@ -94,7 +94,8 @@ def clean_data(variable, var_col, predictors, test_size=0.5, data=None):
     #    plt.show()
 
     ## Convert to Day of Year
-    data["datetime"] = utils.datetime_to_doy(data["datetime"])
+    # data["datetime"] = utils.datetime_to_doy(data["datetime"])
+    # ummm, the data is already in doy?
 
     ## Get features
     y = data[var_col].values
