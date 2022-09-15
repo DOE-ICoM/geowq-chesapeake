@@ -19,6 +19,11 @@ utils.tabulate_to_latex(
 )
 
 dt = pd.read_csv("data/rmse_rf.csv").round(2)
+dt = dt.T.reset_index().rename(columns={"index":"variable", 0:"rmse"})
+col_names = dt["variable"].copy()
+dt = dt.merge(pd.read_csv("data/r2.csv"), on="variable").T[1:3].reset_index()
+dt.columns = ["metric"] + [x for x in col_names]
+
 utils.tabulate_to_latex(
     tabulate(
         dt.values, headers=[x for x in dt.columns], tablefmt="latex"

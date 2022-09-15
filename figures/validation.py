@@ -106,22 +106,26 @@ def _plot(ax,
 plt.close()
 r2 = []
 fig, axes = plt.subplots(figsize=(8, 4.5), ncols=3)
-r2.append(_plot(axes[0], res[0], "Salinity", -0.5, 32, ylab=True)[1])
+r2.append(_plot(axes[0], res[0], "salinity", -0.5, 32, ylab=True, text_space=2.5)[1])
 r2.append(_plot(axes[1],
       res[1],
-      "Turbidity",
+      "turbidity",
       xy_max=75,
       xy_min=0,
       hatching=False,
       text_anchor=(37, 10),
-      text_space=4.5)[1])
+      text_space=5)[1])
 r2.append(_plot(axes[2],
       res[2],
-      "Temperature",
+      "temperature",
       xy_min=-2,
       xy_max=35,
       text_anchor=(3, 30),
-      text_space=2)[1])
+      text_space=2.5)[1])
 # plt.show()
+
+r2_df = pd.DataFrame(r2, columns=["r2"])
+r2_df["variable"] = variables_str_short
+r2_df.to_csv("data/r2.csv", index=False)
 
 plt.savefig("figures/_validation.pdf")
