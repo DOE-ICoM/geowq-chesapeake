@@ -93,13 +93,19 @@ def _plot(ax,
             "$R^2$ = " + r2,
             size=8)
     ax.set_title(title)
+    ax.set_aspect("equal")
 
     return ax, r2
 
+# # sine-adjusted temperature plot
+# plt.close()
+# fig, ax = plt.subplots(figsize=(8, 4))
+# _plot(ax, res[2], title="asdf", xy_max=10, xy_min=-10)
+# plt.show()
 
 plt.close()
 r2 = []
-fig, axes = plt.subplots(figsize=(8, 4), ncols=3)
+fig, axes = plt.subplots(figsize=(8, 4.5), ncols=3)
 r2.append(_plot(axes[0], res[0], "Salinity", -0.5, 32, ylab=True)[1])
 r2.append(_plot(axes[1],
       res[1],

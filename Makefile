@@ -183,7 +183,7 @@ figures/counts_obs_table.pdf: figures/obs_stats.py
 	pdfcrop counts_obs.pdf counts_obs.pdf
 	mv counts_obs.pdf $@
 
-figures/rf_stats_table.pdf: figures/rf_stats_table.py
+figures/rf_stats_table.pdf: figures/rf_stats_table.py data/rmse_rf.csv
 	python $<	
 	pdflatex figures/rf_stats_table_0_.tex
 	rm figures/rf_stats_table_0_.tex
@@ -224,6 +224,8 @@ manuscript/combined.pdf: manuscript/manuscript.pdf manuscript/supplement.pdf
 	pdftk manuscript/manuscript.pdf manuscript/supplement.pdf output $@
 
 # ---
+
+all: manuscript/combined.pdf
 
 clean:
 	-@rm core.*
