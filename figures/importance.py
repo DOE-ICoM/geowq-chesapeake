@@ -17,11 +17,11 @@ def imp_plot(variable):
     dset = dset.sort_values(by="importance", ascending=False)
     dset.loc[dset["attr"] == "cost", "attr"] = "fwi"
 
-    plt.figure(figsize=(5.7, 5))
+    plt.figure(figsize=(3, 5))
 
     plt.barh(y=dset["attr"], width=dset["importance"], color="#1976D2")
-    plt.title(variable, fontsize=16, fontweight="bold", pad=20)
-    plt.xlabel("Importance", fontsize=14, labelpad=20)
+    plt.title(variable, fontsize=16, pad=20)
+    plt.xlabel("Importance", fontsize=14, labelpad=10)
 
     # plt.show()
     plt.savefig("figures/" + variable + "_importance.pdf", bbox_inches='tight')
