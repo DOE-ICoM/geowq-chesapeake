@@ -6,7 +6,7 @@ import pandas as pd
 from scipy import optimize
 import matplotlib.pyplot as plt
 
-fitfunc = lambda p, x: p[0] * np.sin(2 * np.pi / p[1] * x + p[2]) + p[3]    
+fitfunc = lambda p, x: p[0] * np.sin(2 * np.pi / p[1] * x + p[2]) + p[3]
 
 def fit_sine(data):
     # data = pd.read_csv('temperature.csv')
