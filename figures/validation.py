@@ -86,34 +86,36 @@ def _plot(ax,
 
     eq = "y = " + str(round(reg.coef_[0], 2)) + "x - " + str(
         round(abs(reg.intercept_), 2))
+    r2 = str(round(reg.score(X, y), 2))
     ax.text(text_anchor[0], text_anchor[1], eq, size=8)
     ax.text(text_anchor[0],
             text_anchor[1] - text_space,
-            "$R^2$ = " + str(round(reg.score(X, y), 2)),
+            "$R^2$ = " + r2,
             size=8)
     ax.set_title(title)
 
-    return ax
+    return ax, r2
 
 
 plt.close()
+r2 = []
 fig, axes = plt.subplots(figsize=(8, 4), ncols=3)
-_plot(axes[0], res[0], "Salinity", -0.5, 32, ylab=True)
-_plot(axes[1],
+r2.append(_plot(axes[0], res[0], "Salinity", -0.5, 32, ylab=True)[1])
+r2.append(_plot(axes[1],
       res[1],
       "Turbidity",
       xy_max=75,
       xy_min=0,
       hatching=False,
       text_anchor=(37, 10),
-      text_space=4.5)
-_plot(axes[2],
+      text_space=4.5)[1])
+r2.append(_plot(axes[2],
       res[2],
       "Temperature",
       xy_min=-2,
       xy_max=35,
       text_anchor=(3, 30),
-      text_space=2)
+      text_space=2)[1])
 # plt.show()
 
 plt.savefig("figures/_validation.pdf")
