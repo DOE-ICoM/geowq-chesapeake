@@ -60,7 +60,14 @@ We validated RF model predictions both quantitatively against a hold-out test se
 
 \section{Results}
 
-Tuned RF models for salinity, turbidity, and temperature had a root mean square error (RMSE) of 2.34 ($R^2$=0.91), 32.2, and 1.8 respectively (Table 1, Figure S1). The “size” (i.e. n\_estimators) of the final RF models were of a similar magnitude for each variable but the tree was much “deeper” (i.e. max\_depth) for temperature compared to the other variables (Table S2). Running the models in prediction mode produced surfaces with a realistic spatial trend whereby salinity was highest near the Bay mouth and decreased with distance towards each tributary (Figure 1).
+Tuned RF models for salinity, turbidity, and temperature had a root mean square error (RMSE) of 2.34 ($R^2$=0.91), 32.2 ($R^2$=0.07), and 1.8 ($R^2$=0.96) respectively (Table 1, Figure S1). Out of sample validation performance was excellent for salinity and temperature models but poor for the turbidity model (Figure 1). One area where the temperature model had poor performance was at the extremes, it was unable to recover very low values ($<$ 0) and very high values ($>$ 30, Figure 1).
+
+The “size” (i.e. n\_estimators) of the final RF models were of a similar magnitude for each variable but the tree was much “deeper” (i.e. max\_depth) for temperature compared to the other variables (Table S2). 
+
+Running the models in prediction mode produced surfaces with a realistic spatial trend whereby salinity was highest near the Bay mouth and decreased with distance from each tributary mouth (Figure 2).
+
+The date of observation was the most important feature in RF training for the temperature and turbidity models while location of observation was most important in the salinity model (Figure 3). Across all models, the most important MODIS band was band 8.
+
 
 \begin{figure}[ht!]
     \begin{center}
