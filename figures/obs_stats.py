@@ -95,6 +95,13 @@ dt_agg = pd.read_csv(
     os.environ["ICOM_DATA"] + "/Modeling Data/Processed Data p1/aggregated.csv",
     parse_dates=["datetime"],
 )
+
+# per call_data2.py,
+# for turbidity get rid of negative numbers
+dt_agg.loc[dt_agg["turbidity (NTU)"] < 0, "turbidity (NTU)"] = None
+# for salinity set negative numbers to 0
+dt_agg.loc[dt_agg["SSS (psu)"] < 0, "SSS (psu)"] = 0
+
 obs_distribution = (
     pd.concat(
         [
@@ -114,3 +121,11 @@ with open("figures/obs_distribution.md", "w") as f:
         tabulate(obs_distribution.values, headers=[x for x in obs_distribution.columns])
     )
 # obs_distribution.to_clipboard()
+utils.tabulate_to_latex(
+    tabulate(
+        obs_distribution.values, headers=[x for x in obs_distribution.columns], tablefmt="latex"
+    ),
+    "figures/obs_distribution.tex",
+    "Distribution of values in the observational dataset.",
+    1,
+)

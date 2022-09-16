@@ -184,6 +184,14 @@ figures/counts_obs_table.pdf: figures/obs_stats.py
 	pdfcrop counts_obs.pdf counts_obs.pdf
 	mv counts_obs.pdf $@
 
+figures/obs_distribution_table.pdf: figures/obs_stats.py
+	python $<
+	pdflatex figures/obs_distribution.tex
+	rm figures/obs_distribution.tex
+	pdfcrop obs_distribution.pdf $@
+	rm obs_distribution.pdf
+	-@rm *.aux *.log
+
 figures/rf_stats_table.pdf: figures/rf_stats_table.py data/rmse_rf.csv
 	python $<	
 	pdflatex figures/rf_stats_table_0_.tex
@@ -199,7 +207,7 @@ figures/rf_stats_table.pdf: figures/rf_stats_table.py data/rmse_rf.csv
 	-@rm *.log
 
 figures/00_tables.pdf: figures/counts_obs_table.pdf \
-	figures/rf_stats_table.pdf
+	figures/rf_stats_table.pdf figures/obs_distribution_table.pdf
 	pdftk $(wildcard figures/*_table.pdf) output $@
 
 # ---

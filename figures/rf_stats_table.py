@@ -15,7 +15,7 @@ utils.tabulate_to_latex(
     ),
     "figures/rf_stats_table_0_.tex",
     "Random Forest tuning results.",
-    1,
+    2,
 )
 
 dt = pd.read_csv("data/rmse_rf.csv").round(2)
