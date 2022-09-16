@@ -1,10 +1,10 @@
 import os
 import sys
 import rioxarray
+import subprocess
 import numpy as np
 import pandas as pd
 import xarray as xr
-from osgeo import gdal
 import geopandas as gpd
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
@@ -78,7 +78,7 @@ cbar.ax.set_title("obs count (n)", y=-0.08)
 # plt.show()
 plt.savefig("figures/_freqcount_hex.pdf")
 
-# --- input/output map
+# --- rf vs cbofs map
 bay_gdf_hires = gpd.read_file("data/Boundaries/chk_water_only.shp").to_crs(
     epsg=4326)
 
@@ -92,16 +92,25 @@ img_cbofs = img_cbofs["band_data"].sel(band=1)
 # plt.show()
 
 # get rf prediction image
-# gdalwarp -te -77.3425000000000011 36.1675000000000040 -74.7974999999999994 39.6325000000000074 -ts 509 693 -overwrite 2022-09-04.tif 2022-09-04_downsample.tif
+def get_rf_prediction(date):
+    # date = "2022-09-04"
 
-date = "2022-09-04"
-img_rf = xr.open_dataset("data/prediction/" + date + "_downsample.tif",
-                         engine="rasterio")
-img_rf = img_rf.rio.clip(bay_gdf_hires.geometry)
-img_rf = img_rf["band_data"].sel(band=1)
-img_rf.rio.to_raster("data/prediction/" + date + "_downsample_clip.tif")
-# img_rf.plot.imshow()
-# plt.show()
+    bay_gdf_hires = gpd.read_file("data/Boundaries/chk_water_only.shp").to_crs(
+    epsg=4326)
+
+    call_string = "gdalwarp -te -77.3425000000000011 36.1675000000000040 -74.7974999999999994 39.6325000000000074 -ts 509 693 -overwrite data/prediction/" + date + ".tif data/prediction/" + date + "_downsample.tif"
+    subprocess.call(call_string)
+
+    img_rf = xr.open_dataset("data/prediction/" + date + "_downsample.tif",
+                            engine="rasterio")
+    img_rf = img_rf.rio.clip(bay_gdf_hires.geometry)
+    img_rf = img_rf["band_data"].sel(band=1)
+    img_rf.rio.to_raster("data/prediction/" + date + "_downsample_clip.tif")
+    # img_rf.plot.imshow()
+    # plt.show()
+    return img_rf
+
+img_rf = get_rf_prediction("2022-09-04")
 
 # gdal_calc.py -a data/prediction/2022-09-04_downsample_clip.tif -b data/cbofs/salt_20220904.tif --calc="a - b" --outfile c.tif
 
