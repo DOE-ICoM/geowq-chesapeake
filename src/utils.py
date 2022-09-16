@@ -1,6 +1,12 @@
+import os
 import re
+import subprocess
 import numpy as np
 import pandas as pd
+import xarray as xr
+import geopandas as gpd
+import matplotlib.pyplot as plt
+
 
 
 def select_var(dt, var_col):
@@ -95,3 +101,23 @@ def tabulate_to_latex(tabulate_output, fname, caption='nasdf', table_num=1):
 def modisaqua_path(date, band="sur_refl_b08"):
     # date='2018-01-01'
     return "data/MODIS-Aqua/{date}_{band}.tif".format(date=date, band=band)
+
+def get_rf_prediction(date):
+    # date = "2022-09-04"
+
+    bay_gdf_hires = gpd.read_file("data/Boundaries/chk_water_only.shp").to_crs(
+    epsg=4326)
+
+    path_downsample = "data/prediction/" + date + "_downsample.tif"
+    if not os.path.exists(path_downsample):
+        call_string = "gdalwarp -te -77.3425000000000011 36.1675000000000040 -74.7974999999999994 39.6325000000000074 -ts 509 693 -overwrite data/prediction/" + date + ".tif data/prediction/" + date + "_downsample.tif"
+        subprocess.call(call_string)
+
+    img_rf = xr.open_dataset("data/prediction/" + date + "_downsample.tif",
+                            engine="rasterio")
+    img_rf = img_rf.rio.clip(bay_gdf_hires.geometry)
+    img_rf = img_rf["band_data"].sel(band=1)
+    img_rf.rio.to_raster("data/prediction/" + date + "_downsample_clip.tif")
+    # img_rf.plot.imshow()
+    # plt.show()
+    return img_rf

@@ -1,17 +1,41 @@
 import os
 import sys
 import rioxarray
-import subprocess
 import numpy as np
 import pandas as pd
 import xarray as xr
 import geopandas as gpd
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
+from matplotlib import gridspec
 import h3pandas  # h3.geo_to_h3_aggregate
 
 sys.path.append(".")
 from src import utils
+
+def panel_add(i, axs, title, geo_grid, diff=False, j=None, vmax=27, height_frac=0.5):
+    if j is not None:        
+        ax= plt.subplot(axs[i,j], xlabel="", projection = ccrs.PlateCarree())
+        ax.coastlines(resolution="10m", color="black", linewidth=1)
+    else:
+        ax = axs[i]
+        ax.coastlines(resolution="10m", color="black", linewidth=1)
+    if diff:
+        geo_grid.plot.imshow(ax=ax,
+                             center=0,
+                             cbar_kwargs={
+                                 "shrink": 0.5,
+                                 'label': ''
+                             })
+    else:
+        geo_grid.plot.imshow(ax=ax,
+                             vmin=0,
+                             vmax=vmax,
+                             cbar_kwargs={
+                                 "shrink": 0.5,
+                                 'label': ''
+                             })  # , vmax=np.nanmax(img_cbofs.to_numpy()))    
+    ax.set_title(title, size="small", y=height_frac, x=0.9, rotation="vertical")
 
 
 # --- loc_id frequency count histograms and hex map
@@ -91,26 +115,7 @@ img_cbofs = img_cbofs["band_data"].sel(band=1)
 # img_cbofs.plot.imshow()
 # plt.show()
 
-# get rf prediction image
-def get_rf_prediction(date):
-    # date = "2022-09-04"
-
-    bay_gdf_hires = gpd.read_file("data/Boundaries/chk_water_only.shp").to_crs(
-    epsg=4326)
-
-    call_string = "gdalwarp -te -77.3425000000000011 36.1675000000000040 -74.7974999999999994 39.6325000000000074 -ts 509 693 -overwrite data/prediction/" + date + ".tif data/prediction/" + date + "_downsample.tif"
-    subprocess.call(call_string)
-
-    img_rf = xr.open_dataset("data/prediction/" + date + "_downsample.tif",
-                            engine="rasterio")
-    img_rf = img_rf.rio.clip(bay_gdf_hires.geometry)
-    img_rf = img_rf["band_data"].sel(band=1)
-    img_rf.rio.to_raster("data/prediction/" + date + "_downsample_clip.tif")
-    # img_rf.plot.imshow()
-    # plt.show()
-    return img_rf
-
-img_rf = get_rf_prediction("2022-09-04")
+img_rf = utils.get_rf_prediction("2022-09-04")
 
 # gdal_calc.py -a data/prediction/2022-09-04_downsample_clip.tif -b data/cbofs/salt_20220904.tif --calc="a - b" --outfile c.tif
 
@@ -132,27 +137,6 @@ test = xr.DataArray(data=data,
                     coords=dict(x=(lons), y=(lats)))
 test = test.rio.set_spatial_dims("x", "y")
 
-
-def panel_add(i, axs, title, geo_grid, diff=False):
-    ax = axs[i]
-    if diff:
-        geo_grid.plot.imshow(ax=ax,
-                             center=0,
-                             cbar_kwargs={
-                                 "shrink": 0.5,
-                                 'label': ''
-                             })
-    else:
-        geo_grid.plot.imshow(ax=ax,
-                             vmin=0,
-                             cbar_kwargs={
-                                 "shrink": 0.5,
-                                 'label': ''
-                             })  # , vmax=np.nanmax(img_cbofs.to_numpy()))
-    ax.set_title(title)
-    ax.coastlines(resolution="10m", color="black", linewidth=1)
-
-
 fig, axs = plt.subplots(
     ncols=3,
     nrows=1,
@@ -164,9 +148,38 @@ fig, axs = plt.subplots(
 )
 
 # st = fig.suptitle("Number of days for each month meeting the criteria in 2017", fontsize="large")
-panel_add(0, axs, "RF Results", img_rf)
+panel_add(0, axs, "RF Results", img_rf, height_frac=0.65)
 panel_add(1, axs, "CBOFS Snapshot", img_cbofs)
-panel_add(2, axs, "RF-CBOFS", test, diff=True)
+panel_add(2, axs, "RF-CBOFS", test, diff=True, height_frac=0.7)
 
 # plt.show()
 plt.savefig("figures/_rf-vs-cbofs.pdf")
+
+# --- seasonality maps
+bay_gdf_hires = gpd.read_file("data/Boundaries/chk_water_only.shp").to_crs(
+    epsg=4326)
+
+dates = ["2021-12-04", "2022-03-04", "2022-06-04", "2022-09-04"]
+imgs = [utils.get_rf_prediction(date) for date in dates]
+
+nrow = 2
+ncol = 2
+
+fig = plt.figure(figsize=(ncol+3, nrow+3))
+axs = gridspec.GridSpec(nrow, ncol,
+         wspace=0.0, hspace=0.0, 
+         top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1), 
+         left=0.1666, right=0.7) # 0.83333
+
+panel_add(0, axs, dates[0], imgs[0], j=0)
+panel_add(0, axs, dates[1], imgs[1], j=1)
+panel_add(1, axs, dates[2], imgs[2], j=0)
+panel_add(1, axs, dates[3], imgs[2], j=1)
+# rm first column colorbars
+# fig.axes
+# fig.delaxes(fig.axes[1])
+# fig.delaxes(fig.axes[4])
+
+# fig.subplots_adjust(wspace=0, hspace=0)
+# plt.show()
+plt.savefig("figures/_seasonality.pdf")
