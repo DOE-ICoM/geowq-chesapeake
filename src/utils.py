@@ -8,7 +8,6 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 
 
-
 def select_var(dt, var_col):
     if isinstance(dt, str):
         dt = pd.read_csv(dt)
@@ -26,14 +25,9 @@ def select_var(dt, var_col):
 
 def freq_count(dt, grp_cols):
     dt = dt.copy()
-    dt = (
-        dt.groupby(grp_cols)
-        .size()
-        .reset_index()
-        .rename(columns={0: "count"})
-        .sort_values("count", ascending=False)
-        .reset_index(drop=True)
-    )
+    dt = (dt.groupby(grp_cols).size().reset_index().rename(columns={
+        0: "count"
+    }).sort_values("count", ascending=False).reset_index(drop=True))
     return dt
 
 
@@ -45,21 +39,17 @@ def load_md(variable, fpath_prestring="data/best_params_"):
     # load best_params_[variable].md
     bp_colnames = _unwrap(
         str(
-            pd.read_table(fpath_prestring + variable + ".md", nrows=1, header=None)[0][
-                0
-            ]
-        ).strip()
-    )[0]
+            pd.read_table(fpath_prestring + variable + ".md",
+                          nrows=1,
+                          header=None)[0][0]).strip())[0]
     if "max_leaf_nodes" in bp_colnames:
         bp_colnames.remove("max_leaf_nodes")
     bp = pd.DataFrame(
         _unwrap(
             str(
-                pd.read_table(
-                    fpath_prestring + variable + ".md", skiprows=2, header=None
-                )[0][0]
-            ).strip()
-        ),
+                pd.read_table(fpath_prestring + variable + ".md",
+                              skiprows=2,
+                              header=None)[0][0]).strip()),
         columns=bp_colnames,
     )
     return bp
@@ -78,6 +68,7 @@ def datetime_to_doy(dt):
     dt = dt.dt.strftime("%j")
     dt = pd.to_numeric(dt, downcast="float")
     return dt
+
 
 def tabulate_to_latex(tabulate_output, fname, caption='nasdf', table_num=1):
     with open(fname, "w") as f:
@@ -98,15 +89,17 @@ def tabulate_to_latex(tabulate_output, fname, caption='nasdf', table_num=1):
         f.write("\\end{table}" + "\r\n")
         f.write("\\end{document}" + "\r\n")
 
+
 def modisaqua_path(date, band="sur_refl_b08"):
     # date='2018-01-01'
     return "data/MODIS-Aqua/{date}_{band}.tif".format(date=date, band=band)
+
 
 def get_rf_prediction(date):
     # date = "2022-09-04"
 
     bay_gdf_hires = gpd.read_file("data/Boundaries/chk_water_only.shp").to_crs(
-    epsg=4326)
+        epsg=4326)
 
     path_downsample = "data/prediction/" + date + "_downsample.tif"
     if not os.path.exists(path_downsample):
@@ -114,7 +107,7 @@ def get_rf_prediction(date):
         subprocess.call(call_string)
 
     img_rf = xr.open_dataset("data/prediction/" + date + "_downsample.tif",
-                            engine="rasterio")
+                             engine="rasterio")
     img_rf = img_rf.rio.clip(bay_gdf_hires.geometry)
     img_rf = img_rf["band_data"].sel(band=1)
     img_rf.rio.to_raster("data/prediction/" + date + "_downsample_clip.tif")

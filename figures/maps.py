@@ -13,9 +13,17 @@ import h3pandas  # h3.geo_to_h3_aggregate
 sys.path.append(".")
 from src import utils
 
-def panel_add(i, axs, title, geo_grid, diff=False, j=None, vmax=27, height_frac=0.5):
-    if j is not None:        
-        ax= plt.subplot(axs[i,j], xlabel="", projection = ccrs.PlateCarree())
+
+def panel_add(i,
+              axs,
+              title,
+              geo_grid,
+              diff=False,
+              j=None,
+              vmax=27,
+              height_frac=0.5):
+    if j is not None:
+        ax = plt.subplot(axs[i, j], xlabel="", projection=ccrs.PlateCarree())
         ax.coastlines(resolution="10m", color="black", linewidth=1)
     else:
         ax = axs[i]
@@ -34,8 +42,12 @@ def panel_add(i, axs, title, geo_grid, diff=False, j=None, vmax=27, height_frac=
                              cbar_kwargs={
                                  "shrink": 0.5,
                                  'label': ''
-                             })  # , vmax=np.nanmax(img_cbofs.to_numpy()))    
-    ax.set_title(title, size="small", y=height_frac, x=0.9, rotation="vertical")
+                             })  # , vmax=np.nanmax(img_cbofs.to_numpy()))
+    ax.set_title(title,
+                 size="small",
+                 y=height_frac,
+                 x=0.9,
+                 rotation="vertical")
 
 
 # --- loc_id frequency count histograms and hex map
@@ -165,11 +177,15 @@ imgs = [utils.get_rf_prediction(date) for date in dates]
 nrow = 2
 ncol = 2
 
-fig = plt.figure(figsize=(ncol+3, nrow+3))
-axs = gridspec.GridSpec(nrow, ncol,
-         wspace=0.0, hspace=0.0, 
-         top=1.-0.5/(nrow+1), bottom=0.5/(nrow+1), 
-         left=0.1666, right=0.7) # 0.83333
+fig = plt.figure(figsize=(ncol + 3, nrow + 3))
+axs = gridspec.GridSpec(nrow,
+                        ncol,
+                        wspace=0.0,
+                        hspace=0.0,
+                        top=1. - 0.5 / (nrow + 1),
+                        bottom=0.5 / (nrow + 1),
+                        left=0.1666,
+                        right=0.7)  # 0.83333
 
 panel_add(0, axs, dates[0], imgs[0], j=0)
 panel_add(0, axs, dates[1], imgs[1], j=1)
