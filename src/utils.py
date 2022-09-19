@@ -96,8 +96,8 @@ def modisaqua_path(date, band="sur_refl_b08"):
 
 
 def get_rf_prediction(date, variable):
-    # date = "2022-09-04"
-    # variable = "salinity"
+    # date = "2021-12-04"
+    # variable = "temperature"
 
     bay_gdf_hires = gpd.read_file("data/Boundaries/chk_water_only.shp").to_crs(
         epsg=4326)

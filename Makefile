@@ -150,7 +150,12 @@ figures/_freqcount_hex.pdf: figures/maps.py
 figures/_rf-vs-cbofs.pdf: figures/maps.py
 	python $<
 	pdfcrop $@ $@
-	pdfcrop figures/_seasonality.pdf figures/_seasonality.pdf
+
+figures/_seasonality_salinity.pdf: figures/maps.py
+	python $<
+	pdfcrop $@ $@
+	pdfcrop figures/_seasonality_temperature.pdf figures/_seasonality_temperature.pdf
+	pdfcrop figures/_seasonality_turbidity.pdf figures/_seasonality_turbidity.pdf
 
 figures/_annual-cycle.pdf: figures/timeseries.py
 	python $<

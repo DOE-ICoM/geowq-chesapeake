@@ -21,6 +21,8 @@ def panel_add(i,
               diff=False,
               j=None,
               vmax=27,
+              vmin=0,
+              ticks=None,
               height_frac=0.5):
     if j is not None:
         ax = plt.subplot(axs[i, j], xlabel="", projection=ccrs.PlateCarree())
@@ -37,11 +39,12 @@ def panel_add(i,
                              })
     else:
         geo_grid.plot.imshow(ax=ax,
-                             vmin=0,
+                             vmin=vmin,
                              vmax=vmax,
                              cbar_kwargs={
                                  "shrink": 0.5,
-                                 'label': ''
+                                 'label': '',
+                                 'ticks': ticks,
                              })  # , vmax=np.nanmax(img_cbofs.to_numpy()))
     ax.set_title(title,
                  size="small",
@@ -168,34 +171,42 @@ panel_add(2, axs, "RF-CBOFS", test, diff=True, height_frac=0.7)
 plt.savefig("figures/_rf-vs-cbofs.pdf")
 
 # --- seasonality maps
-bay_gdf_hires = gpd.read_file("data/Boundaries/chk_water_only.shp").to_crs(
-    epsg=4326)
+def _seasonality_map(variable, vmin=(0,0,0,0), vmax=(27,27,27,27), ticks=None):
+    # variable  = "turbidity"
+    # vmin=(3,3,21,21)
+    # vmax=(12, 12, 29, 29)
+    dates = ["2021-12-04", "2022-03-04", "2022-06-04", "2022-09-04"]
+    imgs = [utils.get_rf_prediction(date, variable) for date in dates]
 
-dates = ["2021-12-04", "2022-03-04", "2022-06-04", "2022-09-04"]
-imgs = [utils.get_rf_prediction(date, "salinity") for date in dates]
+    nrow = 2
+    ncol = 2
 
-nrow = 2
-ncol = 2
+    fig = plt.figure(figsize=(ncol + 3, nrow + 3))
+    axs = gridspec.GridSpec(nrow,
+                            ncol,
+                            wspace=0.0,
+                            hspace=0.0,
+                            top=1. - 0.5 / (nrow + 1),
+                            bottom=0.5 / (nrow + 1),
+                            left=0.1666,
+                            right=0.7)  # 0.83333
 
-fig = plt.figure(figsize=(ncol + 3, nrow + 3))
-axs = gridspec.GridSpec(nrow,
-                        ncol,
-                        wspace=0.0,
-                        hspace=0.0,
-                        top=1. - 0.5 / (nrow + 1),
-                        bottom=0.5 / (nrow + 1),
-                        left=0.1666,
-                        right=0.7)  # 0.83333
+    panel_add(0, axs, dates[0], imgs[0], j=0, vmin=vmin[0], vmax=vmax[0], ticks=ticks)
+    panel_add(0, axs, dates[1], imgs[1], j=1, vmin=vmin[1], vmax=vmax[1], ticks=ticks)
+    panel_add(1, axs, dates[2], imgs[2], j=0, vmin=vmin[2], vmax=vmax[2], ticks=ticks)
+    panel_add(1, axs, dates[3], imgs[3], j=1, vmin=vmin[3], vmax=vmax[3], ticks=ticks)
+    # rm first column colorbars
+    # fig.axes
+    # fig.delaxes(fig.axes[1])
+    # fig.delaxes(fig.axes[4])
 
-panel_add(0, axs, dates[0], imgs[0], j=0)
-panel_add(0, axs, dates[1], imgs[1], j=1)
-panel_add(1, axs, dates[2], imgs[2], j=0)
-panel_add(1, axs, dates[3], imgs[2], j=1)
-# rm first column colorbars
-# fig.axes
-# fig.delaxes(fig.axes[1])
-# fig.delaxes(fig.axes[4])
+    # fig.subplots_adjust(wspace=0, hspace=0)
+    # plt.show()
+    out_path = "figures/_seasonality_" + variable + ".pdf"
+    plt.savefig(out_path)
 
-# fig.subplots_adjust(wspace=0, hspace=0)
-# plt.show()
-plt.savefig("figures/_seasonality.pdf")
+    return out_path
+
+_seasonality_map("salinity", ticks=[0,10,20])
+_seasonality_map("temperature", vmin=(3,3,21,21), vmax=(12, 12, 29, 29))
+_seasonality_map("turbidity", vmin=(0,0,0,0), vmax=(40, 40, 40, 40))
