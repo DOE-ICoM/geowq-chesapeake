@@ -127,7 +127,7 @@ img_cbofs = img_cbofs["band_data"].sel(band=1)
 # img_cbofs.plot.imshow()
 # plt.show()
 
-img_rf = utils.get_rf_prediction("2022-09-04")
+img_rf = utils.get_rf_prediction("2022-09-04", "salinity")
 
 # gdal_calc.py -a data/prediction/2022-09-04_downsample_clip.tif -b data/cbofs/salt_20220904.tif --calc="a - b" --outfile c.tif
 
@@ -172,7 +172,7 @@ bay_gdf_hires = gpd.read_file("data/Boundaries/chk_water_only.shp").to_crs(
     epsg=4326)
 
 dates = ["2021-12-04", "2022-03-04", "2022-06-04", "2022-09-04"]
-imgs = [utils.get_rf_prediction(date) for date in dates]
+imgs = [utils.get_rf_prediction(date, "salinity") for date in dates]
 
 nrow = 2
 ncol = 2

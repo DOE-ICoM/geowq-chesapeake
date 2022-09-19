@@ -15,7 +15,7 @@ flist = list(
     itertools.compress(flist,
                        [not strng.__contains__("2018") for strng in flist]))
 
-dates = [x.split("\\")[1].replace(".tif", "") for x in flist]
+dates = [x.split("\\")[1].replace(".tif", "").replace("_salinity", "") for x in flist]
 
 pixel_centers_all = gpd.read_file("data/pixel_centers_4326.shp").rename(
     columns={"pix_idx": "pix_id"})

@@ -23,27 +23,28 @@ def _get_coords(x):
     return (longitude, latitude)
 
 
-variable = "salinity"
-var_col = "SSS (psu)"
-best_params = utils.load_md(variable)
-
-rf_random_path = "data/rf_random_" + variable + ".pkl"
-rf_random = pickle.load(open(rf_random_path, "rb"))
-
-predictors = pickle.load(open("data/imp_params_" + variable + ".pkl", "rb"))
-# predictors = [
-#     'datetime', 'sur_refl_b08', 'sur_refl_b09', 'sur_refl_b10', 'sur_refl_b11',
-#     'sur_refl_b12', 'sur_refl_b13', 'sur_refl_b14', 'sur_refl_b15',
-#     'sur_refl_b16', 'latitude', 'longitude', "cost"
-# ]
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--date", type=str)
+    parser.add_argument("--variable", type=str)
+    parser.add_argument("--var_col", type=str)
     args = vars(parser.parse_args())
     date = args["date"]
+    variable = args["variable"]
+    var_col = args["var_col"]
     # date = "2022-09-04"
+    # variable = "salinity"
+    # var_col = "SSS (psu)"
+
+    rf_random_path = "data/rf_random_" + variable + ".pkl"
+    rf_random = pickle.load(open(rf_random_path, "rb"))
+
+    predictors = pickle.load(open("data/imp_params_" + variable + ".pkl", "rb"))
+    # predictors = [
+    #     'datetime', 'sur_refl_b08', 'sur_refl_b09', 'sur_refl_b10', 'sur_refl_b11',
+    #     'sur_refl_b12', 'sur_refl_b13', 'sur_refl_b14', 'sur_refl_b15',
+    #     'sur_refl_b16', 'latitude', 'longitude', "cost"
+    # ]
 
     # --- prep prediction data
     dt = pd.read_csv("data/prediction/modis-" + date.replace("-", "_") +
@@ -109,7 +110,7 @@ def main():
     #     geo_grid.predict != geo_grid.predict.rio.nodata).plot()
     # plt.show()
 
-    out_path = "data/prediction/" + date + ".tif"
+    out_path = "data/prediction/" + date + "_" + variable + ".tif"
     geo_grid["predict"].rio.to_raster(out_path)
 
     return out_path

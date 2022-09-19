@@ -50,5 +50,7 @@ python scripts/03_get_data_predict.py --date "2022-09-04"
 ### Generate prediction surfaces
 
 ```shell
-python scripts/04_rf_predict.py --date "2022-09-04"
+python scripts/04_rf_predict.py --date "2022-09-04" --variable salinity --var_col "SSS (psu)"
+python scripts/04_rf_predict.py --date "2022-09-04" --variable turbidity --var_col "turbidity (NTU)"
+python scripts/04_rf_predict.py --date "2022-09-04" --variable temperature --var_col "SST (C)"
 ```

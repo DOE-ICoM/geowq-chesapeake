@@ -109,7 +109,10 @@ def clean_data(variable, var_col, predictors, test_size=0.5, data=None):
     feature_names = [k for k in data.keys() if k in predictors]
 
     plt.figure(figsize=(20, 10))
-    data.hist()
+    try:
+        data.hist()
+    except:        
+        data.drop(columns=["datetime"]).hist()
     plt.tight_layout()
     plt.savefig("figures/" + variable + "_data_hist.png")
 

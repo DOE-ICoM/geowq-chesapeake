@@ -110,9 +110,9 @@ $(ICOM_DATA)/Modeling\ Data/Processed\ Data\ p1/data_w_fwi.csv: scripts/00_calcu
 data/prediction/modis-2022_09_04.csv: scripts/03_get_data_predict.py
 	python $< --date "2022-09-04"
 
-data/prediction/2022-09-04.tif: scripts/04_rf_predict.py \
+data/prediction/2022-09-04_salinity.tif: scripts/04_rf_predict.py \
 	data/prediction/modis-2022_09_04.csv
-	python $< --date "2022-09-04"
+	python $< --date "2022-09-04" --variable salinity --var_col "SSS (psu)"
 
 data/cbofs/salt_20220904.tif: scripts/00_get_cbofs.py
 	python $< --tod 20220904
