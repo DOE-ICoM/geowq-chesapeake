@@ -45,10 +45,13 @@ def clean_data(variable, var_col, predictors, test_size=0.5, data=None):
 
     data = utils.select_var(data, var_col)
 
-    ## For turbidity get rid of negative numbers
     print(len(data))
-    if var_col == "turbidity (NTU)":
-        data = data[data["turbidity (NTU)"] > 0]
+    
+    ## For turbidity get rid of negative numbers
+    if test_size > 0: # aka we are not in prediction mode    
+        if var_col == "turbidity (NTU)":
+            # any(data["turbidity (NTU)"] > 0)
+            data = data[data["turbidity (NTU)"] > 0]
 
     ## For salinity, set negative numbers to 0
     if var_col == "SSS (psu)":        

@@ -12,7 +12,7 @@ from geocube.api.core import make_geocube
 from geocube.rasterize import rasterize_points_griddata
 
 sys.path.append(".")
-from src import utils
+from src import fit_sine
 from src import rf_icom_call_data2 as call_data2
 
 
@@ -82,7 +82,17 @@ def main():
     # --- predict prediction data
     predictions = rf_random.predict(dt_clean_X)
     res = pd.DataFrame(dt_clean_y, columns=["obs"])
-    res["predict"] = predictions.copy()
+
+    if variable == "temperature":
+        # back out non-sine adjusted values    
+        # pickle.load(open("data/feature_names_temperature.pkl", "rb"))
+        p1 = pickle.load(open("data/temperature_sine_coef.pkl", "rb"))
+        offset = fit_sine.fitfunc(p1, dt_clean_X[0:, 0])
+        res["predict"] = predictions.copy() + offset
+        res["obs"] = res["obs"] + offset
+    else:
+        res["predict"] = predictions.copy()
+
     res["longitude"] = lon_list
     res["latitude"] = lat_list
     res = gpd.GeoDataFrame(data=res,
