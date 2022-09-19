@@ -203,6 +203,7 @@ def _seasonality_map(variable, vmin=(0,0,0,0), vmax=(27,27,27,27), ticks=None):
     # fig.subplots_adjust(wspace=0, hspace=0)
     # plt.show()
     out_path = "figures/_seasonality_" + variable + ".pdf"
+    # fig.suptitle(variable, y=0.87, x=0.42)
     plt.savefig(out_path)
 
     return out_path
