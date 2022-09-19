@@ -51,7 +51,7 @@ Prior data-driven models (e.g. \citet{urquhartGeospatialInterpolationMODISderive
 
 We compiled over two decades of observational data (2000-2021) on salinity (n=6k), temperature (n=10k), and turbidity (n=5k, Table S1). Although this data came from a wide variety of sources (n=20, Table S1), almost $80\%$ of the total unique observations came from three programs NDBC/CBIBS (\url{https://buoybay.noaa.gov/}), Maryland Continuous Monitoring Program (MDNR), and the Virginia Estuarine and Coastal Observing System (\url{http://vecos.vims.edu}). Because Chesapeake Bay has a mean optical depth of 0.89m \citep{urquhartRemotelySensedEstimates2012}, we filtered all collected observations to those occurring in the top 1m of the water column. We further limited observations to those that had a timestamp during the MODIS overpass window time-of-day (approximately 1700 - 1900 hours). Prior to model fitting, we removed the annual cycle from temperature observations using least squares optimization routines \citep{virtanenSciPyFundamentalAlgorithms2020a}. Finally, we implemented spatial and temporal averaging of observational data to a daily mean within each MODIS pixel. 
 
-We supplemented observational data with a grid of “freshwater influence” (FWI) estimates where each grid cell represents the average of annual-flow weighted distance of that cell from the 5 major tributaries (Susquehanna, James, Pautexent, Choptank, and Potomac). Annual flow magnitudes were calculated from National Water Information System instantaneous data (sites: 01488110, 01491000, 01576000, 01654000, 01594440, 02037500, \citet{nwis2021usgs}). Rather than straight-line distances we used “in-water” distances calculated using the scikit-image Python package \citep{vanderwaltScikitimageImageProcessing2014}. We combined FWI estimates with the pixel-wise daily mean observations and regressed them in RF models against data from the 500m resolution MODIS Aqua product, which provides 8 bands values for each pixel spanning from 405 to 877nm wavelength \citep{vermoteericMOD09GAMODISTerra2015}.
+We supplemented observational data with a grid of “freshwater influence” (FWI) estimates where each grid cell represents the average of annual-flow weighted distance of that cell from the 5 major tributaries (Susquehanna, James, Pautexent, Choptank, and Potomac). Annual flow magnitudes were calculated from National Water Information System instantaneous data (sites: 01488110, 01491000, 01576000, 01654000, 01594440, 02037500, \citet{nwis2021usgs}). Rather than straight-line distances we used “in-water” distances calculated using the scikit-image Python package \citep{littleKrigingEstuariesCrow1997,vanderwaltScikitimageImageProcessing2014}. We combined FWI estimates with the pixel-wise daily mean observations and regressed them in RF models against data from the 500m resolution MODIS Aqua product, which provides 8 bands values for each pixel spanning from 405 to 877nm wavelength \citep{vermoteericMOD09GAMODISTerra2015}.
 
 
 \subsection{Model validation}
@@ -61,7 +61,7 @@ We validated RF model predictions both quantitatively against a hold-out test se
 
 \section{Results}
 
-Tuned RF models for salinity, turbidity, and temperature had a root mean square error (RMSE) of 2.34 ($R^2$=0.91), 32.2 ($R^2$=0.07), and 1.8 ($R^2$=0.96) respectively (Table 1, Figure 1). Out of sample validation performance was excellent for salinity and temperature models but poor for the turbidity model (Figure 1). Despite excellent overall performance, our temperature and salinity models had poor performance at the extremes. They were unable to recover very low values ($<$ 0 C) or very high values ($>$ 30 C, $>$ 23 salinity, Figure 1). One explanation for these areas of poor performance are their relative rarity in the observational dataset (Table S2).
+Our tuned RF models for salinity, turbidity, and temperature had a root mean square error (RMSE) of 2.34 ($R^2$=0.91), 32.2 ($R^2$=0.07), and 1.8 ($R^2$=0.96) respectively (Table 1, Figure 1). Out of sample validation performance was excellent for salinity and temperature models but poor for the turbidity model (Figure 1, Figure S1). Despite excellent overall performance, our temperature and salinity models had poor performance at the extremes. They were unable to recover very low temperature values ($<$ 0 C) or very high temperature and salinity values ($>$ 30 C, $>$ 23 salinity, Figure 1). One explanation for these areas of poor performance are their relative rarity in the observational dataset (Table S2). The salinity model however did faithfully capture areas of low salinity (Figure 1). These low salinity values can be regarded as low uncertainty (high confidence) estimates given the extent to which the upper tributaries are well represented in the observational dataset (Figure S2).
 
 \begin{figure}[ht!]
     \begin{center}
@@ -87,11 +87,11 @@ The date of observation was the most important feature in RF training for the te
 
 Running the models in prediction mode produced surfaces with a realistic spatial trend whereby salinity was highest near the Bay mouth and decreased with distance from each tributary mouth (Figure 3). A realistic spatial trend can also be seen in the RF temperature predictions whereby maximum water temperatures were located in the upper tributaries while minimum water temperatures were highest at the Bay mouth (Figure 3).
 
-RF model predictions for salinity were generally lower than corresponding values from the CBOFS in the mainstem of the Bay and higher than corresponding CBOFS values in the tributaries (Figure 4). The salinity model was able to reproduce realistic temporal dynamics whereby the Bay is generally “fresher” in the Spring season (April-June) and “saltier” in Fall and Winter seasons (Figure 3).
+RF model predictions for salinity were generally lower than corresponding values from the CBOFS in the mainstem of the Bay and higher than corresponding CBOFS values in the tributaries (Figure 4). CBOFS surface water salinity estimates are known to be saltier than observations \citep{lanerolle2011second, vogelAssessingSatelliteSea2016} partly explaining our saltier data-driven results. The salinity model was able to reproduce realistic temporal dynamics whereby the Bay is generally “fresher” in the Spring season (April-June) and “saltier” in Fall and Winter seasons (Figure 3).
 
 \begin{figure}[ht!]
     \begin{center}
-          \includegraphics[width=0.8\textwidth,keepaspectratio]{figures/_seasonality}
+          \includegraphics[width=0.75\textwidth,keepaspectratio]{figures/_seasonality}
           \caption{Seasonal Random Forest prediction results for temperature and salinity.}
     \end{center}    
 \end{figure}
@@ -105,19 +105,36 @@ RF model predictions for salinity were generally lower than corresponding values
 
 \section{Discussion}
 
-Our data-driven yet geographically aware approach was able to accurately reproduce spatial and temporal patterns of Bay salinity and temperature. In addition to being accurate, our approach provides the ability to generate rapid bay-wide prediction surfaces in seconds and it is easily updatable insofar as saved models can be reloaded and have their training “updated”. Our models are also lightweight with minimal internal complexity and extensively tested against a uniquely large observational dataset.
+Our geographically aware approach was able to accurately reproduce spatial and temporal patterns of Bay salinity and temperature. Model errors were generally lower than prior data-driven efforts and as good or better than physics-based models \citep{vogelAssessingSatelliteSea2016}. In addition to being accurate, our approach provides the ability to generate rapid bay-wide prediction surfaces in seconds and it is easily updatable insofar as saved models can be reloaded and have their training “updated”. Our models are lightweight with minimal internal complexity and have been extensively tested against a uniquely large observational dataset.
 
 \subsection{Spatial patterning}
 
+Temperature and salinity models produced realistic predictions insofar as they were characterized by low salinity in the upper tributaries and high minimum water temperatures at the Bay mouth. This indicates that the model captures both freshwater discharge from tributaries as well as the moderating influence of ocean water in areas near the Bay mouth \citep{dingSpatiotemporalPatternsWater2015}.
+
+Often it is difficult to assess the inherent uncertainty of data-driven efforts such as ours. However, in our case, we assembled such a large observational dataset, that it makes such assessments possible. This is a key difference between our approach and prior efforts which have mostly been trained on high salinity buoy data or in-situ cruises from the mainstem of the Bay \citep{vogelAssessingSatelliteSea2016, geigerSatellitederivedCoastalOcean2013}. Predicted areas of low salinity in particular likely have low associated uncertainties because the upper tributaries were represented with high density in our observational dataset (Figure S2). Because CBOFS salinity data was fresher than our RF estimates in the upper tributaries, this suggests that CBOFS data for these areas are true underestimates and not a deficiency of the RF model.
+
+
 \subsection{Temporal patterning}
+
+The salinity model was able to reproduce realistic temporal dynamics whereby the Bay is generally “fresher” in the Spring season (April-June) and “saltier” in Fall and Winter seasons. However, because the salinity model was not able to reproduce the highest salinity values Fall and Winter estimates may be biased low. For the temperature model, we were unable to recover low temperature observations less than 0 deg C. These results are consistent with prior efforts such as \citet{geigerSatellitederivedCoastalOcean2013} where winter had the highest seasonal error. One explanation for these high winter error rates is the fact that winter in the Bay is generally characterized by strong vertical mixing due to high winds \citep{sonWaterPropertiesChesapeake2012, xuClimateForcingSalinity2012}.
 
 \subsection{Future research}
 
 One shortcoming of our work which may be a fruitful area of future research is the lack of realistic small-scale features evident in the physics based output of the CBOFS (Figure 4). These small-scale features such as eddies and other circulation features may be resolved with the use of convolutional neural networks (CNNs). A key difference between our approach and that of CNNs is that our approach fits each observation essentially in isolation and does not attempt to reproduce the “neighborhood” surrounding observations as is the case with CNNs (citation). 
 
-Another potential area of future research is resolving water properties at depths beyond the surface. A key challenge in this area is lack of observational data at multiple locations. Depth arrayed measurements are typically only associated with buoy deployments of which there are few in the Bay. Perhaps these can be supplemented by data from physics-based models such as CBOFS. The results of such an effort can be regarded more so as an emulator than a standalone model.
+Another potential area of future research is resolving water properties at depths beyond the surface. A key challenge in this area is lack of observational data at multiple locations. Depth arrayed measurements are typically only associated with buoy deployments of which there are few in the Bay. Perhaps these can be supplemented by data from physics-based models such as CBOFS which are fully three-dimensional. The results of such an effort can be regarded more so as an emulator than a standalone model.
+
+\section{Conclusion}
+
+We have demonstrated an approach to produce realistic estimates of water properties in Chesapeake Bay using remotely sensed data. Much of this realism comes from our FWI routines which enforce physical consistency in upstream-downstream spatial patterning. Estimates produced by our model have a high potential to inform calibration and evaluation of Earth Systems Models as well as in other applications such as habitat suitability and sea level rise models.
 
 \FloatBarrier
+
+\section{Acknowledgements}
+
+J.S. built models, analyzed data, and wrote the paper. S.A. designed the initial model architecture and variable importance routines. J.Sc. conceived the study, collected observational data, and edited the paper. This work was supported by the Integrated Coastal Modeling (ICoM) project through the Department of Energy, Office of Science,
+Biological and Environmental Research, Earth and Environment Systems Sciences Division. 
+
 \bibliographystyle{apalike}
 \bibliography{manuscript/geowq}
 
