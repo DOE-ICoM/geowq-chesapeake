@@ -146,6 +146,7 @@ figures/%_map_variable.pdf: figures/plot_data.py figures/plot_helpers.py
 
 figures/_freqcount_hex.pdf: figures/maps.py
 	python $<
+	pdfcrop $@ $@
 
 figures/_rf-vs-cbofs.pdf: figures/maps.py
 	python $<
