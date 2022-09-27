@@ -34,9 +34,17 @@ def fit_sine(data):
 
     fitted_sine = fitfunc(p1, date)
 
-    plt.figure(figsize=(20, 10))
-    plt.plot(date_doy, temp_doy, "ro")
-    plt.plot(date_doy, fitfunc(p1, date_doy), "bo")
+    plt.rc('axes', labelsize=12)
+    ax = plt.subplot(111)
+    ax.plot(date_doy, temp_doy, "ro")
+    ax.plot(date_doy, fitfunc(p1, date_doy), "bo")    
+    plt.xlabel("DOY")    
+    ax.spines.right.set_visible(False)
+    ax.spines.left.set_visible(False)
+    ax.spines.top.set_visible(False)
+    ax.get_yaxis().set_ticks([])
+    ax.xaxis.set_ticks_position('bottom')
+    # plt.show()
     plt.savefig('figures/fitted_sine.png')
 
     return fitted_sine
