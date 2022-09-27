@@ -43,10 +43,14 @@ stations = gpd.GeoDataFrame(stations,
                                geometry=gpd.points_from_xy(
                                    stations["longitude"], stations["latitude"]))
 
+b = gpd.read_file("data/Boundaries/chk_water_only.shp").to_crs(
+    epsg=4326)
+b_bounds = [x for x in b.bounds.iloc[0]]
+extent = (b_bounds[0], b_bounds[2], b_bounds[1], b_bounds[3])
 
 ax = plt.axes(projection=ccrs.PlateCarree())
+ax.set_extent(extent, ccrs.PlateCarree())
 ax.coastlines(resolution="10m", color="black", linewidth=1)
 stations.plot(ax=ax)
-
-
-plt.show()
+stations.apply(lambda x: ax.annotate(text=x['stationShortName'], xy=x.geometry.coords[0], xytext=(3, 3), textcoords="offset points"), axis=1)
+plt.savefig("figures/cbibs.pdf")
