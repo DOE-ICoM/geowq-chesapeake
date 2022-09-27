@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 sys.path.append(".")
 from src import utils
 
-variables = ["SSS (psu)", "turbidity (NTU)", "SST (C)"]
+variables = ["SSS (psu)", "SST (C)", "turbidity (NTU)"]
 
 # --- raw data histograms by variable
 dt_raw = pd.read_csv(

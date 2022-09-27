@@ -76,7 +76,7 @@ dt_raw = pd.read_csv(
     os.environ["ICOM_DATA"] +
     "/Modeling Data/Processed Data p1/aggregated_w_bandvals.csv")
 id_vars = ["loc_id", "latitude", "longitude"]
-variables = ["SSS (psu)", "turbidity (NTU)", "SST (C)"]
+variables = ["SSS (psu)", "SST (C)", "turbidity (NTU)"]
 dt_filtered = dt_raw[id_vars + variables]
 dt_melt = pd.melt(dt_filtered, id_vars=id_vars, value_vars=variables)
 
