@@ -1,6 +1,7 @@
 # https://gis.stackexchange.com/a/78699/32531
 
 import os
+import sys
 import glob
 import random
 import pickle
@@ -12,25 +13,9 @@ from tqdm import tqdm
 import geopandas as gpd
 from joblib import Parallel, delayed
 from geocube.api.core import make_geocube
-from skimage.graph import route_through_array
 
-
-def get_idx_coords(lon, lat):
-    # lon = stations.iloc[[0]]["longitude"][0]
-    # lat = stations.iloc[[0]]["latitude"][0]
-    dt_where = dt.sel(x=lon, y=lat, method="nearest")
-    dt_where = dt.where(
-        (dt.x == float(dt_where["x"])) & (dt.y == float(dt_where["y"])), drop=True
-    ).squeeze()
-    return (int(dt_where["x_idx"]), int(dt_where["y_idx"]))
-
-
-def get_geo_coords(x, y):
-    # y = 1199
-    # x = 310
-    dt_where = dt.where((dt.x_idx == x) & (dt.y_idx == y), drop=True)
-    return (float(dt_where["x"]), float(dt_where["y"]))
-
+sys.path.append("src")
+from src import fwi
 
 def get_idx_water():
     """
@@ -43,41 +28,6 @@ def get_idx_water():
     return dt_where_water
 
 
-def get_distance(stop_idx_y, stop_idx_x, i):
-    try:
-        indices, weight = route_through_array(
-            cost_surface_array,
-            (start_idx_y, start_idx_x),
-            (stop_idx_x, stop_idx_y),
-            geometric=True,
-            fully_connected=True,
-        )
-        indices = np.array(indices).T
-        weight = int(round(weight, 0))
-
-        path = np.zeros_like(cost_surface_array)
-        path[np.array([indices[0][-1]]), np.array([indices[1][-1]])] = weight
-        # path[indices[0], indices[1]] = weight
-
-        res = xr.DataArray(path, coords=[dt.y.values, dt.x.values], dims=["y", "x"])
-        res["spatial_ref"] = dt["spatial_ref"]
-        res = res.where(res > 0)
-
-        df = res.to_dataframe("cost").reset_index()
-        df = df[~pd.isna(df["cost"])]
-        gdf = gpd.GeoDataFrame(
-            {"cost": df.cost, "i": i}, geometry=gpd.points_from_xy(df.x, df.y)
-        )
-
-    except:
-        (lon, lat) = get_geo_coords(stop_idx_x, stop_idx_y)
-        gdf = gpd.GeoDataFrame(
-            {"cost": 999, "i": i}, geometry=gpd.points_from_xy(lon, lat)
-        )
-
-    return gdf
-
-
 # rng = l[-1]
 # [(s[0][0], s[0][1], s[0][2]) for s in zip([(end_points[i][1], end_points[i][0], i) for i in rng])]
 
@@ -88,7 +38,7 @@ def get_distance_grp(rng):
     if not os.path.exists(outpath):
         par_njobs = 12
         gdfs = Parallel(n_jobs=par_njobs, verbose=25, batch_size=2)(
-            delayed(get_distance)(s[0][0], s[0][1], s[0][2])
+            delayed(fwi.get_distance)(s[0][0], s[0][1], s[0][2], start_idx_y, start_idx_x, cost_surface_array, dt)
             for s in zip([(end_points[i][1], end_points[i][0], i) for i in rng])
         )
 
@@ -122,8 +72,8 @@ end_points = pickle.load(open("data/end_points.pkl", "rb"))
 
 # --- choptank
 if not os.path.exists("data/waterdistance/choptank.gpkg"):
-    (start_idx_x, start_idx_y) = get_idx_coords(
-        stations.iloc[[0]]["longitude"][0], stations.iloc[[0]]["latitude"][0]
+    (start_idx_x, start_idx_y) = fwi.get_idx_coords(
+        stations.iloc[[0]]["longitude"][0], stations.iloc[[0]]["latitude"][0], dt
     )
     # end_points.shape[0]  # 294049
     l = np.array_split(np.array(range(0, end_points.shape[0])), 6)
@@ -138,9 +88,10 @@ if not os.path.exists("data/waterdistance/choptank.gpkg"):
 
 # --- pautexent
 if not os.path.exists("data/waterdistance/pautexent.gpkg"):
-    (start_idx_x, start_idx_y) = get_idx_coords(
+    (start_idx_x, start_idx_y) = fwi.get_idx_coords(
         stations.iloc[[2]].reset_index()["longitude"][0],
         stations.iloc[[2]].reset_index()["latitude"][0],
+        dt
     )
     # end_points.shape[0]  # 294049
     l = np.array_split(np.array(range(0, end_points.shape[0])), 6)
@@ -155,9 +106,10 @@ if not os.path.exists("data/waterdistance/pautexent.gpkg"):
 
 # --- potomac
 if not os.path.exists("data/waterdistance/potomac.gpkg"):
-    (start_idx_x, start_idx_y) = get_idx_coords(
+    (start_idx_x, start_idx_y) = fwi.get_idx_coords(
         stations.iloc[[3]].reset_index()["longitude"][0],
         stations.iloc[[3]].reset_index()["latitude"][0],
+        dt
     )
     # end_points.shape[0]  # 294049
     l = np.array_split(np.array(range(0, end_points.shape[0])), 6)
@@ -172,9 +124,10 @@ if not os.path.exists("data/waterdistance/potomac.gpkg"):
 
 # --- susquehanna
 if not os.path.exists("data/waterdistance/susquehanna.gpkg"):
-    (start_idx_x, start_idx_y) = get_idx_coords(
+    (start_idx_x, start_idx_y) = fwi.get_idx_coords(
         stations.iloc[[1]].reset_index()["longitude"][0],
         stations.iloc[[1]].reset_index()["latitude"][0],
+        dt
     )
     # end_points.shape[0]  # 294049
     l = np.array_split(np.array(range(0, end_points.shape[0])), 20)
