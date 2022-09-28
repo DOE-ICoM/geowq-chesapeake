@@ -6,11 +6,10 @@ import pandas as pd
 import geopandas as gpd
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
+from shapely.geometry import LineString
 
 sys.path.append("src")
 from src import fwi
-
-discharge = pd.read_csv("data/discharge_median.csv")
 
 stations = gpd.read_file("stations.gpkg", driver="GPKG")
 fpath = "data/cost.tif"
@@ -52,12 +51,34 @@ b = gpd.read_file("data/Boundaries/chk_water_only.shp").to_crs(epsg=4326)
 b_bounds = [x for x in b.bounds.iloc[0]]
 extent = (b_bounds[0], b_bounds[2], b_bounds[1], b_bounds[3])
 
+test_lines = pd.concat([
+    gpd.GeoDataFrame(
+        {"tributary": key},
+        geometry=[LineString(res[key]['geometry'].reset_index(drop=True))],
+        index=[0]) for key in res.keys()
+])
 test = pd.concat([res[key] for key in res.keys()])
+discharge = pd.read_csv("data/discharge_median.csv")
 test = test.merge(discharge, left_on="tributary", right_on="site_str")
-test["discharge_va"] = np.log(test["discharge_va"] * 2)
+test["weight"] = np.log(test["discharge_va"] * 4)
+
+a = test["weight"]
+alphas = np.interp(a, (a.min(), a.max()), (0.7, +1))
 
 ax = plt.axes(projection=ccrs.PlateCarree())
 ax.set_extent(extent, ccrs.PlateCarree())
 ax.coastlines(resolution="10m", color="black", linewidth=1)
-test.plot(ax=ax, column="tributary", legend=True, markersize="discharge_va")
+test.plot(ax=ax, column="tributary", markersize="weight", legend=True)
+plt.show()
+
+ax = plt.axes(projection=ccrs.PlateCarree())
+ax.coastlines(resolution="10m", color="black", linewidth=1, alpha=1)
+test[test["tributary"] == "Choptank"].plot(ax=ax,                                           
+                                           markersize="weight",
+                                           alpha=0.1,
+                                           color="blue")
+test[test["tributary"] == "Potomac"].plot(ax=ax,                                           
+                                           markersize="weight",
+                                           alpha=1,
+                                           color="blue")
 plt.show()
