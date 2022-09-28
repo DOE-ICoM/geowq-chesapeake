@@ -24,8 +24,14 @@ def get_geo_coords(x, y, dt):
     return (float(dt_where["x"]), float(dt_where["y"]))
 
 
-def get_distance(stop_idx_y, stop_idx_x, i, start_idx_y, start_idx_x,
-                 cost_surface_array, dt):
+def get_distance(stop_idx_y,
+                 stop_idx_x,
+                 i,
+                 start_idx_y,
+                 start_idx_x,
+                 cost_surface_array,
+                 dt,
+                 return_full_path=False):
     try:
         indices, weight = route_through_array(
             cost_surface_array,
@@ -55,6 +61,25 @@ def get_distance(stop_idx_y, stop_idx_x, i, start_idx_y, start_idx_x,
             "i": i
         },
                                geometry=gpd.points_from_xy(df.x, df.y))
+
+        if return_full_path:
+            full_path = path
+            for i in range(0, indices.shape[1]):
+                full_path[np.array([indices[0][i]]),
+                          np.array([indices[1][i]])] = weight
+
+            res_full = xr.DataArray(full_path,
+                                    coords=[dt.y.values, dt.x.values],
+                                    dims=["y", "x"])
+            res_full["spatial_ref"] = dt["spatial_ref"]
+            res_full = res_full.where(res_full > 0)
+            df = res_full.to_dataframe("cost").reset_index()
+            df = df[~pd.isna(df["cost"])]
+            gdf = gpd.GeoDataFrame({
+                "cost": df.cost,
+                "i": i
+            },
+                                   geometry=gpd.points_from_xy(df.x, df.y))
 
     except:
         (lon, lat) = get_geo_coords(stop_idx_x, stop_idx_y, dt)
