@@ -21,7 +21,7 @@ dt = dt.assign_coords(
 cost_surface_array = dt.to_array().values[0, :, :]
 
 
-def _get_path(j):
+def _get_path(j, i=171133):
     # j = 1
     (start_idx_x, start_idx_y) = fwi.get_idx_coords(
         stations.iloc[[j]]["longitude"].reset_index(drop=True)[0],
@@ -29,7 +29,6 @@ def _get_path(j):
 
     end_points = pickle.load(open("data/end_points.pkl", "rb"))
 
-    i = 171133
     path = fwi.get_distance(end_points[i][1],
                             end_points[i][0],
                             i,
