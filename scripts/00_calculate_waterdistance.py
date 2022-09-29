@@ -47,9 +47,9 @@ def get_distance_grp(rng):
 
 stations = gpd.GeoDataFrame(
     {
-        "name": ["Choptank", "Susquehanna", "Pautexent", "Potomac"],
-        "longitude": [-75.900, -76.069, -76.692, -77.110],
-        "latitude": [38.811, 39.525, 38.664, 38.38],
+        "name": ["Choptank", "Susquehanna", "Pautexent", "Potomac", "James"],
+        "longitude": [-75.900, -76.069, -76.692, -77.110, -77.2767],
+        "latitude": [38.811, 39.525, 38.664, 38.38, 37.3238],
     }
 )
 stations = gpd.GeoDataFrame(
@@ -69,6 +69,22 @@ if not os.path.exists("data/end_points.pkl"):
     end_points = get_idx_water()
     pickle.dump(end_points, open("data/end_points.pkl", "wb"))
 end_points = pickle.load(open("data/end_points.pkl", "rb"))
+
+# --- james
+if not os.path.exists("data/waterdistance/james.gpkg"):
+    (start_idx_x, start_idx_y) = fwi.get_idx_coords(
+        stations.iloc[[4]].reset_index()["longitude"][0],
+        stations.iloc[[4]].reset_index()["latitude"][0],
+        dt
+    )
+    l = np.array_split(np.array(range(0, end_points.shape[0])), 6)    
+    [get_distance_grp(s) for s in l]
+
+    flist = glob.glob("test_*.gpkg")
+    gdfs = [gpd.read_file(f) for f in flist]
+    pd.concat(gdfs).to_file("james.gpkg")
+    [os.remove(f) for f in flist]
+
 
 # --- choptank
 if not os.path.exists("data/waterdistance/choptank.gpkg"):
