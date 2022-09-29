@@ -60,28 +60,57 @@ test = pd.concat([res[key] for key in res.keys()])
 discharge = pd.read_csv("data/discharge_median.csv")
 test = test.merge(discharge, left_on="tributary", right_on="site_str")
 
-test["weight"] = test["discharge_va"] * test["cost"]
-test["weight"] = np.interp(test["weight"], (test["weight"].min(), test["weight"].max()), (0.1, +8))
+max_cost = test.groupby("tributary").max("cost").reset_index().rename(
+    columns={"cost": "max_cost"})[["tributary", "max_cost"]]
+test = test.merge(max_cost)
+
+test["weight"] = test["discharge_va"] * test["max_cost"]
+test["weight"] = np.interp(test["weight"],
+                           (test["weight"].min(), test["weight"].max()),
+                           (0.1, +8))
 np.unique(test["weight"])
 
-fig = plt.figure(figsize=[3.4/1.4, 2.8/1.4])
+fig = plt.figure(figsize=[3.4 / 1.4, 2.8 / 1.4])
 ax = fig.add_subplot(111, projection=ccrs.PlateCarree())
 ax.set_extent(extent, ccrs.PlateCarree())
 ax.coastlines(resolution="10m", color="black", linewidth=1)
 test.plot(ax=ax, column="tributary", markersize="weight", alpha=0.6)
 plt.savefig("figures/_fwi.pdf", bbox_inches='tight')
 
-# a = test["weight"]
-# alphas = np.interp(a, (a.min(), a.max()), (0.7, +1))
+# ---
 
-# ax = plt.axes(projection=ccrs.PlateCarree())
-# ax.coastlines(resolution="10m", color="black", linewidth=1, alpha=1)
-# test[test["tributary"] == "Choptank"].plot(ax=ax,                                           
-#                                            markersize="weight",
-#                                            alpha=0.1,
-#                                            color="blue")
-# test[test["tributary"] == "Potomac"].plot(ax=ax,                                           
-#                                            markersize="weight",
-#                                            alpha=1,
-#                                            color="blue")
+test_split = [
+    test[test["tributary"] == trib] for trib in np.unique(test["tributary"])
+]
+ends = pd.concat([x[x["cost"] == np.max(x["cost"])] for x in test_split])
+ends_minus_one = [{
+    "cost": ends.iloc[[i]]["max_cost"].values[0] - 1,
+    "tributary": ends.iloc[[i]]["tributary"].values[0]
+} for i in range(0, ends.shape[0])]
+ends_minus_one = pd.concat([
+    test[(test["tributary"] == x["tributary"]) & (test["cost"] == x["cost"])]
+    for x in ends_minus_one
+])
+colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
+colors = [colors[i] for i in [0, 2, 5, 7, 9]]
+
+
+fig = plt.figure(figsize=[3.4 / 1.4, 2.8 / 1.4])
+ax = fig.add_subplot(111, projection=ccrs.PlateCarree())
+ax.set_extent(extent, ccrs.PlateCarree())
+ax.coastlines(resolution="10m", color="black", linewidth=1)
+test.plot(ax=ax, column="tributary", markersize="weight", alpha=0.6)
+# https://matplotlib.org/2.0.2/users/annotations.html
+[
+    ax.annotate(text="",
+                xy=ends.iloc[i].geometry.centroid.coords[0],
+                xytext=ends_minus_one.iloc[i].geometry.centroid.coords[0],
+                size=10,
+                alpha=0.6,
+                arrowprops=dict(facecolor=colors[i],
+                                arrowstyle="simple", edgecolor=colors[i],
+                                connectionstyle="arc3"))
+    for i in range(0, ends.shape[0])
+]
 # plt.show()
+plt.savefig("figures/_fwi.pdf", bbox_inches='tight')

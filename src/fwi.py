@@ -66,7 +66,7 @@ def get_distance(stop_idx_y,
             full_path = path
             for i in range(0, indices.shape[1]):
                 full_path[np.array([indices[0][i]]),
-                          np.array([indices[1][i]])] = weight
+                          np.array([indices[1][i]])] = range(0, indices.shape[1])[i]            
 
             res_full = xr.DataArray(full_path,
                                     coords=[dt.y.values, dt.x.values],
