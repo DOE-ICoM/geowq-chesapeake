@@ -82,6 +82,16 @@ dt_melt = pd.melt(dt_filtered, id_vars=id_vars, value_vars=variables)
 
 dt_grps = [get_pnt_counts(dt_melt, variable) for variable in variables]
 
+mins = []
+maxs = []
+gdf_aggs = []
+for i in range(0, len(dt_grps)):
+    gdf = dt_grps[i]
+    gdf_agg = gdf.h3.geo_to_h3_aggregate(resolution=5)
+    mins.append(min(gdf_agg.reset_index()["count"]))
+    maxs.append(max(gdf_agg.reset_index()["count"]))
+    gdf_aggs.append(gdf_agg)
+
 fig, axs = plt.subplots(
     ncols=3,
     nrows=1,
@@ -89,21 +99,11 @@ fig, axs = plt.subplots(
     subplot_kw={"projection": ccrs.PlateCarree()},
 )
 
-mins = []
-maxs = []
-gdf_aggs = []
-for i in range(0, len(dt_grps)):
-    gdf = dt_grps[i]
-    gdf_agg = gdf.h3.geo_to_h3_aggregate(6)
-    mins.append(min(gdf_agg.reset_index()["count"]))
-    maxs.append(max(gdf_agg.reset_index()["count"]))
-    gdf_aggs.append(gdf_agg)
-
 for i in range(0, len(axs)):
     ax = axs[i]
     ax.set_title(variables[i])
     gdf_agg = gdf_aggs[i]
-    gdf_agg.plot("count", ax=ax, legend=False, vmax=max(maxs))
+    gdf_agg.plot("count", ax=ax, legend=False, vmax=max(maxs), alpha=0.8)
     ax.coastlines(resolution="10m", color="black", linewidth=1)
 
 scales = np.linspace(1, max(maxs), 7)
