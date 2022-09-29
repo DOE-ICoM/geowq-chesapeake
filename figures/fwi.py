@@ -11,7 +11,6 @@ from shapely.geometry import LineString
 sys.path.append("src")
 from src import fwi
 
-stations = gpd.read_file("stations.gpkg", driver="GPKG")
 fpath = "data/cost.tif"
 dt = xr.open_dataset(fpath, engine="rasterio").sel(band=1)
 dt = dt.assign_coords(
@@ -41,6 +40,7 @@ def _get_path(j, i=171133):
     return path
 
 
+stations = gpd.read_file("stations.gpkg", driver="GPKG")
 res = {
     stations.iloc[[j]]["name"].reset_index(drop=True)[0]: _get_path(j)
     for j in range(0, stations.shape[0])
@@ -59,25 +59,29 @@ test_lines = pd.concat([
 test = pd.concat([res[key] for key in res.keys()])
 discharge = pd.read_csv("data/discharge_median.csv")
 test = test.merge(discharge, left_on="tributary", right_on="site_str")
-test["weight"] = np.log(test["discharge_va"] * 4)
 
-a = test["weight"]
-alphas = np.interp(a, (a.min(), a.max()), (0.7, +1))
+test["weight"] = test["discharge_va"] * test["cost"]
+test["weight"] = np.interp(test["weight"], (test["weight"].min(), test["weight"].max()), (0.1, +8))
+np.unique(test["weight"])
 
-ax = plt.axes(projection=ccrs.PlateCarree())
+fig = plt.figure(figsize=[3.4/1.4, 2.8/1.4])
+ax = fig.add_subplot(111, projection=ccrs.PlateCarree())
 ax.set_extent(extent, ccrs.PlateCarree())
 ax.coastlines(resolution="10m", color="black", linewidth=1)
-test.plot(ax=ax, column="tributary", markersize="weight", legend=True)
-plt.show()
+test.plot(ax=ax, column="tributary", markersize="weight", alpha=0.6)
+plt.savefig("figures/_fwi.pdf", bbox_inches='tight')
 
-ax = plt.axes(projection=ccrs.PlateCarree())
-ax.coastlines(resolution="10m", color="black", linewidth=1, alpha=1)
-test[test["tributary"] == "Choptank"].plot(ax=ax,                                           
-                                           markersize="weight",
-                                           alpha=0.1,
-                                           color="blue")
-test[test["tributary"] == "Potomac"].plot(ax=ax,                                           
-                                           markersize="weight",
-                                           alpha=1,
-                                           color="blue")
-plt.show()
+# a = test["weight"]
+# alphas = np.interp(a, (a.min(), a.max()), (0.7, +1))
+
+# ax = plt.axes(projection=ccrs.PlateCarree())
+# ax.coastlines(resolution="10m", color="black", linewidth=1, alpha=1)
+# test[test["tributary"] == "Choptank"].plot(ax=ax,                                           
+#                                            markersize="weight",
+#                                            alpha=0.1,
+#                                            color="blue")
+# test[test["tributary"] == "Potomac"].plot(ax=ax,                                           
+#                                            markersize="weight",
+#                                            alpha=1,
+#                                            color="blue")
+# plt.show()
