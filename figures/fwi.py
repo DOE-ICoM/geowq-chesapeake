@@ -122,10 +122,6 @@ plt.savefig("figures/_fwi.pdf", bbox_inches='tight')
 
 # --- fwi raster panels
 
-discharge = pd.read_csv("data/discharge_median.csv")
-tribs = ["susquehanna", "potomac"]
-flist = ["data/waterdistance/" + trib + ".gpkg" for trib in tribs]
-
 
 def _process(x):
     merged = xr.concat([x], dim="band")
@@ -133,7 +129,13 @@ def _process(x):
     merged = merged.where(merged > 0)
     merged = merged.where(merged < 5000)
     merged = merged.bfill("time")
-    return quantile(merged["cost"], k=5)
+    return (quantile(merged["cost"], k=5), merged["cost"])
+
+
+discharge = pd.read_csv("data/discharge_median.csv")
+tribs = ["susquehanna", "choptank"]
+flist = ["data/waterdistance/" + trib + ".gpkg" for trib in tribs]
+grids = [_process(fwi.weight_grid(f, discharge)) for f in flist]
 
 
 def panel_add(i,
@@ -144,22 +146,27 @@ def panel_add(i,
               vmax=27,
               vmin=0,
               ticks=None,
-              height_frac=0.5):
+              height_frac=0.5,
+              format=None):
     if j is not None:
-        ax = plt.subplot(axs[i, j], xlabel="", projection=ccrs.PlateCarree())
+        ax = axs[i, j]
         ax.coastlines(resolution="10m", color="black", linewidth=1)
     else:
         ax = axs[i]
         ax.coastlines(resolution="10m", color="black", linewidth=1)
 
-    geo_grid.plot.imshow(ax=ax,
-                         vmin=vmin,
-                         vmax=vmax,
-                         cbar_kwargs={
-                             "shrink": 0.5,
-                             'label': '',
-                             'ticks': ticks,
-                         })  # , vmax=np.nanmax(img_cbofs.to_numpy()))
+    im = geo_grid.plot.imshow(ax=ax,
+                              vmin=vmin,
+                              vmax=vmax,
+                              cbar_kwargs={
+                                  "shrink": 0.5,
+                                  'label': '',
+                                  'ticks': ticks
+                              })
+
+    cbar = im.colorbar
+    cbar.ax.set_yticklabels(format)
+
     ax.set_title(title,
                  size="small",
                  y=height_frac,
@@ -167,10 +174,8 @@ def panel_add(i,
                  rotation="vertical")
 
 
-grids = [_process(fwi.weight_grid(f, discharge)) for f in flist]
-
 fig, axes = plt.subplots(
-    ncols=1,
+    ncols=2,
     nrows=2,
     constrained_layout=True,
     subplot_kw={
@@ -179,6 +184,37 @@ fig, axes = plt.subplots(
     },
 )
 
-panel_add(0, axes, "", grids[0], vmax=5)
-panel_add(1, axes, "", grids[1], vmax=5)
+
+def line_add(i, j, i_ends, axes):
+    ax = axes[i, j]
+    ax.set_extent(extent, ccrs.PlateCarree())
+    ax.coastlines(resolution="10m", color="black", linewidth=1)
+    test[test["tributary"] == tribs[i].title()].plot(
+        ax=ax,
+        column="tributary",
+        markersize="weight",
+        alpha=0.6,
+        color=list(reversed(colors))[i_ends])
+
+    # https://matplotlib.org/2.0.2/users/annotations.html
+    ax.annotate(text="",
+                xy=ends.iloc[i_ends].geometry.centroid.coords[0],
+                xytext=ends_minus_one.iloc[i_ends].geometry.centroid.coords[0],
+                alpha=0.6,
+                arrowprops=dict(facecolor=list(reversed(colors))[i_ends],
+                                edgecolor="white",
+                                linewidth=4,
+                                headwidth=20,
+                                connectionstyle="arc3"))
+    return ax
+
+
+line_add(0, 0, 4, axes)
+line_add(1, 0, 0, axes)
+
+cbar_labels = [[round(x, 3) for x in np.nanquantile(grids[0][1], [0, 0.5, 1])],
+               [round(x, 3) for x in np.nanquantile(grids[1][1], [0, 0.5, 1])]]
+panel_add(0, axes, "", grids[0][0], j=1, vmax=5, format=cbar_labels[0])
+panel_add(1, axes, "", grids[1][0], j=1, vmax=5, format=cbar_labels[1])
+
 plt.show()
