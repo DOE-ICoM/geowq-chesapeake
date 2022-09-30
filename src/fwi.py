@@ -1,9 +1,10 @@
+import os
 import numpy as np
 import xarray as xr
 import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
-import skimage
+from geocube.api.core import make_geocube
 from skimage.graph import route_through_array
 
 
@@ -90,3 +91,18 @@ def get_distance(stop_idx_y,
                                geometry=gpd.points_from_xy(lon, lat))
 
     return gdf
+
+def weight_grid(f, discharge):
+    # f = flist[0]
+    site_str = os.path.basename(f).replace(".gpkg", "").title()
+
+    gdf = gpd.read_file(f)
+    cost_grid = make_geocube(
+        vector_data=gdf,
+        measurements=["cost"],
+        resolution=(-0.002, 0.002),
+    )
+
+    discharge_site = float(discharge[discharge["site_str"] == site_str]["discharge_va"])
+
+    return (discharge_site / cost_grid).expand_dims(band=1)

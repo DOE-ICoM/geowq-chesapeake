@@ -6,10 +6,13 @@ import pandas as pd
 import geopandas as gpd
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
+from xrspatial.classify import quantile
 from shapely.geometry import LineString
 
 sys.path.append("src")
 from src import fwi
+
+# --- fwi "flow" diagram
 
 fpath = "data/cost.tif"
 dt = xr.open_dataset(fpath, engine="rasterio").sel(band=1)
@@ -70,12 +73,13 @@ test["weight"] = np.interp(test["weight"],
                            (0.1, +8))
 np.unique(test["weight"])
 
-fig = plt.figure(figsize=[3.4 / 1.4, 2.8 / 1.4])
-ax = fig.add_subplot(111, projection=ccrs.PlateCarree())
-ax.set_extent(extent, ccrs.PlateCarree())
-ax.coastlines(resolution="10m", color="black", linewidth=1)
-test.plot(ax=ax, column="tributary", markersize="weight", alpha=0.6)
-plt.savefig("figures/_fwi.pdf", bbox_inches='tight')
+# # simple non-arrowed
+# fig = plt.figure(figsize=[3.4 / 1.4, 2.8 / 1.4])
+# ax = fig.add_subplot(111, projection=ccrs.PlateCarree())
+# ax.set_extent(extent, ccrs.PlateCarree())
+# ax.coastlines(resolution="10m", color="black", linewidth=1)
+# test.plot(ax=ax, column="tributary", markersize="weight", alpha=0.6)
+# plt.savefig("figures/_fwi.pdf", bbox_inches='tight')
 
 # ---
 
@@ -94,7 +98,7 @@ ends_minus_one = pd.concat([
 colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 colors = [colors[i] for i in [0, 2, 5, 7, 9]]
 
-
+# # fancier arrowed version
 fig = plt.figure(figsize=[3.4 / 1.4, 2.8 / 1.4])
 ax = fig.add_subplot(111, projection=ccrs.PlateCarree())
 ax.set_extent(extent, ccrs.PlateCarree())
@@ -108,9 +112,73 @@ test.plot(ax=ax, column="tributary", markersize="weight", alpha=0.6)
                 size=10,
                 alpha=0.6,
                 arrowprops=dict(facecolor=colors[i],
-                                arrowstyle="simple", edgecolor=colors[i],
+                                arrowstyle="simple",
+                                edgecolor=colors[i],
                                 connectionstyle="arc3"))
     for i in range(0, ends.shape[0])
 ]
 # plt.show()
 plt.savefig("figures/_fwi.pdf", bbox_inches='tight')
+
+# --- fwi raster panels
+
+discharge = pd.read_csv("data/discharge_median.csv")
+tribs = ["susquehanna", "potomac"]
+flist = ["data/waterdistance/" + trib + ".gpkg" for trib in tribs]
+
+
+def _process(x):
+    merged = xr.concat([x], dim="band")
+    merged = merged.sum(dim="band", skipna=True)
+    merged = merged.where(merged > 0)
+    merged = merged.where(merged < 5000)
+    merged = merged.bfill("time")
+    return quantile(merged["cost"], k=5)
+
+
+def panel_add(i,
+              axs,
+              title,
+              geo_grid,
+              j=None,
+              vmax=27,
+              vmin=0,
+              ticks=None,
+              height_frac=0.5):
+    if j is not None:
+        ax = plt.subplot(axs[i, j], xlabel="", projection=ccrs.PlateCarree())
+        ax.coastlines(resolution="10m", color="black", linewidth=1)
+    else:
+        ax = axs[i]
+        ax.coastlines(resolution="10m", color="black", linewidth=1)
+
+    geo_grid.plot.imshow(ax=ax,
+                         vmin=vmin,
+                         vmax=vmax,
+                         cbar_kwargs={
+                             "shrink": 0.5,
+                             'label': '',
+                             'ticks': ticks,
+                         })  # , vmax=np.nanmax(img_cbofs.to_numpy()))
+    ax.set_title(title,
+                 size="small",
+                 y=height_frac,
+                 x=0.9,
+                 rotation="vertical")
+
+
+grids = [_process(fwi.weight_grid(f, discharge)) for f in flist]
+
+fig, axes = plt.subplots(
+    ncols=1,
+    nrows=2,
+    constrained_layout=True,
+    subplot_kw={
+        "projection": ccrs.PlateCarree(),
+        "xlabel": ""
+    },
+)
+
+panel_add(0, axes, "", grids[0], vmax=5)
+panel_add(1, axes, "", grids[1], vmax=5)
+plt.show()

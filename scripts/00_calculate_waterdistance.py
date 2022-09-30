@@ -12,7 +12,6 @@ import pandas as pd
 from tqdm import tqdm
 import geopandas as gpd
 from joblib import Parallel, delayed
-from geocube.api.core import make_geocube
 
 sys.path.append("src")
 from src import fwi
@@ -232,24 +231,8 @@ discharge = pd.read_csv("data/discharge_median.csv")
 flist = glob.glob("data/waterdistance/*.gpkg")
 
 
-def weight_grid(f):
-    # f = flist[0]
-    site_str = os.path.basename(f).replace(".gpkg", "").title()
-
-    gdf = gpd.read_file(f)
-    cost_grid = make_geocube(
-        vector_data=gdf,
-        measurements=["cost"],
-        resolution=(-0.002, 0.002),
-    )
-
-    discharge_site = float(discharge[discharge["site_str"] == site_str]["discharge_va"])
-
-    return (discharge_site / cost_grid).expand_dims(band=1)
-
-
 if not os.path.exists("data/waterdistance.tif"):
-    grids = [weight_grid(f) for f in flist]
+    grids = [fwi.weight_grid(f, discharge) for f in flist]
 
     merged = xr.concat(grids, dim="band")
     merged = merged.sum(dim="band", skipna=True)
