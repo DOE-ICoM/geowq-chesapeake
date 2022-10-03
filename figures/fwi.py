@@ -216,7 +216,7 @@ def line_add(i, j, i_ends, axes):
 ncol = 2
 nrow = 2
 fig = plt.figure(figsize=(ncol + 3, nrow + 3))
-axes = gridspec.GridSpec(nrow, ncol, wspace=0.0, hspace=0.0, top=1, right=0.9)
+axes = gridspec.GridSpec(nrow, ncol, wspace=0.0, hspace=0.05, top=1, right=0.9)
 
 line_add(0, 0, 4, axes)
 line_add(1, 0, 0, axes)
@@ -233,11 +233,11 @@ cbar_labels = [
 panel_add(0, axes, "", grids[0][0], j=1, vmax=5, format=cbar_labels[0])
 panel_add(1, axes, "", grids[1][0], j=1, vmax=5, format=cbar_labels[1])
 
-# plt.subplots_adjust(right=0)
+# plt.show()
+plt.savefig("figures/_fwi_panels.pdf", bbox_inches='tight')
 
-plt.show()
 
-# ---
+# --- towards overall waterdistance plot
 
 ncol = 1
 nrow = 1
