@@ -14,7 +14,7 @@ def imp_plot(variable):
     dset = pd.DataFrame()
     dset["attr"] = feature_names
     dset["importance"] = rfecv.estimator_.feature_importances_
-    dset = dset.sort_values(by="importance", ascending=False)
+    dset = dset.sort_values(by="importance", ascending=True)
     dset.loc[dset["attr"] == "cost", "attr"] = "fwi"
 
     plt.figure(figsize=(3, 5))
