@@ -14,6 +14,9 @@ flist = list(
 flist = list(
     itertools.compress(flist,
                        [not strng.__contains__("2018") for strng in flist]))
+flist = list(
+    itertools.compress(flist,
+                       [strng.__contains__("salinity") for strng in flist]))
 
 dates = [x.split("\\")[1].replace(".tif", "").replace("_salinity", "") for x in flist]
 
@@ -34,6 +37,7 @@ def _extract(i):
 
 res_raw = [_extract(i) for i in range(0, len(dates))]
 res = pd.concat(res_raw).reset_index(drop=True)
+res["date"] = [x.replace("_salinity", "") for x in res["date"]]
 res["date"] = pd.to_datetime(res["date"])
 res["month"] = [x.strftime("%m") for x in res["date"]]
 x_dates = res['date'].dt.strftime('%m').sort_values().unique()
