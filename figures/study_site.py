@@ -3,6 +3,7 @@
 # https://coolum001.github.io/cartopylayout.html
 
 import numpy as np
+import pandas as pd
 import geopandas as gpd
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
@@ -24,7 +25,7 @@ def scale_bar(ax, length=None, location=(0.5, 0.05), linewidth=3):
     sbllx = (llx1 + llx0) / 2
     sblly = lly0 + (lly1 - lly0) * location[1]
     tmc = ccrs.TransverseMercator(sbllx, sblly)
-    tmc_text = ccrs.TransverseMercator(sbllx, sblly-0.03)
+    tmc_text = ccrs.TransverseMercator(sbllx, sblly - 0.03)
     # Get the extent of the plotted area in coordinates in metres
     x0, x1, y0, y1 = ax.get_extent(tmc)
     # Turn the specified scalebar location into coordinates in metres
@@ -56,6 +57,17 @@ def scale_bar(ax, length=None, location=(0.5, 0.05), linewidth=3):
             verticalalignment='top')
 
 
+stations = gpd.read_file("stations.gpkg", driver="GPKG")
+stations_jitter = pd.DataFrame({
+    "name": ["Choptank", "Susquehanna", "Pautexent", "Potomac", "James"],
+    "longitude": [-75.800, -76.469, -76.692, -77.110, -77.1767],
+    "latitude": [38.851, 39.525, 38.724, 38.2, 37.3838],
+})
+stations_jitter = gpd.GeoDataFrame(stations_jitter,
+                                   geometry=gpd.points_from_xy(
+                                       stations_jitter["longitude"],
+                                       stations_jitter["latitude"]))
+
 b = gpd.read_file("data/Boundaries/chk_water_only.shp").to_crs(epsg=4326)
 b_bounds = [x for x in b.bounds.iloc[0]]
 extent = (b_bounds[0], b_bounds[2], b_bounds[1], b_bounds[3])
@@ -66,7 +78,22 @@ fig = plt.figure(figsize=(ncol + 3, nrow + 3))
 axes = gridspec.GridSpec(nrow, ncol, wspace=0.0, hspace=0.0, top=1, right=0.9)
 ax = plt.subplot(axes[0], xlabel="", projection=ccrs.PlateCarree())
 ax.set_extent(extent, ccrs.PlateCarree())
+# ---
+ax.text(-75.98,
+        38.04,
+        s="Tangier\n    Sound",
+        color="grey",
+        fontsize=5,
+        horizontalalignment='center',
+        bbox={
+            'alpha': 0,
+            'edgecolor': 'none'
+        })
 ax.coastlines(resolution="10m", color="black", linewidth=1)
+stations_jitter.apply(lambda x: ax.annotate(
+    text=x['name'], xy=x.geometry.centroid.coords[0], ha='center', fontsize=8),
+                      axis=1)
+stations.plot(ax=ax, markersize=10)
 # ---
 ax.set_xticks([-76, -77], crs=ccrs.PlateCarree())
 ax.set_yticks([37, 38, 39], crs=ccrs.PlateCarree())
@@ -92,4 +119,5 @@ ax2.text(0.5,
          rotation=0)
 ax2.axis('off')
 # ---
-plt.show()
+# plt.show()
+plt.savefig("figures/_study_site.pdf", bbox_inches='tight')
