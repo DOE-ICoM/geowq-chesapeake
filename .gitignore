@@ -25,11 +25,18 @@ data/*.prj
 data/*.qmd
 data/*.shx
 data/*.shp
+data/prediction
 
 figures/*.png
 figures/*.pdf
 figures/*.md
+figures/*.tex
 
 src/*.png
 src/*.pptx
 src/*.csv
+
+scripts/test.py
+
+manuscript/*.docx
+manuscript/*.bib
