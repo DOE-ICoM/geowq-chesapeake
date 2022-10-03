@@ -1,10 +1,12 @@
 import sys
 import pickle
+import matplotlib
 import numpy as np
 import xarray as xr
 import pandas as pd
 import geopandas as gpd
 import cartopy.crs as ccrs
+from matplotlib import gridspec
 import matplotlib.pyplot as plt
 from xrspatial.classify import quantile
 from shapely.geometry import LineString
@@ -150,16 +152,27 @@ def panel_add(i,
               format=None):
     if j is not None:
         ax = axs[i, j]
+        ax = plt.subplot(ax, xlabel="", projection=ccrs.PlateCarree())
+        ax.set_extent(extent, ccrs.PlateCarree())
         ax.coastlines(resolution="10m", color="black", linewidth=1)
     else:
         ax = axs[i]
+        ax = plt.subplot(ax, xlabel="", projection=ccrs.PlateCarree())
+        ax.set_extent(extent, ccrs.PlateCarree())
         ax.coastlines(resolution="10m", color="black", linewidth=1)
+
+    # https://matplotlib.org/stable/gallery/color/named_colors.html
+    cmap = matplotlib.colors.ListedColormap([
+        "royalblue", "cornflowerblue", "lightsteelblue", "powderblue",
+        "aliceblue"
+    ])
 
     im = geo_grid.plot.imshow(ax=ax,
                               vmin=vmin,
                               vmax=vmax,
+                              cmap=cmap,
                               cbar_kwargs={
-                                  "shrink": 0.5,
+                                  "shrink": 0.7,
                                   'label': '',
                                   'ticks': ticks
                               })
@@ -173,25 +186,16 @@ def panel_add(i,
                  x=0.9,
                  rotation="vertical")
 
-
-fig, axes = plt.subplots(
-    ncols=2,
-    nrows=2,
-    constrained_layout=True,
-    subplot_kw={
-        "projection": ccrs.PlateCarree(),
-        "xlabel": ""
-    },
-)
+    return ax
 
 
 def line_add(i, j, i_ends, axes):
     ax = axes[i, j]
+    ax = plt.subplot(ax, xlabel="", projection=ccrs.PlateCarree())
     ax.set_extent(extent, ccrs.PlateCarree())
     ax.coastlines(resolution="10m", color="black", linewidth=1)
     test[test["tributary"] == tribs[i].title()].plot(
         ax=ax,
-        column="tributary",
         markersize="weight",
         alpha=0.6,
         color=list(reversed(colors))[i_ends])
@@ -209,12 +213,35 @@ def line_add(i, j, i_ends, axes):
     return ax
 
 
+ncol = 2
+nrow = 2
+fig = plt.figure(figsize=(ncol + 3, nrow + 3))
+axes = gridspec.GridSpec(nrow, ncol, wspace=0.0, hspace=0.0, top=1, right=0.9)
+
 line_add(0, 0, 4, axes)
 line_add(1, 0, 0, axes)
-
-cbar_labels = [[round(x, 3) for x in np.nanquantile(grids[0][1], [0, 0.5, 1])],
-               [round(x, 3) for x in np.nanquantile(grids[1][1], [0, 0.5, 1])]]
+cbar_labels = [
+    [
+        round(x, 3)
+        for x in np.nanquantile(grids[0][1], [0, 0.2, 0.4, 0.6, 0.8, 1])
+    ],
+    [
+        round(x, 3)
+        for x in np.nanquantile(grids[1][1], [0, 0.2, 0.4, 0.6, 0.8, 1])
+    ]
+]
 panel_add(0, axes, "", grids[0][0], j=1, vmax=5, format=cbar_labels[0])
 panel_add(1, axes, "", grids[1][0], j=1, vmax=5, format=cbar_labels[1])
 
+# plt.subplots_adjust(right=0)
+
+plt.show()
+
+# ---
+
+ncol = 1
+nrow = 1
+fig = plt.figure(figsize=(ncol + 3, nrow + 3))
+axes = gridspec.GridSpec(nrow, ncol, wspace=0.0, hspace=0.0, top=1, right=0.9)
+panel_add(0, axes, "", grids[0][0], vmax=5, format=cbar_labels[0])
 plt.show()
