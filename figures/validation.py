@@ -18,21 +18,22 @@ def _get_predictions(variable):
 
     X_test = pickle.load(open("data/X_test_" + variable + ".pkl", "rb"))
     y_test = pickle.load(open("data/y_test_" + variable + ".pkl", "rb"))
-    imp_params = pickle.load(open("data/imp_params_" + variable + ".pkl", "rb"))
-    fitted_sine = X_test[:,int(np.where([x == "fitted_sine" for x in imp_params])[0])]    
 
     predictions = rf_random.predict(X_test)
-    res = pd.DataFrame(y_test + fitted_sine, columns=["obs"])
+    res = pd.DataFrame(y_test, columns=["obs"])
     res["predict"] = predictions.copy()
 
     if variable == "temperature":
+        imp_params = pickle.load(open("data/imp_params_" + variable + ".pkl", "rb"))
+        fitted_sine = X_test[:,int(np.where([x == "fitted_sine" for x in imp_params])[0])]
+        res["predict"] = res["predict"].copy() + fitted_sine
+        res["obs"] = res["obs"].copy() + fitted_sine
         # back out non-sine adjusted values        
         # p1 = pickle.load(open("data/temperature_sine_coef.pkl", "rb"))
         # offset = fit_sine.fitfunc(p1, X_test[0:, 0])
         # offset should be the same as fitted_sine
         # plt.plot(offset, fitted_sine)
-        # plt.show()
-        res["predict"] = res["predict"].copy() + fitted_sine
+        # plt.show()        
 
     return res
 
