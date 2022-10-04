@@ -52,4 +52,12 @@ def fit_sine(data):
     [label.set_fontweight('bold') for label in labels]
     plt.savefig('figures/fitted_sine.png')
 
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(date_doy, temp_doy, "ro")
+    ax.plot(date_doy, fitfunc(p1, date_doy), "bo", markersize=2)
+    plt.xlabel("DOY", fontweight="bold")
+    plt.tight_layout()
+    plt.savefig('figures/fitted_sine_detail.png')
+
     return fitted_sine
