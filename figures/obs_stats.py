@@ -32,7 +32,7 @@ dt_melt = pd.melt(
 ]
 g = sns.FacetGrid(dt_melt, col="variable", sharex=False)
 g.map(sns.histplot, "value")
-g.axes[0][1].set_xscale("log")
+g.axes[0][2].set_xscale("log")
 # plt.show()
 plt.savefig("figures/obs_varhist.pdf")
 
