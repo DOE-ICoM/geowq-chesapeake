@@ -1,9 +1,13 @@
 import sys
+import math
 import pickle
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import geopandas as gpd
+import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
+import h3pandas  # h3.geo_to_h3_aggregate
 from sklearn.linear_model import LinearRegression
 
 sys.path.append(".")
@@ -135,3 +139,59 @@ r2_df["variable"] = variables_str_short
 r2_df.to_csv("data/r2.csv", index=False)
 
 plt.savefig("figures/_validation.pdf")
+
+# --- map of model errors
+
+def get_rmse(i):
+    variable = variables_str_short[i]
+    imp_params = pickle.load(open("data/imp_params_" + variable + ".pkl", "rb"))
+    X_test = pickle.load(open("data/X_test_" + variable + ".pkl", "rb"))
+    latitude = X_test[:,int(np.where([x == "latitude" for x in imp_params])[0])]
+    longitude = X_test[:,int(np.where([x == "longitude" for x in imp_params])[0])]
+    res[i]["latitude"] = latitude
+    res[i]["longitude"] = longitude
+    res[i]["diff2"] = np.power(res[1]["predict"] - res[1]["obs"], 2)
+
+    test = res[i].groupby(["latitude", "longitude"]).mean("diff2").reset_index()
+    test["rmse"] = test["diff2"]**(1/2)
+    test = gpd.GeoDataFrame(test, geometry = gpd.points_from_xy(test["longitude"], test["latitude"]))
+    return test
+
+dt_grps = [get_rmse(i) for i in range(0, len(variables_str_short))]
+
+mins = []
+maxs = []
+gdf_aggs = []
+for i in range(0, len(dt_grps)):
+    gdf = dt_grps[i]
+    gdf_agg = gdf.h3.geo_to_h3_aggregate(resolution=6)
+    mins.append(min(gdf_agg.reset_index()["rmse"]))
+    maxs.append(max(gdf_agg.reset_index()["rmse"]))
+    gdf_aggs.append(gdf_agg)
+
+
+fig, axs = plt.subplots(
+    ncols=3,
+    nrows=1,
+    constrained_layout=True,
+    subplot_kw={"projection": ccrs.PlateCarree()},
+)
+
+for i in range(0, len(axs)):
+    ax = axs[i]
+    ax.set_title(variables_str_short[i])
+    gdf_agg = gdf_aggs[i]
+    gdf_agg.plot("rmse", ax=ax, legend=False, vmax=12, alpha=0.8) # vmax=max(maxs)
+    ax.coastlines(resolution="10m", color="black", linewidth=1)
+
+# scales = np.linspace(1, max(maxs), 7)
+scales = np.linspace(0, 12, 7)
+cmap = plt.get_cmap("viridis")
+norm = plt.Normalize(scales.min(), scales.max())
+sm = plt.cm.ScalarMappable(norm=norm, cmap=cmap)
+sm.set_array([])
+cbar = fig.colorbar(sm, ax=axs[len(axs) - 1], shrink=0.78)
+cbar.ax.set_title("rmse", y=-0.08)
+
+# plt.show()
+plt.savefig("figures/_validation_map.pdf")
