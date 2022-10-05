@@ -77,6 +77,7 @@ def tabulate_to_latex(tabulate_output, fname, caption='nasdf', table_num=1):
         f.write("\\usepackage{standalone}" + "\r\n")
         f.write("\\usepackage[justification=centering]{caption}" + "\r\n")
         f.write("\\usepackage{adjustbox}" + "\r\n")
+        f.write("\\usepackage{amsmath}" + "\r\n")
         f.write("\\setcounter{table}{" + str(table_num) + "}" + "\r\n")
         f.write("\\renewcommand\\thetable{\\arabic{table}}" + "\r\n")
         f.write("\\pagestyle{empty}" + "\r\n")
