@@ -3,6 +3,7 @@
 import pickle
 import numpy as np
 import pandas as pd
+import seaborn as sns
 from scipy import optimize
 import matplotlib.pyplot as plt
 
@@ -59,5 +60,15 @@ def fit_sine(data):
     plt.xlabel("DOY", fontweight="bold")
     plt.tight_layout()
     plt.savefig('figures/fitted_sine_detail.png')
+    
+    # data_fitted = pd.DataFrame({"datetime":date_doy, "fit":fitfunc(p1, date_doy)})
+    # test = data.merge(data_fitted)
+    # test["diff"] = test["SST (C)"] - test["fit"]
+    # fig, ax = plt.subplots()
+    # sns.scatterplot(x="datetime", y="SST (C)", data=test, ax=ax)
+    # sns.lineplot(x="datetime", y="fit", data=test, ax=ax)
+    # plt.show()
+    # sns.scatterplot(x="datetime", y="diff", data = test)
+    # plt.show()
 
     return fitted_sine
