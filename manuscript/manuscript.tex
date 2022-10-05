@@ -46,6 +46,13 @@ Chesapeake Bay is located in the Mid-Atlantic region of the United States and se
 
 Prior data-driven models (e.g. \citet{urquhartGeospatialInterpolationMODISderived2013, vogelAssessingSatelliteSea2016}) of Bay water properties used Generalized Linear Models (GLM), Neural Networks (NN), Generalized Additive Models (GAMs), and Random Forests (RF). We chose to use the Random Forest algorithm in part because \citet{urquhartGeospatialInterpolationMODISderived2013} found that it produced nearly equivalent results to more complex methods (particularly NN) and also because of its ease of implementation and interpretation. We fit RF models using the scikit-learn Python package \citep{pedregosaScikitlearnMachineLearning2011} where each model was initialized with 250 trees, had a maximum depth of 20 tree “layers”, and was subjected to recursive feature elimination to produce the most parsimonious model (Figure 1). We subsequently “tuned” each model using k-fold cross validation to optimize the size, depth, and splitting criteria of each tree. We evaluated the “importance” of particular variables as the average impurity decrease of tree splits based on that variable \citep{pedregosaScikitlearnMachineLearning2011}.
 
+\begin{figure}[ht!]
+    \begin{center}
+          \includegraphics[width=0.75\textwidth,keepaspectratio]{figures/data-processing_model-architecture}
+          \caption{Diagram of data processing, model fitting, tuning, and prediction pipeline.}
+    \end{center}    
+\end{figure}
+
 \subsection{Data description}
 
 \begin{sloppypar}
@@ -66,14 +73,7 @@ We validated RF model predictions both quantitatively against a hold-out test se
 
 \section{Results}
 
-Our tuned RF models for salinity, turbidity, and temperature had a root mean square error (RMSE) of 2.34 ($R^2$=0.91), 32.2 ($R^2$=0.07), and 1.8 ($R^2$=0.96) respectively (Table 1, Figure 2). Out-of-sample validation performance was excellent for salinity and temperature models but poor for the turbidity model (Figure 2, Figure S1). Despite excellent overall performance for the temperature and salinity models, there was some indication of poor performance at the extremes. The models were unable to recover very low temperature values ($<$ 0 C) or very high temperature and salinity values ($>$ 30 C, $>$ 23 salinity, Figure 2). One explanation for these areas of poor performance is that such extremes were rare in the observational dataset (Table S2). The salinity model however did faithfully capture areas of low salinity (Figure 2). These low salinity values can be regarded as low uncertainty (high confidence) estimates given the extent to which the upper tributaries are well represented in the observational dataset (Figure S2).
-
-The date of observation was the most important feature identified in RF training for the temperature and turbidity models while location of observation was most important in the salinity model (Figure 3). Across all models, the most important MODIS band was band 8, which is the shortest wavelength band of the MODIS Aqua product at the extreme of the visible light range. The “size” (i.e. n\_estimators) of the final RF models were of a similar magnitude for each variable but the tree was much “deeper” (i.e. max\_depth) for temperature compared to the other variables (Table S3).
-
-Running the models in prediction mode produced surfaces with a realistic spatial trend whereby salinity was highest near the Bay mouth and decreased with distance from each tributary mouth (Figure 4). A realistic spatial trend can also be seen in the RF temperature predictions whereby maximum water temperatures were located in the upper tributaries while minimum water temperatures were highest at the Bay mouth (Figure 4).
-
-RF model predictions for salinity were generally lower than corresponding values from the CBOFS in the mainstem of the Bay and higher than corresponding CBOFS values in the tributaries (Figure 5). CBOFS surface water salinity estimates are known to be saltier than observations \citep{lanerolle2011second, vogelAssessingSatelliteSea2016} partly explaining our saltier data-driven results. The salinity model was able to reproduce realistic temporal dynamics whereby the Bay is generally “fresher” in the Spring season (April-June) and “saltier” in Fall and Winter seasons (Figure 4).
-
+Our tuned RF models for salinity, turbidity, and temperature had a root mean square error (RMSE) of 2.34 ($R^2$=0.91), 32.2 ($R^2$=0.07), and 1.8 ($R^2$=0.96) respectively (Table 1, Figure 2). Out-of-sample validation performance was good for salinity and temperature models but poor for the turbidity model (Figure 2, Figure S1). Despite excellent overall performance for the temperature and salinity models, there was some indication of poor performance at the extremes. The models were unable to recover very low temperature values ($<$ 0 C) or very high temperature and salinity values ($>$ 30 C, $>$ 23 salinity, Figure 2). One explanation for these areas of poor performance is that such extremes were rare in the observational dataset (Table S2). The salinity model however did faithfully capture areas of low salinity (Figure 2, S3). These low salinity values can be regarded as low uncertainty (high confidence) estimates given the extent to which the upper tributaries are well represented in the observational dataset (Figure S2).
 
 \begin{figure}[ht!]
     \begin{center}
@@ -88,6 +88,8 @@ RF model predictions for salinity were generally lower than corresponding values
     \end{center}    
 \end{figure}
 
+The date of observation was the most important feature identified in RF training for the temperature and turbidity models while location of observation was most important in the salinity model (Figure 3). Across all models, the most important MODIS band was band 8, which is the shortest wavelength band of the MODIS Aqua product at the extreme of the visible light range. The “size” (i.e. n\_estimators) of the final RF models were of a similar magnitude for each variable but the tree was much “deeper” (i.e. max\_depth) for temperature compared to the other variables (Table S3).
+
 \begin{figure}[ht!]
     \begin{center}
           \includegraphics[width=0.8\textwidth,keepaspectratio]{figures/_importance_all}
@@ -95,12 +97,16 @@ RF model predictions for salinity were generally lower than corresponding values
     \end{center}    
 \end{figure}
 
+Running the models in prediction mode produced surfaces with a realistic spatial trend whereby salinity was highest near the Bay mouth and decreased with distance from each tributary mouth (Figure 4). A realistic spatial trend can also be seen in the RF temperature predictions whereby maximum water temperatures were located in the upper tributaries while minimum water temperatures were highest at the Bay mouth (Figure 4).
+
 \begin{figure}[ht!]
     \begin{center}
           \includegraphics[width=0.7\textwidth,keepaspectratio]{figures/_seasonality}
           \caption{Seasonal Random Forest prediction results for temperature and salinity.}
     \end{center}    
 \end{figure}
+
+RF model predictions for salinity were generally lower than corresponding values from the CBOFS in the mainstem of the Bay and higher than corresponding CBOFS values in the tributaries (Figure 5). CBOFS surface water salinity estimates are known to be saltier than observations \citep{lanerolle2011second, vogelAssessingSatelliteSea2016} partly explaining our saltier data-driven results. The salinity model was able to reproduce realistic temporal dynamics whereby the Bay is generally “fresher” in the Spring season (April-June) and “saltier” in Fall and Winter seasons (Figure 4).
 
 \begin{figure}[ht!]
     \begin{center}

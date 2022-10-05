@@ -174,6 +174,9 @@ path_importance := $(addprefix figures/, $(addsuffix _importance.pdf, ${variable
 figures/_importance_all.pdf: $(path_importance)	
 	montage -mode concatenate -quality 100 -density 300 figures/*_importance.pdf $@
 
+figures/data-processing_model-architecture.pdf: figures/data-processing_model-architecture.pptx
+	pdfcrop $@ $@
+
 figures/00_combined.pdf: figures/_discharge.pdf figures/_obs_stats.pdf \
 	figures/_freqcount_hex.pdf figures/_validation.pdf \
 	figures/_importance_all.pdf figures/_rf-vs-cbofs.pdf \
