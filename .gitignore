@@ -12,7 +12,7 @@ __pycache__
 *.log
 *.aux
 *.pdf
-
+archive.zip
 
 data/*.csv
 data/*.pkl
@@ -40,3 +40,4 @@ scripts/test.py
 
 manuscript/*.docx
 manuscript/*.bib
+manuscript/eidr.md
