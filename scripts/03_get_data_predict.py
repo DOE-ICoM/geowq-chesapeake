@@ -16,6 +16,7 @@ def get_modis(date):
 
     obs = ee.FeatureCollection(asset)
     ic = ee.ImageCollection(dataset)
+    breakpoint()
     ic = ic.filterDate("2018-01-01", "2018-01-02")
 
     def getBandValues(im):
