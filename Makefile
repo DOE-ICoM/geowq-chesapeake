@@ -114,6 +114,50 @@ data/prediction/2022-09-04_salinity.tif: scripts/04_rf_predict.py \
 	data/prediction/modis-2022_09_04.csv
 	python $< --date "2022-09-04" --variable salinity --var_col "SSS (psu)"
 
+data/prediction/2022-06-04_salinity.tif: scripts/04_rf_predict.py \
+	data/prediction/modis-2022_06_04.csv
+	python $< --date "2022-06-04" --variable salinity --var_col "SSS (psu)"
+
+data/prediction/2022-03-04_salinity.tif: scripts/04_rf_predict.py \
+	data/prediction/modis-2022_03_04.csv
+	python $< --date "2022-03-04" --variable salinity --var_col "SSS (psu)"
+
+data/prediction/2021-12-04_salinity.tif: scripts/04_rf_predict.py \
+	data/prediction/modis-2021_12_04.csv
+	python $< --date "2021-12-04" --variable salinity --var_col "SSS (psu)"
+
+data/prediction/2022-09-04_temperature.tif: scripts/04_rf_predict.py \
+	data/prediction/modis-2022_09_04.csv
+	python $< --date "2022-09-04" --variable temperature --var_col "SST (C)"
+
+data/prediction/2022-06-04_temperature.tif: scripts/04_rf_predict.py \
+	data/prediction/modis-2022_06_04.csv
+	python $< --date "2022-06-04" --variable temperature --var_col "SST (C)"
+
+data/prediction/2022-03-04_temperature.tif: scripts/04_rf_predict.py \
+	data/prediction/modis-2022_03_04.csv
+	python $< --date "2022-03-04" --variable temperature --var_col "SST (C)"
+
+data/prediction/2021-12-04_temperature.tif: scripts/04_rf_predict.py \
+	data/prediction/modis-2021_12_04.csv
+	python $< --date "2021-12-04" --variable temperature --var_col "SST (C)"
+
+data/prediction/2022-09-04_turbidity.tif: scripts/04_rf_predict.py \
+	data/prediction/modis-2022_09_04.csv
+	python $< --date "2022-09-04" --variable turbidity --var_col "turbidity (NTU)"
+
+data/prediction/2022-06-04_turbidity.tif: scripts/04_rf_predict.py \
+	data/prediction/modis-2022_06_04.csv
+	python $< --date "2022-06-04" --variable turbidity --var_col "turbidity (NTU)"
+
+data/prediction/2022-03-04_turbidity.tif: scripts/04_rf_predict.py \
+	data/prediction/modis-2022_03_04.csv
+	python $< --date "2022-03-04" --variable turbidity --var_col "turbidity (NTU)"
+
+data/prediction/2021-12-04_turbidity.tif: scripts/04_rf_predict.py \
+	data/prediction/modis-2021_12_04.csv
+	python $< --date "2021-12-04" --variable turbidity --var_col "turbidity (NTU)"
+
 data/cbofs/salt_20220904.tif: scripts/00_get_cbofs.py
 	python $< --tod 20220904
 
@@ -152,7 +196,19 @@ figures/_rf-vs-cbofs.pdf: figures/maps.py
 	python $<
 	pdfcrop $@ $@
 
-figures/_seasonality.pdf: figures/maps.py
+figures/_seasonality.pdf: figures/maps.py \
+	data/prediction/2022-09-04_salinity.tif \
+	data/prediction/2022-06-04_salinity.tif \
+	data/prediction/2022-03-04_salinity.tif \
+	data/prediction/2021-12-04_salinity.tif \
+	data/prediction/2022-09-04_temperature.tif \
+	data/prediction/2022-06-04_temperature.tif \
+	data/prediction/2022-03-04_temperature.tif \
+	data/prediction/2021-12-04_temperature.tif \
+	data/prediction/2022-09-04_turbidity.tif \
+	data/prediction/2022-06-04_turbidity.tif \
+	data/prediction/2022-03-04_turbidity.tif \
+	data/prediction/2021-12-04_turbidity.tif
 	python $<
 	pdfcrop figures/_seasonality_salinity.pdf figures/_seasonality_salinity.pdf
 	pdfcrop figures/_seasonality_temperature.pdf figures/_seasonality_temperature.pdf

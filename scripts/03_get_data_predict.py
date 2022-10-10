@@ -3,7 +3,8 @@
 import ee
 import requests
 import argparse
-import pandas as pd
+from datetime import datetime
+from datetime import timedelta
 
 ee.Initialize()
 
@@ -16,8 +17,8 @@ def get_modis(date):
 
     obs = ee.FeatureCollection(asset)
     ic = ee.ImageCollection(dataset)
-    breakpoint()
-    ic = ic.filterDate("2018-01-01", "2018-01-02")
+    date_plus_one = str(datetime.strptime(date, "%Y-%m-%d") + timedelta(days=1)).split(" ")[0]
+    ic = ic.filterDate(date, date_plus_one)
 
     def getBandValues(im):
         bandValFC = ee.Algorithms.If(
