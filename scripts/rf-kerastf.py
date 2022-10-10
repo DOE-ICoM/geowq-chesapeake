@@ -1,5 +1,6 @@
 import sys
 import pickle
+import tensorflow as tf
 
 sys.path.append(".")
 from src import scikit_learn_model_converter as sci2tf
@@ -11,10 +12,25 @@ path = "data/rf_random_" + variable + ".pkl"
 # path = "data/ols_" + variable + ".pkl"
 
 model = pickle.load(open(path, "rb"))
+X_test = pickle.load(open("data/X_test_" + variable + ".pkl", "rb"))
+y_test = pickle.load(open("data/y_test_" + variable + ".pkl", "rb"))
+X_train = pickle.load(open("data/X_train_" + variable + ".pkl", "rb"))
+y_train = pickle.load(open("data/y_train_" + variable + ".pkl", "rb"))
+imp_params = pickle.load(open("data/imp_params_" + variable + ".pkl", "rb"))
 
-test = model.best_estimator_
+test = pd.DataFrame(X_test, columns=imp_params)
+test["y"] = y_test
+test_ds = tfdf.keras.pd_dataframe_to_tf_dataset(test, label="y", task=tfdf.keras.Task.REGRESSION)
 
-tensorflow_model = sci2tf.convert(test)
+train = pd.DataFrame(X_train, columns=imp_params)
+train["y"] = y_train
+train_ds = tfdf.keras.pd_dataframe_to_tf_dataset(train, label="y", task=tfdf.keras.Task.REGRESSION)
+
+tensorflow_model = sci2tf.convert(model.best_estimator_)
+
+tensorflow_model.compile()
+tensorflow_model.fit(x=train_ds)
+tensorflow_model.evaluate(test_ds)
 
 type(tensorflow_model)
 dir(tensorflow_model)
