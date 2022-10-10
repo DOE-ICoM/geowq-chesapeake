@@ -74,6 +74,7 @@ test_ds = tfdf.keras.pd_dataframe_to_tf_dataset(test_ds_pd, label=label, task=tf
 model_7 = tfdf.keras.RandomForestModel(task = tfdf.keras.Task.REGRESSION)
 
 # Train the model.
+tf.autograph.set_verbosity(3, True)
 model_7.fit(x=train_ds)
 
 model_7.compile(metrics=["mse"])
