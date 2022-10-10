@@ -192,7 +192,9 @@ figures/_freqcount_hex.pdf: figures/maps.py
 	python $<
 	pdfcrop $@ $@
 
-figures/_rf-vs-cbofs.pdf: figures/maps.py
+figures/_rf-vs-cbofs.pdf: figures/maps.py \ 
+	data/cbofs/salt_20220904.tif \
+	data/prediction/2022-09-04_salinity.tif
 	python $<
 	pdfcrop $@ $@
 
