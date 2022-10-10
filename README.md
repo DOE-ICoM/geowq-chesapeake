@@ -6,6 +6,8 @@
 
 * ****[Supplementary figures and tables](https://github.com/DOE-ICoM/geowq/blob/master/manuscript/supplement.pdf)****
 
+* [Google Earth Engine App](https://jstacompute.users.earthengine.app/view/geowq)
+
 ### Setup
 
 ```shell
