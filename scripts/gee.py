@@ -1,7 +1,7 @@
 import pickle
 import numpy as np
 import pandas as pd
-# import tensorflow_decision_forests as tfdf
+import tensorflow_decision_forests as tfdf
 
 
 def split_dataset(dataset, test_ratio=0.30):  
