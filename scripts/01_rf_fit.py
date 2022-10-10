@@ -53,9 +53,6 @@ def main():
                                     variable,
                                     overwrite=True)
 
-    # TODO: if temperature, save minimum temperature, add it to the series to make everything positive
-    breakpoint()
-
     pickle.dump(X_train, open("data/X_train_" + variable + ".pkl", "wb"))
     pickle.dump(X_test, open("data/X_test_" + variable + ".pkl", "wb"))
     pickle.dump(y_train, open("data/y_train_" + variable + ".pkl", "wb"))

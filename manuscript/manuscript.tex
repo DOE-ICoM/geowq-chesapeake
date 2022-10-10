@@ -46,13 +46,6 @@ Chesapeake Bay is located in the Mid-Atlantic region of the United States and se
 
 Prior data-driven models (e.g. \citet{urquhartGeospatialInterpolationMODISderived2013, vogelAssessingSatelliteSea2016}) of Bay water properties used Generalized Linear Models (GLM), Neural Networks (NN), Generalized Additive Models (GAMs), and Random Forests (RF). We chose to use the Random Forest algorithm in part because \citet{urquhartGeospatialInterpolationMODISderived2013} found that it produced nearly equivalent results to more complex methods (particularly NN) and also because of its ease of implementation and interpretation. We fit RF models using the scikit-learn Python package \citep{pedregosaScikitlearnMachineLearning2011} where each model was initialized with 250 trees, had a maximum depth of 20 tree “layers”, and was subjected to recursive feature elimination to produce the most parsimonious model (Figure 1). We subsequently “tuned” each model using k-fold cross validation to optimize the size, depth, and splitting criteria of each tree. We evaluated the “importance” of particular variables as the average impurity decrease of tree splits based on that variable \citep{pedregosaScikitlearnMachineLearning2011}.
 
-\begin{figure}[ht!]
-    \begin{center}
-          \includegraphics[width=0.75\textwidth,keepaspectratio]{figures/data-processing_model-architecture}
-          \caption{Diagram of data processing, model fitting, tuning, and prediction pipeline.}
-    \end{center}    
-\end{figure}
-
 \subsection{Data description}
 
 \begin{sloppypar}
@@ -63,7 +56,14 @@ Because Chesapeake Bay has a mean optical depth of approximately 0.89m \citep{ur
 
 We supplemented observational data with a grid of “freshwater influence” (FWI) estimates where each grid cell represents the average of annual-flow weighted distance of that cell from the 5 major tributaries (Susquehanna, James, Pautexent, Choptank, and Potomac). Annual flow magnitudes were calculated from National Water Information System instantaneous data (sites: 01488110, 01491000, 01576000, 01654000, 01594440, 02037500, \citet{nwis2021usgs}). Rather than straight-line distances we used “in-water” distances calculated using the scikit-image Python package \citep{littleKrigingEstuariesCrow1997,vanderwaltScikitimageImageProcessing2014}. Our in-water distance calculations involved creating a cost–surface whereby land pixels had a very high cost relative to water pixels. Then the distance from any one cell to a tributary source was the accumulated travel “cost” as given by the scikit-image \texttt{route\_through\_array} function. We combined FWI estimates with the pixel-wise daily mean observations and regressed them in RF models against data from the 500m resolution MODIS Aqua product, which provides 8 bands of values for each pixel spanning from 405 to 877nm wavelength \citep{vermoteericMOD09GAMODISTerra2015}.
 
-All code for data processing, model fitting, and model evaluation is available at Stachelek et al. (2023). All data used in the study are available in Stachelek et al. (2023).    
+All code for data processing, model fitting, and model evaluation is available at Stachelek et al. (2023) the pipeline for which is shown in Figure 1. All data used in the study are available in Stachelek et al. (2023).
+
+\begin{figure}[ht!]
+    \begin{center}
+          \includegraphics[width=0.75\textwidth,keepaspectratio]{figures/data-processing_model-architecture}
+          \caption{Diagram of the data processing, model fitting, tuning, and prediction pipeline.}
+    \end{center}    
+\end{figure}
 
 
 \subsection{Model validation}

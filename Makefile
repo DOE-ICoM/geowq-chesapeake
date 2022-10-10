@@ -242,6 +242,12 @@ manuscript/supplement.pdf: manuscript/supplement.tex \
 manuscript/combined.pdf: manuscript/manuscript.pdf manuscript/supplement.pdf
 	pdftk manuscript/manuscript.pdf manuscript/supplement.pdf output $@
 
+manuscript/eidr.pdf: manuscript/eidr.md
+	pandoc -o $@ $< -V geometry:margin=1in
+
+archive.zip:
+	git archive --format zip --output archive.zip main
+
 # ---
 
 all: manuscript/combined.pdf

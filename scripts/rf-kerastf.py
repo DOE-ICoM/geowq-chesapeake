@@ -45,8 +45,7 @@ import numpy as np
 import pandas as pd
 import tensorflow_decision_forests as tfdf
 
-def split_dataset(dataset, test_ratio=0.30):
-  """Splits a panda dataframe in two."""
+def split_dataset(dataset, test_ratio=0.30):  
   test_indices = np.random.rand(len(dataset)) < test_ratio
   return dataset[~test_indices], dataset[test_indices]
 
