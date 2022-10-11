@@ -11,9 +11,6 @@ def split_dataset(dataset, test_ratio=0.30):
   test_indices = np.random.rand(len(dataset)) < test_ratio
   return dataset[~test_indices], dataset[test_indices]
 
-output_bucket = "rabpro-gee-uploads"
-model_dir = "gs://" + output_bucket + "/rf_model"
-
 variable = "temperature"
 X_train = pickle.load(open("data/X_train_" + variable + ".pkl", "rb"))
 X_test = pickle.load(open("data/X_test_" + variable + ".pkl", "rb"))
@@ -41,4 +38,3 @@ print(f"MSE: {evaluation['mse']}")
 print(f"RMSE: {math.sqrt(evaluation['mse'])}")
 
 model.save("rf_model", save_format="tf")
-# model.save(model_dir, save_format="tf")
