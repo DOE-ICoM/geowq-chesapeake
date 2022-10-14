@@ -284,12 +284,12 @@ manuscript/manuscript.pdf: manuscript/manuscript.tex manuscript/geowq.bib \
 	figures/00_tables.pdf figures/00_combined.pdf
 	pdflatex $<
 	cp $< manuscript.tex
-	-bibtex manuscript
+	-biber manuscript
 	pdflatex manuscript
 	pdflatex manuscript
 	-@rm manuscript.tex
 	-mv manuscript.pdf $@
-	-@rm *.aux *.log *.bbl *.blg *.out
+	-@rm *.aux *.log *.bbl *.blg *.out *.bcf *.run.xml
 
 manuscript/supplement.pdf: manuscript/supplement.tex \
 	figures/00_tables.pdf figures/00_combined.pdf
