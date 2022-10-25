@@ -33,7 +33,7 @@ data/X_train_temperature.pkl: scripts/01_rf_fit.py src/rf_icom_call_data2.py
 data/X_train_salinity.pkl: scripts/01_rf_fit.py
 	python $< --variable salinity --var_col "SSS (psu)" --data "data/data_w_fwi.csv"
 
-data/X_train_turbidity.pkl: scripts/01_rf_fit.py
+data/X_train_turbidity.pkl: scripts/01_rf_fit.py src/rf_icom_call_data2.py
 	python $< --variable turbidity --var_col "turbidity (NTU)" --data "data/data_w_fwi.csv"
 
 # ---- tuning
@@ -192,8 +192,7 @@ figures/_freqcount_hex.pdf: figures/maps.py
 	python $<
 	pdfcrop $@ $@
 
-figures/_rf-vs-cbofs.pdf: figures/maps.py \ 
-	data/cbofs/salt_20220904.tif \
+figures/_rf-vs-cbofs.pdf: figures/maps.py data/cbofs/salt_20220904.tif \
 	data/prediction/2022-09-04_salinity.tif
 	python $<
 	pdfcrop $@ $@
@@ -223,6 +222,9 @@ figures/_annual-cycle.pdf: figures/timeseries.py
 figures/_validation.pdf: figures/validation.py
 	python $<
 	pdfcrop $@ $@
+
+data/r2.csv: figures/validation.py
+	python $<	
 
 figures/%_importance.pdf: figures/importance.py
 	-python $<
@@ -260,7 +262,7 @@ figures/obs_distribution_table.pdf: figures/obs_stats.py
 	rm obs_distribution.pdf
 	-@rm *.aux *.log
 
-figures/rf_stats_table.pdf: figures/rf_stats_table.py data/rmse_rf.csv
+figures/rf_stats_table.pdf: figures/rf_stats_table.py data/rmse_rf.csv data/r2.csv
 	python $<	
 	pdflatex figures/rf_stats_table_0_.tex
 	rm figures/rf_stats_table_0_.tex
