@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -47,11 +48,14 @@ def clean_data(variable, var_col, predictors, test_size=0.5, data=None):
 
     print(len(data))
     
-    ## For turbidity get rid of negative numbers
+    ## For turbidity, get rid of negative numbers
     if test_size > 0: # aka we are not in prediction mode    
         if var_col == "turbidity (NTU)":
-            # any(data["turbidity (NTU)"] > 0)
             data = data[data["turbidity (NTU)"] > 0]
+
+    ## For turbidity, log scale data
+    if var_col == "turbidity (NTU)":            
+            data["turbidity (NTU)"] = np.log(data["turbidity (NTU)"])
 
     ## For salinity, set negative numbers to 0
     if var_col == "SSS (psu)":        
