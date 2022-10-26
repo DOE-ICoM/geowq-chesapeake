@@ -60,8 +60,13 @@ def _plot(ax,
           hatching=True,
           text_anchor=(3, 27),
           text_space=2,
-          ylab=False):
+          ylab=False,
+          log=False):
     # dt = res[1]
+    if log:
+        dt["obs"] = np.exp(dt["obs"])
+        dt["predict"] = np.exp(dt["predict"])
+
     if xy_max is None:
         xy_max = max(max(dt["obs"]), max(dt["predict"]))
         print(xy_max)
@@ -124,7 +129,8 @@ r2.append(_plot(axes[2],
       xy_min=0,
       hatching=False,
       text_anchor=(37, 10),
-      text_space=5)[1])
+      text_space=5,
+      log=True)[1])
 r2.append(_plot(axes[1],
       res[1],
       "temperature",

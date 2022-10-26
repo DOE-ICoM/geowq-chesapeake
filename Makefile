@@ -192,8 +192,7 @@ figures/_freqcount_hex.pdf: figures/maps.py
 	python $<
 	pdfcrop $@ $@
 
-figures/_rf-vs-cbofs.pdf: figures/maps.py data/cbofs/salt_20220904.tif \
-	data/prediction/2022-09-04_salinity.tif
+figures/_rf-vs-cbofs.pdf: figures/maps.py data/prediction/2022-09-04_salinity.tif
 	python $<
 	pdfcrop $@ $@
 
@@ -219,7 +218,7 @@ figures/_seasonality.pdf: figures/maps.py \
 figures/_annual-cycle.pdf: figures/timeseries.py
 	python $<
 
-figures/_validation.pdf: figures/validation.py
+figures/_validation.pdf: figures/validation.py data_rf_random
 	python $<
 	pdfcrop $@ $@
 
