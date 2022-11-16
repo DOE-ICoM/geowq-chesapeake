@@ -215,7 +215,7 @@ figures/_seasonality.pdf: figures/maps.py \
 	pdfcrop figures/_seasonality_salinity.pdf figures/_seasonality_salinity.pdf
 	pdfcrop figures/_seasonality_temperature.pdf figures/_seasonality_temperature.pdf
 	pdfcrop figures/_seasonality_turbidity.pdf figures/_seasonality_turbidity.pdf
-	montage -mode concatenate -quality 100 -density 300 figures/_seasonality_temperature.pdf figures/_seasonality_salinity.pdf $@	
+	montage -mode concatenate -quality 100 -density 300 figures/_seasonality_salinity.pdf figures/_seasonality_temperature.pdf  $@	
 
 figures/_annual-cycle.pdf: figures/timeseries.py
 	python $<
@@ -242,7 +242,7 @@ figures/data-processing_model-architecture.pdf: figures/data-processing_model-ar
 figures/00_combined.pdf: figures/_discharge.pdf figures/_obs_stats.pdf \
 	figures/_freqcount_hex.pdf figures/_validation.pdf \
 	figures/_importance_all.pdf figures/_rf-vs-cbofs.pdf \
-	figures/_annual-cycle.pdf
+	figures/_annual-cycle.pdf figures/_seasonality.pdf
 	pdftk $(wildcard figures/_*.pdf) output figures/00_combined.pdf
 
 # --- tables
