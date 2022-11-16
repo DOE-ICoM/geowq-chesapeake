@@ -40,4 +40,6 @@ scripts/test.py
 
 manuscript/*.docx
 manuscript/*.bib
+manuscript/*.bbl
+manuscript/*.blg
 manuscript/eidr.md
