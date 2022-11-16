@@ -177,15 +177,25 @@ fig, axs = plt.subplots(
         "xlabel": ""
     },
 )
-panel_add(0, axs, "RF Results", img_rf, height_frac=0.65, lat_ticks=[37, 38, 39], lon_ticks=[-77, -76, -75])
+panel_add(0,
+          axs,
+          "RF Results",
+          img_rf,
+          height_frac=0.65,
+          lat_ticks=[37, 38, 39],
+          lon_ticks=[-77, -76, -75])
 panel_add(1, axs, "CBOFS Snapshot", img_cbofs)
 panel_add(2, axs, "RF-CBOFS", test, diff=True, height_frac=0.7)
 
 # plt.show()
 plt.savefig("figures/_rf-vs-cbofs.pdf")
 
+
 # --- seasonality maps
-def _seasonality_map(variable, vmin=(0,0,0,0), vmax=(27,27,27,27), ticks=None):
+def _seasonality_map(variable,
+                     vmin=(0, 0, 0, 0),
+                     vmax=(27, 27, 27, 27),
+                     ticks=None):
     # variable  = "turbidity"
     # vmin=(3,3,21,21)
     # vmax=(12, 12, 29, 29)
@@ -205,10 +215,38 @@ def _seasonality_map(variable, vmin=(0,0,0,0), vmax=(27,27,27,27), ticks=None):
                             left=0.1666,
                             right=0.7)  # 0.83333
 
-    panel_add(0, axs, dates[0], imgs[0], j=0, vmin=vmin[0], vmax=vmax[0], ticks=ticks)
-    panel_add(0, axs, dates[1], imgs[1], j=1, vmin=vmin[1], vmax=vmax[1], ticks=ticks)
-    panel_add(1, axs, dates[2], imgs[2], j=0, vmin=vmin[2], vmax=vmax[2], ticks=ticks)
-    panel_add(1, axs, dates[3], imgs[3], j=1, vmin=vmin[3], vmax=vmax[3], ticks=ticks)
+    panel_add(0,
+              axs,
+              dates[0],
+              imgs[0],
+              j=0,
+              vmin=vmin[0],
+              vmax=vmax[0],
+              ticks=ticks)
+    panel_add(0,
+              axs,
+              dates[1],
+              imgs[1],
+              j=1,
+              vmin=vmin[1],
+              vmax=vmax[1],
+              ticks=ticks)
+    panel_add(1,
+              axs,
+              dates[2],
+              imgs[2],
+              j=0,
+              vmin=vmin[2],
+              vmax=vmax[2],
+              ticks=ticks)
+    panel_add(1,
+              axs,
+              dates[3],
+              imgs[3],
+              j=1,
+              vmin=vmin[3],
+              vmax=vmax[3],
+              ticks=ticks)
     # rm first column colorbars
     # fig.axes
     # fig.delaxes(fig.axes[1])
@@ -222,6 +260,7 @@ def _seasonality_map(variable, vmin=(0,0,0,0), vmax=(27,27,27,27), ticks=None):
 
     return out_path
 
-_seasonality_map("salinity", ticks=[0,10,20])
-_seasonality_map("temperature", vmin=(3,3,21,21), vmax=(12, 12, 29, 29))
-_seasonality_map("turbidity", vmin=(0,0,0,0), vmax=(40, 40, 40, 40))
+
+_seasonality_map("salinity", ticks=[0, 10, 20])
+_seasonality_map("temperature", vmin=(3, 3, 21, 21), vmax=(12, 12, 29, 29))
+_seasonality_map("turbidity", vmin=(0, 0, 0, 0), vmax=(40, 40, 40, 40))
