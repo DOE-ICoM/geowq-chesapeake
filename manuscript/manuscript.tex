@@ -3,6 +3,8 @@
 \usepackage{graphicx}
 \usepackage{placeins}
 \usepackage{lipsum}
+\usepackage{soul}
+\usepackage{color}
 \usepackage[margin=1in]{geometry}
 \usepackage{lineno}
 \modulolinenumbers[2]
@@ -35,9 +37,9 @@ Keywords: reflectance, remote sensing, salinity, temperature, turbidity, Chesape
 
 In partially mixed estuaries such as the Chesapeake Bay (hereafter, “the Bay”), productivity, organic matter production, and phytoplankton community composition are largely determined by stratification \cite{xuClimateForcingSalinity2012}. Because stratification is controlled by salinity and temperature, extensive measurement networks exist to monitor these water properties (Chesapeake Bay Program Water Quality Database, \url{https://www.chesapeakebay.net/what/downloads/cbp_water_quality_database_1984_present}). These data are critical for establishing point-based trends and relationships between river flow or sea level rise and salinity or hypoxia \cite{hagyHypoxiaChesapeakeBay2004}. Of particular importance is monitoring for increased nutrient loads as result of expected increases in precipitation, tributary discharge, and river flows as a result of climate change \cite{najjarPotentialClimatechangeImpacts2010, irbyCompetingImpactsClimate2018}.
 
-Unfortunately, direct observations alone are not adequate for many applications that require spatially extensive data such as SLR forecasting and habitat suitability assessments \cite{hoodChesapeakeBayProgram2021}. For example, habitat suitability assessments are typically done on a gridded basis for the entirety of a particular estuary rather than at selected point locations. Applications such as these often turn to gridded alternatives to direct observations such as output from directly-observing satellite-based sensors \cite{foreCombinedActivePassive2016} or operational now/fore-casting products \cite{lanerolle2011second}. Unfortunately, these too are of limited use for applications such as validation of next-generation Earth Systems Models (ESMs, \cite{golazDOEE3SMModel2022}), where the temporal availability of operational forecasting products is too short ($<$ 1 year) and the spatial resolution of directly-observing satellite-based sensors is too coarse ($>$ 30 $km^2$).
+Unfortunately, direct observations alone are not adequate for many applications that require spatially extensive data such as \hl{Sea Level Rise (SLR)} forecasting and habitat suitability assessments \cite{hoodChesapeakeBayProgram2021}. For example, habitat suitability assessments are typically done on a gridded basis for the entirety of a particular estuary rather than at selected point locations. Applications such as these often turn to gridded alternatives to direct observations such as output from directly-observing satellite-based sensors \cite{foreCombinedActivePassive2016} or operational now/fore-casting products \cite{lanerolle2011second}. Unfortunately, these too are of limited use for applications such as validation of next-generation Earth Systems Models (ESMs, \cite{golazDOEE3SMModel2022}), where the temporal availability of operational forecasting products is too short ($<$ 1 year) and the spatial resolution of directly-observing satellite-based sensors is too coarse ($>$ 30 $km^2$).
 
-To address this validation data gap, we developed a data-driven model to produce high-resolution (< 1 $km^2$) estimates of temperature, salinity, and turbidity at daily time-steps (over decadal time scales) as required by next-generation ESMs. The primary input to our model is remotely sensed reflectance data. In particular, we use Moderate Resolution Imaging Spectroradiometer (MODIS) Aqua multiband data, which has been shown to be predictive of salinity in coastal Louisiana \cite{vogelAssessingSatelliteSea2016, wangDevelopmentMODISData2018}. We supplemented MODIS data with gridded estimates of distance-weighted tributary inflows which we used to encourage physical realism (i.e. geographic “awareness”) especially in areas of the Bay with little to no observations. Our model represents a further advantage over prior efforts at data-driven modeling of salinity in the Bay (e.g. \cite{vogelAssessingSatelliteSea2016, murphyComparisonSpatialInterpolation2010}) because it is calibrated against not only buoy observations taken in the mainstem of the Bay but also observations taken in the mid to lower reaches of Bay tributaries. These more spatially extenstive observations likely increase the accuracy and reliability of model predictions in the upper tributaries.
+To address this validation data gap, we developed a data-driven model to produce high-resolution (< 1 $km^2$) estimates of temperature, salinity, and turbidity at daily time-steps (over decadal time scales) as required by next-generation ESMs. The primary input to our model is \hl{remote sensing} reflectance data. In particular, we use Moderate Resolution Imaging Spectroradiometer (MODIS) Aqua multiband data, which has been shown to be predictive of salinity in coastal Louisiana \cite{vogelAssessingSatelliteSea2016, wangDevelopmentMODISData2018}. We supplemented MODIS data with gridded estimates of distance-weighted tributary inflows which we used to encourage physical realism (i.e. geographic “awareness”) especially in areas of the Bay with little to no observations. Our model represents a further advantage over prior efforts at data-driven modeling of salinity in the Bay (e.g. \cite{vogelAssessingSatelliteSea2016, murphyComparisonSpatialInterpolation2010}) because it is calibrated against not only buoy observations taken in the mainstem of the Bay but also observations taken in the mid to lower reaches of Bay tributaries. These more spatially extenstive observations likely increase the accuracy and reliability of model predictions in the upper tributaries.
 
 
 \section{Methods}
@@ -149,7 +151,7 @@ Another potential area of future research is resolving water properties at depth
 
 \section{Conclusion}
 
-We have demonstrated an approach to produce realistic estimates of water properties in Chesapeake Bay using remotely sensed data. Salinity and temperature model performance was as good or better than prior efforts. Salinity model performance was particularly realistic in low salinity tributary areas. Much of this realism comes from our FWI routines which encourage physical consistency in upstream-downstream spatial patterning. We saw additional performance gains owing tothe fact that our training dataset had spatial coverage in the upper tributaries beyond the mainstem of the Bay. Estimates produced by our model have a high potential to inform calibration and evaluation of Earth Systems Models as well as in other applications such as habitat suitability and sea level rise models.
+We have demonstrated an approach to produce realistic estimates of water properties in Chesapeake Bay using \hl{remote sensing} data. Salinity and temperature model performance was as good or better than prior efforts. Salinity model performance was particularly realistic in low salinity tributary areas. Much of this realism comes from our FWI routines which encourage physical consistency in upstream-downstream spatial patterning. We saw additional performance gains owing tothe fact that our training dataset had spatial coverage in the upper tributaries beyond the mainstem of the Bay. Estimates produced by our model have a high potential to inform calibration and evaluation of Earth Systems Models as well as in other applications such as habitat suitability and sea level rise models.
 
 \FloatBarrier
 
@@ -160,5 +162,25 @@ J.S. built models, analyzed data, and wrote the paper. S.A. designed the initial
 % \bibliographystyle{apalike}
 % \bibliography{manuscript/geowq}
 \printbibliography
+
+\section*{Biographies}
+
+\begin{description}
+    \item \textbf{Jemma Stachelek} is a Limnologist and Aquatic Earth Scientist (PhD, Msc, BSc) in the Division of Earth and Environmental Sciences at Los Alamos National Laboratory. Her research focuses on the applications of spatially intensive geocomputation to water and food security problems particularly those related to eutrophication and nutrient pollution.
+    \item \textbf{Sofia Avendaño} is awesome.
+    \item \textbf{Jon Schwenk} so is Jon.
+\end{description}
+
+\clearpage
+
+\section*{Figure Captions}
+
+\begin{description}
+    \item Figure 1: Diagram of the data processing, model fitting, tuning, and prediction pipeline.
+    \item Figure 2: Out of sample test set performance for salinity, turbidity, and temperature models respectively. Hatching indicates the location of 80\% of the data points.
+    \item Figure 3: Random Forest importance plot for salinity, temperature, and turbidity models.
+    \item Figure 4: Seasonal Random Forest prediction results for temperature and salinity.
+    \item Figure 5: Comparison between Random Forest salinity prediction results and a CBOFS snapshot for Sept, 4, 2022.
+\end{description}
 
 \end{document}
