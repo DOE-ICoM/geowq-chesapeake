@@ -1,5 +1,4 @@
 import sys
-import math
 import pickle
 import numpy as np
 import pandas as pd
@@ -49,6 +48,12 @@ variables_str_short = [utils.clean_var_name(v) for v in variables_str]
 # scatter plot of measured vs predicted
 res = [_get_predictions(variable) for variable in variables_str_short]
 
+# scatter plot of turbidity versus salinity
+# variables_str_short
+# test = pd.concat([res[0]["obs"], np.exp(res[2]["obs"])], axis=1)
+# test.columns = ["salinity", "turbidity"]
+# sns.scatterplot(x="salinity", y="turbidity", data=test)
+# plt.show()
 
 def _plot(ax,
           dt,
