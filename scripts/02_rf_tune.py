@@ -2,6 +2,7 @@ import sys
 import pickle
 import warnings
 import argparse
+import numpy as np
 from tabulate import tabulate
 
 sys.path.append(".")
@@ -37,6 +38,8 @@ def main():
 
     print('Final RMSE:')
     print(rmse)
+    if variable == "turbidity":
+        rmse = np.exp(rmse)
     with open("data/rmse_" + variable + ".md", 'w') as f:
         f.write(tabulate([[rmse]], headers=["rmse"]))
 
