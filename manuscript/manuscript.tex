@@ -50,7 +50,7 @@ Chesapeake Bay is located in the Mid-Atlantic region of the United States and se
 
 \subsection{Model overview}
 
-Prior data-driven models (e.g. \cite{urquhartGeospatialInterpolationMODISderived2013, vogelAssessingSatelliteSea2016}) of Bay water properties used Generalized Linear Models (GLM), Neural Networks (NN), Generalized Additive Models (GAMs), and Random Forests (RF). We chose to use the Random Forest algorithm in part because \cite{urquhartGeospatialInterpolationMODISderived2013} found that it produced nearly equivalent results to more complex methods (particularly NN) and also because of its ease of implementation and interpretation. We fit RF models using the scikit-learn Python package \cite{pedregosaScikitlearnMachineLearning2011} where each model was initialized with 250 trees, had a maximum depth of 20 tree “layers”, and was subjected to recursive feature elimination to produce the most parsimonious model (Figure 1). We subsequently “tuned” each model using k-fold cross validation to optimize the size, depth, and splitting criteria of each tree. We evaluated the “importance” of particular variables as the average impurity decrease of tree splits based on that variable \cite{pedregosaScikitlearnMachineLearning2011}.
+Prior data-driven models (e.g. \cite{urquhartGeospatialInterpolationMODISderived2013, vogelAssessingSatelliteSea2016}) of Bay water properties used Generalized Linear Models (GLM), Neural Networks (NN), Generalized Additive Models (GAMs), and Random Forests (RF). We chose to use the Random Forest algorithm in part because \cite{urquhartGeospatialInterpolationMODISderived2013} found that it produced nearly equivalent results to more complex methods (particularly NN) and also because of its ease of implementation and interpretation. We fit RF models using the scikit-learn Python package \cite{pedregosaScikitlearnMachineLearning2011} where each model was initialized with 250 trees, had a maximum depth of 20 tree “layers”, and was subjected to recursive feature elimination to produce the most parsimonious model (Figure 1). \hl{We chose initial forest size and maximum depth values to optimize model performance and model training time respectively.} We subsequently “tuned” each model using k-fold cross validation to optimize the size, depth, and splitting criteria of each tree. We evaluated the “importance” of particular variables as the average impurity decrease of tree splits based on that variable \cite{pedregosaScikitlearnMachineLearning2011}.
 
 \subsection{Data description}
 
@@ -60,7 +60,7 @@ We compiled over two decades of observational data (2000-2021) on salinity (n=6k
 
 Because Chesapeake Bay has a mean optical depth of approximately 0.89m \cite{urquhartRemotelySensedEstimates2012}, we filtered all collected observations to those occurring in the top 1m of the water column. We further limited observations to those that had a timestamp during the MODIS overpass window time-of-day (approximately 1700 - 1900 hours GMT). Prior to model fitting, we removed the annual cycle from temperature observations using least squares optimization routines \cite{virtanenSciPyFundamentalAlgorithms2020a}. This annual cycle was added back to model estimates for evaluation purposes and in the production of prediction surfaces. As a final observational data processing step, we implemented spatial and temporal averaging of observational data to a daily mean within each MODIS pixel. 
 
-We supplemented observational data with a grid of “freshwater influence” (FWI) estimates where each grid cell represents the average of annual-flow weighted distance of that cell from the 5 major tributaries (Susquehanna, James, Pautexent, Choptank, and Potomac). Annual flow magnitudes were calculated from National Water Information System instantaneous data (sites: 01488110, 01491000, 01576000, 01654000, 01594440, 02037500, \cite{nwis2021usgs}). Rather than straight-line distances we used “in-water” distances calculated using the scikit-image Python package \cite{littleKrigingEstuariesCrow1997,vanderwaltScikitimageImageProcessing2014}. Our in-water distance calculations involved creating a cost–surface whereby land pixels had a very high cost relative to water pixels. Then the distance from any one cell to a tributary source was the accumulated travel “cost” as given by the scikit-image \texttt{route\_through\_array} function. We combined FWI estimates with the pixel-wise daily mean observations and regressed them in RF models against data from the 500m resolution MODIS Aqua product, which provides 8 bands of values for each pixel spanning from 405 to 877nm wavelength \cite{vermoteericMOD09GAMODISTerra2015}.
+We supplemented observational data with a grid of “freshwater influence” (FWI) estimates where each grid cell represents the average of annual-flow weighted distance of that cell from the 5 major tributaries (Susquehanna, James, Pautexent, Choptank, and Potomac). Annual flow magnitudes were calculated from National Water Information System instantaneous data (sites: 01488110, 01491000, 01576000, 01654000, 01594440, 02037500, \cite{nwis2021usgs}). Rather than straight-line distances we used “in-water” distances calculated using the scikit-image Python package \cite{littleKrigingEstuariesCrow1997,vanderwaltScikitimageImageProcessing2014}. Our in-water distance calculations involved creating a cost–surface whereby land pixels had a very high cost relative to water pixels. Then the distance from any one cell to a tributary source was the accumulated travel “cost” as given by the scikit-image \texttt{route\_through\_array} function. We combined FWI estimates with the pixel-wise daily mean observations and regressed them in RF models against data from the \hl{1000m} resolution MODIS Aqua product, which provides \hl{9} bands of values for each pixel spanning from \hl{the following wavelength ranges (405-420, 438-448, 483-493, 526-536, 546-556, 662-672, 673-683, 743-753, and 862-877nm)} \cite{vermoteericMOD09GAMODISTerra2015}.
 
 All code for data processing, model fitting, and model evaluation is available at Stachelek et al. (2023) the pipeline for which is shown in Figure 1. All data used in the study are available in Stachelek et al. (2023).
 
@@ -99,7 +99,7 @@ The date of observation was the most important feature identified in RF training
 \begin{figure}[ht!]
     \begin{center}
           \includegraphics[width=0.8\textwidth,keepaspectratio]{figures/_importance_all}
-          \caption{Random Forest importance plot for salinity, temperature, and turbidity models.}
+          \caption{Random Forest importance plot for salinity, temperature, and turbidity models. Note that all features may not be present in all models if they were dropped as a result of recursive feature elimination.}
     \end{center}    
 \end{figure}
 
@@ -168,7 +168,7 @@ J.S. built models, analyzed data, and wrote the paper. S.A. designed the initial
 \begin{description}
     \item \textbf{Jemma Stachelek} is a Limnologist and Aquatic Earth Scientist (PhD, Msc, BSc) in the Division of Earth and Environmental Sciences at Los Alamos National Laboratory. Her research focuses on the applications of spatially intensive geocomputation to water and food security problems particularly those related to eutrophication and nutrient pollution.
     \item \textbf{Sofia Avendaño} is awesome.
-    \item \textbf{Jon Schwenk} so is Jon.
+    \item \textbf{Jon Schwenk} is a River and Data Scientist (PhD) in the Division of Earth and Environmental Sciences at Los Alamos National Laboratory. One of his primary research themes is the use of the unprecedented wealth of water related data to drive models that address pressing water security issues.    
 \end{description}
 
 \clearpage
@@ -178,7 +178,7 @@ J.S. built models, analyzed data, and wrote the paper. S.A. designed the initial
 \begin{description}
     \item Figure 1: Diagram of the data processing, model fitting, tuning, and prediction pipeline.
     \item Figure 2: Out of sample test set performance for salinity, turbidity, and temperature models respectively. Hatching indicates the location of 80\% of the data points.
-    \item Figure 3: Random Forest importance plot for salinity, temperature, and turbidity models.
+    \item Figure 3: Random Forest importance plot for salinity, temperature, and turbidity models. \hl{Note that all features may not be present in all models if they were dropped as a result of recursive feature elimination.}
     \item Figure 4: Seasonal Random Forest prediction results for temperature and salinity.
     \item Figure 5: Comparison between Random Forest salinity prediction results and a CBOFS snapshot for Sept, 4, 2022.
 \end{description}
