@@ -3,6 +3,8 @@
 variables := sss sst turbidity
 variables_str := salinity temperature turbidity
 
+all: manuscript/combined.pdf
+
 test:
 	@echo $(variables_parsed)
 
@@ -218,7 +220,8 @@ figures/_seasonality.pdf: figures/maps.py \
 figures/_annual-cycle.pdf: figures/timeseries.py
 	python $<
 
-figures/_validation.pdf: figures/validation.py data_rf_random
+# data_rf_random
+figures/_validation.pdf: figures/validation.py 
 	python $<
 	pdfcrop $@ $@
 
@@ -308,8 +311,6 @@ archive.zip:
 	git archive --format zip --output archive.zip main
 
 # ---
-
-all: manuscript/combined.pdf
 
 clean:
 	-@rm core.*
