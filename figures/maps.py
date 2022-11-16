@@ -9,6 +9,7 @@ import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 import h3pandas  # h3.geo_to_h3_aggregate
+from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 
 sys.path.append(".")
 from src import utils
@@ -23,26 +24,41 @@ def panel_add(i,
               vmax=27,
               vmin=0,
               ticks=None,
-              height_frac=0.5):
+              height_frac=0.5,
+              lon_ticks=[],
+              lat_ticks=[],
+              shrink=0.45):
     if j is not None:
         ax = plt.subplot(axs[i, j], xlabel="", projection=ccrs.PlateCarree())
         ax.coastlines(resolution="10m", color="black", linewidth=1)
     else:
         ax = axs[i]
         ax.coastlines(resolution="10m", color="black", linewidth=1)
+
+    if len(lon_ticks) > 0 and len(lat_ticks) > 0:
+        ax.set_xticks(lon_ticks, crs=ccrs.PlateCarree())
+        ax.set_yticks(lat_ticks, crs=ccrs.PlateCarree())
+        ax.set_xticklabels([])
+        ax.set_yticklabels([])
+        lon_formatter = LongitudeFormatter(zero_direction_label=True)
+        lat_formatter = LatitudeFormatter()
+        ax.xaxis.set_major_formatter(lon_formatter)
+        ax.yaxis.set_major_formatter(lat_formatter)
+
     if diff:
         geo_grid.plot.imshow(ax=ax,
                              center=0,
                              cbar_kwargs={
-                                 "shrink": 0.5,
+                                 "shrink": shrink,
                                  'label': ''
                              })
     else:
         geo_grid.plot.imshow(ax=ax,
                              vmin=vmin,
                              vmax=vmax,
+                             add_labels=False,
                              cbar_kwargs={
-                                 "shrink": 0.5,
+                                 "shrink": shrink,
                                  'label': '',
                                  'ticks': ticks,
                              })  # , vmax=np.nanmax(img_cbofs.to_numpy()))
@@ -161,9 +177,7 @@ fig, axs = plt.subplots(
         "xlabel": ""
     },
 )
-
-# st = fig.suptitle("Number of days for each month meeting the criteria in 2017", fontsize="large")
-panel_add(0, axs, "RF Results", img_rf, height_frac=0.65)
+panel_add(0, axs, "RF Results", img_rf, height_frac=0.65, lat_ticks=[37, 38, 39], lon_ticks=[-77, -76, -75])
 panel_add(1, axs, "CBOFS Snapshot", img_cbofs)
 panel_add(2, axs, "RF-CBOFS", test, diff=True, height_frac=0.7)
 
