@@ -127,6 +127,13 @@ plt.close()
 r2 = []
 fig, axes = plt.subplots(figsize=(8, 4.5), ncols=3)
 r2.append(_plot(axes[0], res[0], "salinity", -0.5, 32, ylab=True, text_space=2.5)[1])
+r2.append(_plot(axes[1],
+      res[1],
+      "temperature",
+      xy_min=-2,
+      xy_max=35,
+      text_anchor=(3, 30),
+      text_space=2.5)[1])
 r2.append(_plot(axes[2],
       res[2],
       "turbidity",
@@ -136,13 +143,6 @@ r2.append(_plot(axes[2],
       text_anchor=(37, 10),
       text_space=5,
       log=True)[1])
-r2.append(_plot(axes[1],
-      res[1],
-      "temperature",
-      xy_min=-2,
-      xy_max=35,
-      text_anchor=(3, 30),
-      text_space=2.5)[1])
 # plt.show()
 
 r2_df = pd.DataFrame(r2, columns=["r2"])
