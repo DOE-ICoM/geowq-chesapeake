@@ -10,17 +10,17 @@
 
 ### Setup
 
+#### Software
+
 ```shell
-# software
 conda env create -f environment.yml
 ```
 
-<!-- ```shell
-# observtional data
-createdb -U postgres icom
-set PGPASSWORD=password psql -U postgres -d icom -c 'CREATE EXTENSION postgis;'
-python scripts/00_load_all_data.py
-``` -->
+#### Data
+
+* Locate the observational data file `all_data.csv` (download from figshare if necessary)
+
+* Sync its path with the location defined in `data/params.csv`
 
 ### Usage
 
