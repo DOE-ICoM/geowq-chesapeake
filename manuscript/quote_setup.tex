@@ -1,0 +1,12 @@
+% https://tex.stackexchange.com/a/180400/52459
+\usepackage{framed}
+\usepackage{tcolorbox}
+\let\oldquote=\quote
+\let\endoldquote=\endquote
+
+% \renewenvironment{quote}{%
+% \begin{tcolorbox}\begin{oldquote}}{\end{oldquote}\end{tcolorbox}}
+
+\renewenvironment{quote}{%
+  \begin{tcolorbox}\list{}{\leftmargin=0in\rightmargin=0in}\item[]}%
+  {\endlist\end{tcolorbox}}

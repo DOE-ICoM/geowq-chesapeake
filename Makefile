@@ -307,6 +307,9 @@ manuscript/combined.pdf: manuscript/manuscript.pdf manuscript/supplement.pdf
 manuscript/eidr.pdf: manuscript/eidr.md
 	pandoc -o $@ $< -V geometry:margin=1in
 
+manuscript/reviewer_comments.pdf: manuscript/reviewer_comments.md
+	pandoc $< -H manuscript/quote_setup.tex -o $@ 
+
 archive.zip:
 	git archive --format zip --output archive.zip main
 

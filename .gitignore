@@ -42,4 +42,5 @@ manuscript/*.docx
 manuscript/*.bib
 manuscript/*.bbl
 manuscript/*.blg
-manuscript/eidr.md
+manuscript/*.md
+manuscript/*.txt
