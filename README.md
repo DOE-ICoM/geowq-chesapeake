@@ -2,6 +2,10 @@
 
 [![Paper DOI](https://img.shields.io/badge/Paper-XXXX/XXXX-blue.svg)](https://doi.org) [![Code DOI](https://img.shields.io/badge/Code-10.5281/zenodo.7332558-blue.svg)](https://doi.org/10.5281/zenodo.7332558) [![Data DOI](https://img.shields.io/badge/Data-10.6084/m9.figshare.21578898-blue.svg)](https://doi.org/10.6084/m9.figshare.21578898)
 
+Code for the publication:
+
+> Stachelek, J., Avendaño, S., Schwenk, J., Geographically aware estimates of remotely sensed water properties for Chesapeake Bay.
+
 ### Products
 
 * ****[Supplementary figures and tables](https://github.com/DOE-ICoM/geowq/blob/master/manuscript/supplement.pdf)****
@@ -27,7 +31,7 @@ conda env create -f environment.yml
 #### Generate training data
 
 ```shell
-# executes scripts/00_get_data.py
+# the following chunk executes scripts/00_get_data.py
 make data_aggregated_gee_csv
 # manually upload aggregated_gee.csv to GEE
 # manually download results to data/unique_pixeldays_w_bandvals.csv
