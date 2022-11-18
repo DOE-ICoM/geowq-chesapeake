@@ -65,12 +65,12 @@ We supplemented observational data with a grid of “freshwater influence” (FW
 
 All code for data processing, model fitting, and model evaluation is available at Stachelek et al. (2023a) the pipeline for which is shown in Figure 1. All data used in the study are available in \cite{stachelekjemmachesapeake}.
 
-\begin{figure}[ht!]
-    \begin{center}
-          \includegraphics[width=0.75\textwidth,keepaspectratio]{figures/data-processing_model-architecture}
-          \caption{Diagram of the data processing, model fitting, tuning, and prediction pipeline.}
-    \end{center}    
-\end{figure}
+% \begin{figure}[ht!]
+%     \begin{center}
+%           \includegraphics[width=0.75\textwidth,keepaspectratio]{figures/data-processing_model-architecture}
+%           \caption{Diagram of the data processing, model fitting, tuning, and prediction pipeline.}
+%     \end{center}    
+% \end{figure}
 
 
 \subsection{Model validation}
@@ -88,39 +88,39 @@ Our tuned RF models for salinity, temperature, and turbidity had a root mean squ
     \end{center}    
 \end{figure}
 
-\begin{figure}[ht!]
-    \begin{center}
-          \includegraphics[width=0.75\textwidth,keepaspectratio]{figures/_validation}
-          \caption{Out of sample test set performance for salinity, turbidity, and temperature models respectively. Hatching indicates the location of 80\% of the data points.}
-    \end{center}    
-\end{figure}
+% \begin{figure}[ht!]
+%     \begin{center}
+%           \includegraphics[width=0.75\textwidth,keepaspectratio]{figures/_validation}
+%           \caption{Out of sample test set performance for salinity, turbidity, and temperature models respectively. Hatching indicates the location of 80\% of the data points.}
+%     \end{center}
+% \end{figure}
 
 The date of observation was the most important feature identified in RF training for the temperature and turbidity models while location of observation was most important in the salinity model (Figure 3). Across all models, the most important MODIS band was band 8, which is the shortest wavelength band of the MODIS Aqua product at the extreme of the visible light range. The “size” (i.e. n\_estimators) of the final RF models were of a similar magnitude for each variable but the tree was much “deeper” (i.e. max\_depth) for temperature compared to the other variables (Table S3).
 
-\begin{figure}[ht!]
-    \begin{center}
-          \includegraphics[width=0.8\textwidth,keepaspectratio]{figures/_importance_all}
-          \caption{Random Forest importance plot for salinity, temperature, and turbidity models. Note that all features may not be present in all models if they were dropped as a result of recursive feature elimination.}
-    \end{center}    
-\end{figure}
+% \begin{figure}[ht!]
+%     \begin{center}
+%           \includegraphics[width=0.8\textwidth,keepaspectratio]{figures/_importance_all}
+%           \caption{Random Forest importance plot for salinity, temperature, and turbidity models. Note that all features may not be present in all models if they were dropped as a result of recursive feature elimination.}
+%     \end{center}    
+% \end{figure}
 
 Running the models in prediction mode produced surfaces with a realistic spatial trend whereby salinity was highest near the Bay mouth and decreased with distance from each tributary mouth (Figure 4). A realistic spatial trend can also be seen in the RF temperature predictions whereby maximum water temperatures were located in the upper tributaries while minimum water temperatures were highest at the Bay mouth (Figure 4).
 
-\begin{figure}[ht!]
-    \begin{center}
-          \includegraphics[width=0.7\textwidth,keepaspectratio]{figures/_seasonality}
-          \caption{Seasonal Random Forest prediction results for temperature and salinity.}
-    \end{center}    
-\end{figure}
+% \begin{figure}[ht!]
+%     \begin{center}
+%           \includegraphics[width=0.7\textwidth,keepaspectratio]{figures/_seasonality}
+%           \caption{Seasonal Random Forest prediction results for temperature and salinity.}
+%     \end{center}    
+% \end{figure}
 
 RF model predictions for salinity were generally lower than corresponding values from the CBOFS in the mainstem of the Bay and higher than corresponding CBOFS values in the tributaries (Figure 5). CBOFS surface water salinity estimates are known to be saltier than observations \cite{lanerolle2011second, vogelAssessingSatelliteSea2016} partly explaining our saltier data-driven results. The salinity model was able to reproduce realistic temporal dynamics whereby the Bay is generally “fresher” in the Spring season (April-June) and “saltier” in Fall and Winter seasons (Figure 4).
 
-\begin{figure}[ht!]
-    \begin{center}
-          \includegraphics[width=0.75\textwidth,keepaspectratio]{figures/_rf-vs-cbofs}
-          \caption{Comparison between Random Forest salinity prediction results and a CBOFS snapshot for Sept, 4, 2022.}
-    \end{center}    
-\end{figure}
+% \begin{figure}[ht!]
+%     \begin{center}
+%           \includegraphics[width=0.75\textwidth,keepaspectratio]{figures/_rf-vs-cbofs}
+%           \caption{Comparison between Random Forest salinity prediction results and a CBOFS snapshot for Sept, 4, 2022.}
+%     \end{center}    
+% \end{figure}
 
 \section{Discussion}
 
