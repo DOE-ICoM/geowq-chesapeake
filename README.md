@@ -8,7 +8,9 @@ Code for the publication:
 
 ### Products
 
-* ****[Supplementary figures and tables](https://github.com/DOE-ICoM/geowq/blob/master/manuscript/supplement.pdf)****
+* ****[Accepted manuscript](https://github.com/DOE-ICoM/geowq-chesapeake/blob/master/manuscript/manuscript.pdf)****
+
+* ****[Supplementary figures and tables](https://github.com/DOE-ICoM/geowq-chesapeake/blob/master/manuscript/supplement.pdf)****
 
 <!-- * [Google Earth Engine App](https://jstacompute.users.earthengine.app/view/geowq) -->
 
