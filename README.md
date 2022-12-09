@@ -4,7 +4,7 @@
 
 Code for the publication:
 
-> Stachelek, J., Avendaño, S., Schwenk, J., Geographically aware estimates of remotely sensed water properties for Chesapeake Bay.
+> **Stachelek, J.**, Avendaño, S., Schwenk, J., *Accepted* Geographically aware estimates of remotely sensed water properties for Chesapeake Bay. *Journal of Applied Remote Sensing*
 
 ### Products
 
