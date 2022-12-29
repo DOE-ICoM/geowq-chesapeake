@@ -1,10 +1,10 @@
 ## Geographically aware estimates of remotely sensed water properties for Chesapeake Bay
 
-[![Paper DOI](https://img.shields.io/badge/Paper-XXXX/XXXX-blue.svg)](https://doi.org) [![Code DOI](https://img.shields.io/badge/Code-10.5281/zenodo.7332558-blue.svg)](https://doi.org/10.5281/zenodo.7332558) [![Data DOI](https://img.shields.io/badge/Data-10.6084/m9.figshare.21578898-blue.svg)](https://doi.org/10.6084/m9.figshare.21578898)
+[![Paper DOI](https://img.shields.io/badge/Paper-10.1117/1.JRS.16.044528-blue.svg)](https://doi.org/10.1117/1.JRS.16.044528) [![Code DOI](https://img.shields.io/badge/Code-10.5281/zenodo.7332558-blue.svg)](https://doi.org/10.5281/zenodo.7332558) [![Data DOI](https://img.shields.io/badge/Data-10.6084/m9.figshare.21578898-blue.svg)](https://doi.org/10.6084/m9.figshare.21578898)
 
 Code for the publication:
 
-> **Stachelek, J.**, Avendaño, S., Schwenk, J., *Accepted* Geographically aware estimates of remotely sensed water properties for Chesapeake Bay. *Journal of Applied Remote Sensing*
+> **Stachelek, J.**, Avendaño, S., Schwenk, J., 2022. Geographically aware estimates of remotely sensed water properties for Chesapeake Bay. *Journal of Applied Remote Sensing*. https://doi.org/10.1117/1.JRS.16.044528
 
 ### Products
 
