@@ -32,12 +32,6 @@ test = xr.concat(xr_list, dim="time")
 
 variable = test.band_data.sel(time=slice('2021', '2022'))
 
-fig = plt.figure()
-ax = plt.axes(projection=ccrs.PlateCarree())
-image = variable.isel(time=0).squeeze().plot.imshow(
-    ax=ax, transform=ccrs.PlateCarree(), animated=True)
-
-
 def update(t):
     # t = variable.time.values[0]
     print(t)
@@ -45,14 +39,24 @@ def update(t):
     image.set_array(variable.sel(time=t).squeeze())
     return image,
 
+fig = plt.figure(figsize=plt.figaspect(1.22))
+fig.subplots_adjust(0.1,0,1,1)
+ax = plt.axes(projection=ccrs.PlateCarree())
+image = variable.isel(time=0).squeeze().plot.imshow(
+    ax=ax, transform=ccrs.PlateCarree(), animated=True)
 
 animation = anim.FuncAnimation(fig,
                                update,
-                               interval=700,
+                               interval=400,
                                frames=variable.time.values,
                                blit=False)
-# animation.save("test.gif")
-plt.show()
+
+plt.box(False)
+ax.annotate('Salinity', xy = (0, 0), xycoords='figure fraction',
+            xytext=(0.04, 0.97), textcoords='figure fraction', fontsize=14
+            )
+animation.save("cbofs.gif")
+# plt.show()
 
 # --- simple plotting
 test = read_xr("2018-01-01")
@@ -63,4 +67,4 @@ ax = plt.axes(projection=ccrs.PlateCarree())
 image = da.squeeze().plot.imshow(ax=ax,
                                  transform=ccrs.PlateCarree(),
                                  animated=True)
-plt.show()
+plt.show(block=False)
