@@ -30,7 +30,7 @@ dates = [f_to_date(f) for f in flist]
 xr_list = [read_xr(date) for date in dates]
 test = xr.concat(xr_list, dim="time")
 
-variable = test.band_data.sel(time=slice('2021', '2022'))
+variable = test.band_data.sel(time=slice('2021', '2023'))
 
 def update(t):
     # t = variable.time.values[0]
