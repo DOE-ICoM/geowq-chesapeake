@@ -10,6 +10,7 @@ ee.Initialize()
 
 
 def get_modis(date):
+    # date = "2022-09-04"
     filename = "modis-" + date.replace("-", "_")
     gdrive_folder = 'ICOM exports'
     asset = "users/jstacompute/icom_pixelcenters_4326"
