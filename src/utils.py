@@ -96,9 +96,9 @@ def modisaqua_path(date, band="sur_refl_b08"):
     return "data/MODIS-Aqua/{date}_{band}.tif".format(date=date, band=band)
 
 
-def get_rf_prediction(date, variable):
-    # date = "2021-12-04"
-    # variable = "temperature"
+def get_rf_prediction(date, variable, smoothing=False):
+    # date = "2012-08-01"
+    # variable = "salinity"
 
     bay_gdf_hires = gpd.read_file("data/Boundaries/chk_water_only.shp").to_crs(
         epsg=4326)
@@ -113,6 +113,8 @@ def get_rf_prediction(date, variable):
 
     img_rf = xr.open_dataset(path_downsample,
                              engine="rasterio")
+    if smoothing:
+        img_rf = img_rf.rolling(x=8, y=8, min_periods=2).mean()
     img_rf = img_rf.rio.clip(bay_gdf_hires.geometry)
     img_rf = img_rf["band_data"].sel(band=1)
     img_rf.rio.to_raster(path_downsample_clip)
