@@ -7,10 +7,16 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
+
+def get_year(x):
+    return int(x.split("\\")[1][0:4])
+
+
 flist = glob.glob("data/prediction/*.tif")
 flist = list(
     itertools.compress(
-        flist, [not strng.__contains__("downsample") for strng in flist]))
+        flist, [strng.__contains__("downsample_clip") for strng in flist]))
+flist = list(itertools.compress(flist, [get_year(f) > 2020 for f in flist]))
 flist = list(
     itertools.compress(flist,
                        [not strng.__contains__("2018") for strng in flist]))
@@ -18,7 +24,10 @@ flist = list(
     itertools.compress(flist,
                        [strng.__contains__("salinity") for strng in flist]))
 
-dates = [x.split("\\")[1].replace(".tif", "").replace("_salinity", "") for x in flist]
+dates = [
+    x.split("\\")[1].replace(".tif", "").replace("_salinity_downsample_clip", "")
+    for x in flist
+]
 
 pixel_centers_all = gpd.read_file("data/pixel_centers_4326.shp").rename(
     columns={"pix_idx": "pix_id"})
@@ -44,12 +53,14 @@ x_dates = res['date'].dt.strftime('%m').sort_values().unique()
 
 months = mdates.MonthLocator()
 months_fmt = mdates.DateFormatter('%b')
+
 fig, ax = plt.subplots(figsize=(12, 6))
-fig = sns.lineplot(x="date", y="salt", data=res)
+fig_sns = sns.lineplot(x="date", y="salt", data=res)
 ax.xaxis.set_major_locator(months)
 ax.xaxis.set_major_formatter(months_fmt)
 plt.xlabel("")
 plt.ylabel("Salinity")
-
+fig.set_size_inches(4, 4)
+plt.rcParams.update({'font.size': 33})
 # plt.show()
 plt.savefig("figures/_annual-cycle.pdf")
