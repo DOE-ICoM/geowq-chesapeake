@@ -3,6 +3,7 @@ import xarray as xr
 import geopandas as gpd
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 
 sys.path.append(".")
@@ -21,6 +22,7 @@ def panel_add(
     lat_ticks=[],
     vector=False,
     bounds=None,
+    missing_blocks=False
 ):
     if j is not None:
         ax = plt.subplot(axs[i, j], xlabel="", projection=ccrs.PlateCarree())
@@ -48,9 +50,23 @@ def panel_add(
                 add_labels=False,
                 add_colorbar=False,
             )
+        # breakpoint()
+        # bounds
+        if missing_blocks:
+            rect = patches.Rectangle(
+                (-76.196, 37.645), 0.1, 0.1, linewidth=1, edgecolor="gray", facecolor="white"
+            )
+            ax.add_patch(rect)
+            rect = patches.Rectangle(
+                (-76.124, 37.307), 0.1, 0.1, linewidth=1, edgecolor="gray", facecolor="white"
+            )
+            ax.add_patch(rect)
+
     if vector:
         geo_grid = geo_grid.to_crs(ccrs.PlateCarree())
-        geo_grid.sample(4000).plot(column="predict", ax=ax, markersize=0.1, legend=False)
+        geo_grid.sample(5000).plot(
+            column="predict", ax=ax, markersize=0.1, legend=False
+        )
 
     if bounds is not None:
         # minx, miny, maxx, maxy
@@ -92,23 +108,37 @@ panel_add(
     axs,
     "Diffuse missing",
     pnts_raw,
-    height_frac=0.65,
+    height_frac=0,
     lat_ticks=[37, 37.5],
     lon_ticks=[-76.5, -76, -75.5],
     vector=True,
     bounds=bounds,
 )
+axs[0].tick_params(colors="white")
 
+
+# panel_add(
+#     1,
+#     axs,
+#     "NN-interpolation",
+#     img_rf,
+#     height_frac=0.6,
+#     lat_ticks=[37, 38, 39],
+#     lon_ticks=[-77, -76, -75],
+#     bounds=bounds,
+# )
+# axs[1].tick_params(colors="white")
 
 panel_add(
     1,
     axs,
-    "NN-interpolation",
-    img_rf,
-    height_frac=0.6,
+    "Block missing",
+    img_cbofs,
+    height_frac=0,
     lat_ticks=[37, 38, 39],
     lon_ticks=[-77, -76, -75],
-    bounds=bounds
+    bounds=bounds,
+    missing_blocks=True
 )
 axs[1].tick_params(colors="white")
 
@@ -117,10 +147,10 @@ panel_add(
     axs,
     "Target",
     img_cbofs,
-    height_frac=0.8,
+    height_frac=0,
     lat_ticks=[37, 38, 39],
     lon_ticks=[-77, -76, -75],
-    bounds=bounds
+    bounds=bounds,
 )
 axs[2].tick_params(colors="white")
 
