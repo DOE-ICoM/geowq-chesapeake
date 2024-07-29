@@ -219,7 +219,7 @@ panel_add(
     lat_ticks=[37, 38, 39],
     lon_ticks=[-77, -76, -75],
     bounds=bounds,
-    vmin=-50,
+    vmin=-150,
     title_on=False,
 )
 axs[0].tick_params(colors="white")
