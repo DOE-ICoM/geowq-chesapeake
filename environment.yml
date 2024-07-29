@@ -17,6 +17,7 @@ dependencies:
         - geocube
         - scikit-image
         - scikit-learn<=1.1.2
+        - tabulate
         #
         # - scikit-learn
         # - tabulate
