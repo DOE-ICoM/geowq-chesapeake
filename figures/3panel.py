@@ -1,9 +1,12 @@
 import sys
+import shapely
+import numpy as np
 import xarray as xr
 import geopandas as gpd
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+from scipy.interpolate import NearestNDInterpolator
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 
 sys.path.append(".")
@@ -21,9 +24,10 @@ def panel_add(
     lon_ticks=[],
     lat_ticks=[],
     vector=False,
+    vmin=0,
     bounds=None,
     missing_blocks=False,
-    title_on=True,
+    title_on=False,
 ):
     if j is not None:
         ax = plt.subplot(axs[i, j], xlabel="", projection=ccrs.PlateCarree())
@@ -47,13 +51,13 @@ def panel_add(
             geo_grid.plot.imshow(ax=ax, center=0)
         else:
             geo_grid.plot.imshow(
-                vmin=0,
+                vmin=vmin,
                 vmax=27,
                 ax=ax,
                 add_labels=False,
                 add_colorbar=False,
             )
-        # breakpoint()
+
         # bounds
         if missing_blocks:
             # rect = patches.Rectangle(
@@ -77,7 +81,7 @@ def panel_add(
             ax=ax,
             markersize=0.1,
             legend=False,
-            vmin=-10,
+            vmin=-30,
             vmax=27,
         )
         # rect = patches.Rectangle(
@@ -112,6 +116,27 @@ img_cbofs = img_cbofs.rio.clip(bay_gdf_hires.geometry)
 img_cbofs = img_cbofs["band_data"].sel(band=1)
 # img_cbofs.plot.imshow()
 # plt.show()
+
+# block NN fill for cbofs
+# minx, miny, maxx, maxy
+bounds = (-76.124, 37.307, -76.024, 37.407)
+img_cbofs_inset = img_cbofs.rio.clip_box(*bounds)
+buffer = 0.005
+minx = bounds[0] + buffer
+miny = bounds[1] + buffer
+maxx = bounds[2] - buffer
+maxy = bounds[3] - buffer
+bounds_buffer = (minx, miny, maxx, maxy)
+#
+box_buffer = shapely.box(*bounds_buffer)
+img_cbofs_inset_cropped = img_cbofs_inset.rio.clip([box_buffer], invert=True)
+#
+test = img_cbofs_inset_cropped.stack().values
+mask = np.where(~np.isnan(test))
+interp = NearestNDInterpolator(np.transpose(mask), test[mask])
+filled_data = interp(*np.indices(test.shape))
+img_cbofs_inset_cropped.values = filled_data
+
 
 img_rf = utils.get_rf_prediction("2022-09-04", "salinity")
 
@@ -174,10 +199,7 @@ plt.savefig("test.pdf")
 # plt.savefig("figures/_rf-vs-cbofs.pdf")
 
 # --- insets
-
-
 # minx, miny, maxx, maxy
-# trying adding 0.1
 bounds = (-76.124, 37.307, -76.024, 37.407)
 
 plt.close()
@@ -197,16 +219,16 @@ panel_add(
     lat_ticks=[37, 38, 39],
     lon_ticks=[-77, -76, -75],
     bounds=bounds,
+    vmin=-50,
     title_on=False,
 )
 axs[0].tick_params(colors="white")
 
-# TODO: block NN fill for the middle panel
 panel_add(
     1,
     axs,
     "NN-interpolation",
-    img_rf,
+    img_cbofs_inset_cropped,
     height_frac=0.6,
     lat_ticks=[37, 38, 39],
     lon_ticks=[-77, -76, -75],
